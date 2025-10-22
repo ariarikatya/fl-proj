@@ -1,0 +1,15 @@
+index_generator:
+  exclude:
+    - "**.g.dart"
+    - "**.freezed.dart"
+  # Define the paths of the folders in which to generate the index files
+  libraries:
+    # - directory_path: lib/src/features/auth
+    # - directory_path: lib/src/features/pagination
+    - directory_path: lib
+      include:
+        # You can define specific export folders paths
+        - "src/**"
+    # - directory_path: lib/src/widgets
+    #   include:
+    #     - "*.dart"

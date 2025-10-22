@@ -1,0 +1,19 @@
+name: calendar_view
+description: (Copied) A Flutter package allows you to easily implement all calendar UI and calendar event functionality.
+version: 1.4.0
+
+environment:
+  sdk: ^3.8.1
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  lints:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

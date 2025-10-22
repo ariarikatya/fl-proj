@@ -1,0 +1,13 @@
+name: polka_monorepo
+description: "Polka Project monorepo."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.1
+
+workspace:
+  - apps/polka_clients
+  - apps/polka_masters
+  - packages/shared
+  - packages/calendar_view

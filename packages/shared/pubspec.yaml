@@ -1,0 +1,65 @@
+name: shared
+description: "Shared functionality for Polka apps"
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.1
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+    
+  flutter_svg: ^2.2.1
+  mask_text_input_formatter: ^2.9.0
+  pinput: ^5.0.2
+  freezed_annotation: ^3.1.0
+  talker: ^5.0.0
+  talker_dio_logger: ^5.0.0
+  dio: ^5.9.0
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.7
+  talker_flutter: ^5.0.0
+  intl: ^0.20.2
+  email_validator: ^3.0.0
+  collection: ^1.19.1
+  image_picker: ^1.2.0
+  web_socket_channel: ^3.0.3
+  dotted_border: ^3.1.0
+  calendar_date_picker2: ^2.0.1
+  infinite_scroll_pagination: ^5.1.1
+  flutter_secure_storage: ^9.2.4
+  flutter_udid: ^4.0.0
+  dio_smart_retry: ^7.0.1
+  cached_network_image: ^3.4.1
+  easy_image_viewer: ^1.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  freezed: ^3.2.3
+  build_runner: ^2.8.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/images/
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: lib/fonts/Manrope-ExtraLight.ttf
+          weight: 200
+        - asset: lib/fonts/Manrope-Light.ttf
+          weight: 300
+        - asset: lib/fonts/Manrope-Regular.ttf
+          weight: 400
+        - asset: lib/fonts/Manrope-Medium.ttf
+          weight: 500
+        - asset: lib/fonts/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: lib/fonts/Manrope-Bold.ttf
+          weight: 700
+        - asset: lib/fonts/Manrope-ExtraBold.ttf
+          weight: 800
