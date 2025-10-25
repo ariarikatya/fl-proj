@@ -1,0 +1,93 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "fl-proj",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "polka_clients",
+            "cwd": "apps/polka_clients",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "polka_clients (profile mode)",
+            "cwd": "apps/polka_clients",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "polka_clients (release mode)",
+            "cwd": "apps/polka_clients",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "polka_masters",
+            "cwd": "apps/polka_masters",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "polka_masters (profile mode)",
+            "cwd": "apps/polka_masters",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "polka_masters (release mode)",
+            "cwd": "apps/polka_masters",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "calendar_view",
+            "cwd": "packages/calendar_view",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "calendar_view (profile mode)",
+            "cwd": "packages/calendar_view",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "calendar_view (release mode)",
+            "cwd": "packages/calendar_view",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "shared",
+            "cwd": "packages/shared",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "shared (profile mode)",
+            "cwd": "packages/shared",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "shared (release mode)",
+            "cwd": "packages/shared",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

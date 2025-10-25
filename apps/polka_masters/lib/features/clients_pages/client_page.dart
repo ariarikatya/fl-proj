@@ -17,29 +17,31 @@ enum ClientStatus {
   final String icon;
 }
 
-ClientStatus _determineClientStatus(List<Booking> visits) {
+ClientStatus _determineClientStatus(List<Booking> visits, bool isBlacklisted) {
+  // Проверяем на черный список в первую очередь
+  if (isBlacklisted) {
+    return ClientStatus.blacklistedClient;
+  }
+
   if (visits.isEmpty) {
     return ClientStatus.newClient;
   }
 
   final now = DateTime.now();
-  final completedVisits = visits.where((v) => v.status == BookingStatus.completed).toList();
-  
+  final completedVisits = visits
+      .where((v) => v.status == BookingStatus.completed)
+      .toList();
+
   if (completedVisits.isEmpty) {
     return ClientStatus.newClient;
   }
 
   // Сортируем по дате посещения (самые новые первыми)
   completedVisits.sort((a, b) => b.date.compareTo(a.date));
-  
+
   final lastVisit = completedVisits.first.date;
   final daysSinceLastVisit = now.difference(lastVisit).inDays;
   final totalVisits = completedVisits.length;
-
-  // Проверяем на черный список (пока нет поля в модели, используем заглушку)
-  // if (client.isBlacklisted) {
-  //   return ClientStatus.blacklistedClient;
-  // }
 
   // Больше 3 посещений и визиты 1 раз в месяц
   if (totalVisits > 3) {
@@ -47,7 +49,8 @@ ClientStatus _determineClientStatus(List<Booking> visits) {
     if (completedVisits.length >= 2) {
       final secondLastVisit = completedVisits[1].date;
       final daysBetweenVisits = lastVisit.difference(secondLastVisit).inDays;
-      if (daysBetweenVisits <= 45) { // примерно раз в месяц с небольшим допуском
+      if (daysBetweenVisits <= 45) {
+        // примерно раз в месяц с небольшим допуском
         return ClientStatus.regularClient;
       }
     }
@@ -135,12 +138,17 @@ class _ClientPageState extends State<ClientPage> {
       appBar: const CustomAppBar(title: 'Твой клиент'),
       backgroundColor: AppColors.backgroundDefault,
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(24, 12, 24, 24),
+        padding: EdgeInsets.fromLTRB(24, 12, 24, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 16,
           children: [
-            _ClientHeader(client: client, visitsCount: visits.length, visits: visits),
+            _ClientHeader(
+              client: client,
+              visitsCount: visits.length,
+              visits: visits,
+              isBlacklisted: client.isBlacklisted,
+            ),
 
             Padding(
               padding: EdgeInsets.only(top: 10),
@@ -293,7 +301,10 @@ class _ClientPageState extends State<ClientPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    AppText('История посещений', style: AppTextStyles.headingSmall),
+                    AppText(
+                      'История посещений',
+                      style: AppTextStyles.headingSmall,
+                    ),
                     if (visits.isNotEmpty)
                       GestureDetector(
                         onTap: () {
@@ -327,6 +338,43 @@ class _ClientPageState extends State<ClientPage> {
                 else
                   ...visits.map((b) => _VisitTile(booking: b)),
               ],
+            ),
+
+            Container(
+              margin: EdgeInsets.only(top: 16),
+              child: client.isBlacklisted
+                  ? AppTextButton.large(
+                      text: 'Разблокировать',
+                      onTap: () {
+                        if (!mounted) return;
+                        _saveClient(() {
+                          client = client.copyWith(
+                            isBlacklisted: () => !client.isBlacklisted,
+                          );
+                        });
+                      },
+                      enabled: true,
+                    )
+                  : Theme(
+                      data: Theme.of(context).copyWith(
+                        textTheme: Theme.of(context).textTheme.apply(
+                          bodyColor: AppColors.error,
+                          displayColor: AppColors.error,
+                        ),
+                      ),
+                      child: AppTextButton.large(
+                        text: 'Добавить в черный список',
+                        onTap: () {
+                          if (!mounted) return;
+                          _saveClient(() {
+                            client = client.copyWith(
+                              isBlacklisted: () => !client.isBlacklisted,
+                            );
+                          });
+                        },
+                        enabled: true,
+                      ),
+                    ),
             ),
           ],
         ),
@@ -425,16 +473,22 @@ class _DateInputFormatter extends TextInputFormatter {
 }
 
 class _ClientHeader extends StatelessWidget {
-  const _ClientHeader({required this.client, required this.visitsCount, required this.visits});
+  const _ClientHeader({
+    required this.client,
+    required this.visitsCount,
+    required this.visits,
+    required this.isBlacklisted,
+  });
 
   final Client client;
   final int visitsCount;
   final List<Booking> visits;
+  final bool isBlacklisted;
 
   @override
   Widget build(BuildContext context) {
-    final clientStatus = _determineClientStatus(visits);
-    
+    final clientStatus = _determineClientStatus(visits, isBlacklisted);
+
     return Container(
       padding: const EdgeInsets.all(24),
       alignment: Alignment.center,
@@ -456,10 +510,7 @@ class _ClientHeader extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               if (clientStatus.icon.isNotEmpty) ...[
-                AppText(
-                  clientStatus.icon,
-                  style: AppTextStyles.bodyLarge,
-                ),
+                AppText(clientStatus.icon, style: AppTextStyles.bodyLarge),
               ],
               AppText(
                 clientStatus.label,
@@ -557,7 +608,7 @@ class _VisitTile extends StatelessWidget {
               spacing: 4,
               children: [
                 AppText(
-                  booking.serviceName, 
+                  booking.serviceName,
                   style: AppTextStyles.bodyLarge,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -664,6 +715,25 @@ class ClientPageMock extends StatelessWidget {
         serviceName: 'Окрашивание',
         masterName: 'Вы',
         price: 2500,
+        status: BookingStatus.completed,
+        date: now.subtract(const Duration(days: 18)),
+        createdAt: now.subtract(const Duration(days: 18)),
+        startTime: const Duration(hours: 14),
+        endTime: const Duration(hours: 16),
+        serviceImageUrl: null,
+        masterAvatarUrl: null,
+        clientNotes: '',
+        masterNotes: '',
+        reviewSent: true,
+      ),
+      Booking(
+        id: 11,
+        clientId: client.id,
+        masterId: 100,
+        serviceId: 51,
+        serviceName: 'Окрашивание+ноготки',
+        masterName: 'Вы',
+        price: 3500,
         status: BookingStatus.completed,
         date: now.subtract(const Duration(days: 18)),
         createdAt: now.subtract(const Duration(days: 18)),

@@ -13,6 +13,7 @@ class Client extends JsonEquatable implements User {
     required this.preferredServices,
     required this.avatarUrl,
     required this.email,
+    this.isBlacklisted = false,
     super.json,
   });
 
@@ -21,10 +22,13 @@ class Client extends JsonEquatable implements User {
     firstName: json['first_name'] as String,
     lastName: json['last_name'] as String,
     city: json['city'] as String,
-    preferredServices: (json['preferred_services'] as List).map((e) => ServiceCategories.fromJson(e)).toList(),
+    preferredServices: (json['preferred_services'] as List)
+        .map((e) => ServiceCategories.fromJson(e))
+        .toList(),
     services: (json['services'] as List).map((e) => e as String).toList(),
     avatarUrl: json['avatar_url'] as String? ?? '',
     email: json['email'] as String?,
+    isBlacklisted: json['is_blacklisted'] as bool? ?? false,
     json: json,
   );
 
@@ -33,6 +37,7 @@ class Client extends JsonEquatable implements User {
   final List<String> services;
   final List<ServiceCategories> preferredServices;
   final String? email;
+  final bool isBlacklisted;
 
   @override
   String get identifier => 'client-$id';
@@ -40,7 +45,17 @@ class Client extends JsonEquatable implements User {
   String get fullName => '$firstName $lastName';
 
   @override
-  List<Object?> get props => [id, firstName, lastName, city, services, preferredServices, avatarUrl, email];
+  List<Object?> get props => [
+    id,
+    firstName,
+    lastName,
+    city,
+    services,
+    preferredServices,
+    avatarUrl,
+    email,
+    isBlacklisted,
+  ];
 
   Client copyWith({
     ValueGetter<int>? id,
@@ -51,15 +66,19 @@ class Client extends JsonEquatable implements User {
     ValueGetter<List<ServiceCategories>>? preferredServices,
     ValueGetter<List<String>>? services,
     ValueGetter<String?>? email,
+    ValueGetter<bool>? isBlacklisted,
   }) => Client(
     id: id != null ? id() : this.id,
     firstName: firstName != null ? firstName() : this.firstName,
     avatarUrl: avatarUrl != null ? avatarUrl() : this.avatarUrl,
     lastName: lastName != null ? lastName() : this.lastName,
     city: city != null ? city() : this.city,
-    preferredServices: preferredServices != null ? preferredServices() : this.preferredServices,
+    preferredServices: preferredServices != null
+        ? preferredServices()
+        : this.preferredServices,
     services: services != null ? services() : this.services,
     email: email != null ? email() : this.email,
+    isBlacklisted: isBlacklisted != null ? isBlacklisted() : this.isBlacklisted,
     json: json,
   );
 
@@ -72,5 +91,6 @@ class Client extends JsonEquatable implements User {
     'preferred_services': preferredServices.map((e) => e.toJson()).toList(),
     'avatar_url': avatarUrl,
     'email': ?email,
+    'is_blacklisted': isBlacklisted,
   };
 }

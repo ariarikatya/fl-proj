@@ -1,7 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:polka_masters/dependencies.dart';
 import 'package:shared/shared.dart';
 
 class CreateClientPage extends StatefulWidget {
@@ -19,7 +19,7 @@ class _CreateClientPageState extends State<CreateClientPage> {
   final _emailController = TextEditingController();
   final _notesController = TextEditingController();
 
-  XFile? _avatarImage;
+  String? _uploadedAvatarUrl;
   bool _isSaving = false;
 
   @override
@@ -34,9 +34,20 @@ class _CreateClientPageState extends State<CreateClientPage> {
   }
 
   Future<void> _pickAvatar() async {
+    logger.debug('picking client avatar');
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image != null) {
-      setState(() => _avatarImage = image);
+      logger.info(
+        'Image picked: ${image.path}, size: ${await image.length() ~/ 1024} KB',
+      );
+
+      try {
+        // Временно показываем локальное фото, пока не реализована загрузка на сервер
+        // TODO: Добавить метод загрузки аватара клиента в repository
+        setState(() => _uploadedAvatarUrl = image.path);
+      } catch (e, st) {
+        handleError(e, st);
+      }
     }
   }
 
@@ -81,194 +92,176 @@ class _CreateClientPageState extends State<CreateClientPage> {
     return AppPage(
       appBar: CustomAppBar(title: 'Создай новую карточку'),
       backgroundColor: AppColors.backgroundDefault,
-      child: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 24,
-              children: [
-                // ===== Верхний блок с аватаром и кнопкой "Добавить" =====
-                Center(
-                  child: Column(
-                    children: [
-                      GestureDetector(
-                        onTap: _pickAvatar,
-                        child: BlotAvatar(
-                          avatarUrl: _avatarImage?.path ?? '',
-                          size: 68,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: _pickAvatar,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.backgroundHover,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 4,
-                            children: [
-                              AppIcons.camera.icon(size: 16),
-                              AppText(
-                                'Добавить',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 24,
+          children: [
+            // ===== Верхний блок с аватаром и кнопкой "Добавить" =====
+            Center(
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: _pickAvatar,
+                    child: BlotAvatar(
+                      avatarUrl: _uploadedAvatarUrl ?? '',
+                      size: 68,
+                    ),
                   ),
-                ),
-                // ===========================================================
-
-                // Personal Info Section
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
-                  children: [
-                    AppText(
-                      'Расскажи о клиенте',
-                      style: AppTextStyles.headingSmall,
-                    ),
-                    AppText(
-                      'Запиши данные, чтобы сохранить все данные и поздравлять с Днём рождения',
-                      style: AppTextStyles.bodyMedium500.copyWith(
-                        color: AppColors.textSecondary,
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: _pickAvatar,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    AppTextFormField(
-                      labelText: 'Имя и Фамилия',
-                      controller: _nameController,
-                    ),
-                    AppTextFormField(
-                      labelText: 'Город',
-                      controller: _cityController,
-                    ),
-                    AppTextFormField(
-                      labelText: 'День рождения',
-                      controller: _birthdayController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        _DateInputFormatter(),
-                      ],
-                    ),
-                  ],
-                ),
-
-                // Contacts Section
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
-                  children: [
-                    AppText('Контакты', style: AppTextStyles.headingSmall),
-                    AppText(
-                      'Запиши данные, чтобы быть на связи с клиентом',
-                      style: AppTextStyles.bodyMedium500.copyWith(
-                        color: AppColors.textSecondary,
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundHover,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    AppTextFormField(
-                      labelText: 'Номер телефона',
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    AppTextFormField(
-                      labelText: 'E-mail',
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                  ],
-                ),
-
-                // Notes Section
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
-                  children: [
-                    AppText(
-                      'Добавь заметку о клиенте',
-                      style: AppTextStyles.headingSmall,
-                    ),
-                    AppText(
-                      'Запиши данные, чтобы не забыть важные детали, например, предпочтения или аллергии',
-                      style: AppTextStyles.bodyMedium500.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Stack(
-                      children: [
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            minHeight: 104,
-                            maxHeight: 104,
-                          ),
-                          child: AppTextFormField(
-                            labelText: 'Например, аллергия на коллаген',
-                            controller: _notesController,
-                            maxLines: 4,
-                          ),
-                        ),
-                        if (_notesController.text.isNotEmpty)
-                          Positioned(
-                            right: 12,
-                            top: 12,
-                            child: GestureDetector(
-                              onTap: () =>
-                                  setState(() => _notesController.clear()),
-                              child: AppIcons.close.icon(size: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 4,
+                        children: [
+                          AppIcons.camera.icon(size: 16),
+                          AppText(
+                            'Добавить',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
                             ),
                           ),
-                      ],
+                        ],
+                      ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+            // ===========================================================
+
+            // Personal Info Section
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
+              children: [
+                AppText(
+                  'Расскажи о клиенте',
+                  style: AppTextStyles.headingSmall,
+                ),
+                AppText(
+                  'Запиши данные, чтобы сохранить все данные и поздравлять с Днём рождения',
+                  style: AppTextStyles.bodyMedium500.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                AppTextFormField(
+                  labelText: 'Имя и Фамилия',
+                  controller: _nameController,
+                ),
+                AppTextFormField(
+                  labelText: 'Город',
+                  controller: _cityController,
+                ),
+                AppTextFormField(
+                  labelText: 'День рождения',
+                  controller: _birthdayController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    _DateInputFormatter(),
                   ],
                 ),
               ],
             ),
-          ),
 
-          // Bottom Button
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              decoration: BoxDecoration(
-                color: AppColors.backgroundDefault,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
+            // Contacts Section
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
+              children: [
+                AppText('Контакты', style: AppTextStyles.headingSmall),
+                AppText(
+                  'Запиши данные, чтобы быть на связи с клиентом',
+                  style: AppTextStyles.bodyMedium500.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                ],
-              ),
-              child: SafeArea(
-                child: _isSaving
-                    ? const Center(child: LoadingIndicator())
-                    : AppTextButton.large(
-                        text: 'Создать контакт',
-                        onTap: _saveClient,
-                      ),
-              ),
+                ),
+                const SizedBox(height: 4),
+                AppTextFormField(
+                  labelText: 'Номер телефона',
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                ),
+                AppTextFormField(
+                  labelText: 'E-mail',
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                AppTextFormField(
+                  labelText: 'Telegram/WhatsApp',
+                  controller: TextEditingController(),
+                  keyboardType: TextInputType.text,
+                ),
+              ],
             ),
-          ),
-        ],
+
+            // Notes Section
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
+              children: [
+                AppText(
+                  'Добавь заметку о клиенте',
+                  style: AppTextStyles.headingSmall,
+                ),
+                AppText(
+                  'Запиши данные, чтобы не забыть важные детали, например, предпочтения или аллергии',
+                  style: AppTextStyles.bodyMedium500.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Stack(
+                  children: [
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: 104,
+                        maxHeight: 104,
+                      ),
+                      child: AppTextFormField(
+                        labelText: 'Например, аллергия на коллаген',
+                        controller: _notesController,
+                        maxLines: 4,
+                      ),
+                    ),
+                    if (_notesController.text.isNotEmpty)
+                      Positioned(
+                        right: 12,
+                        top: 12,
+                        child: GestureDetector(
+                          onTap: () => setState(() => _notesController.clear()),
+                          child: AppIcons.close.icon(size: 16),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: _isSaving
+                      ? const Center(child: LoadingIndicator())
+                      : AppTextButton.large(
+                          text: 'Создать контакт',
+                          onTap: _saveClient,
+                        ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

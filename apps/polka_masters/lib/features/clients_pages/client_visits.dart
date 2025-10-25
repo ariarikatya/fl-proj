@@ -165,7 +165,6 @@ class _ExpandableVisitTile extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4,
                   children: [
                     AppText(
                       visit.serviceName,
@@ -173,6 +172,7 @@ class _ExpandableVisitTile extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
                         AppIcons.clock.icon(
@@ -216,21 +216,28 @@ class _ExpandableVisitTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  AppText(
-                    visit.date.toDateString('.'),
-                    style: AppTextStyles.bodyMedium,
-                  ),
-                  AppText(
-                    visit.status.label,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: visit.status.color,
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 105,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    AppText(
+                      visit.date.toDateString('.'),
+                      style: AppTextStyles.bodyMedium,
                     ),
-                  ),
-                ],
+                    AppText(
+                      visit.status.label,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: visit.status.color,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      textAlign: TextAlign.right,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
