@@ -30,18 +30,23 @@ class _ClientVisitsPageState extends State<ClientVisitsPage> {
       appBar: const CustomAppBar(title: 'Визиты клиента'),
       backgroundColor: AppColors.backgroundDefault,
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(24, 12, 24, 24),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 16,
           children: [
+            // 🔹 Header из первого кода (горизонтальный)
             _ClientHeader(
               client: widget.client,
               visitsCount: widget.visits.length,
               visits: widget.visits,
             ),
             _AllVisitsSection(),
-            _VisitsByYear(visits: widget.visits, expandedVisits: _expandedVisits, onToggle: _toggleVisitExpansion),
+            _VisitsByYear(
+              visits: widget.visits,
+              expandedVisits: _expandedVisits,
+              onToggle: _toggleVisitExpansion,
+            ),
           ],
         ),
       ),
@@ -49,30 +54,28 @@ class _ClientVisitsPageState extends State<ClientVisitsPage> {
   }
 }
 
-
+// ---------------- All Visits Section ----------------
 class _AllVisitsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(
-          'Все визиты',
-          style: AppTextStyles.headingLarge,
-        ),
-        SizedBox(height: 8),
+        AppText('Все визиты', style: AppTextStyles.headingLarge),
+        const SizedBox(height: 8),
         AppText(
           'Здесь собраны все посещения клиента',
           style: AppTextStyles.bodyMedium500.copyWith(
             color: AppColors.iconsDefault,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
       ],
     );
   }
 }
 
+// ---------------- Visits By Year ----------------
 class _VisitsByYear extends StatelessWidget {
   const _VisitsByYear({
     required this.visits,
@@ -86,15 +89,14 @@ class _VisitsByYear extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Группируем визиты по годам
     final Map<int, List<Booking>> visitsByYear = {};
     for (final visit in visits) {
       final year = visit.date.year;
       visitsByYear[year] = [...(visitsByYear[year] ?? []), visit];
     }
 
-    // Сортируем годы по убыванию
-    final sortedYears = visitsByYear.keys.toList()..sort((a, b) => b.compareTo(a));
+    final sortedYears = visitsByYear.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,17 +105,16 @@ class _VisitsByYear extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppText(
-              year.toString(),
-              style: AppTextStyles.headingSmall,
+            AppText(year.toString(), style: AppTextStyles.headingSmall),
+            const SizedBox(height: 8),
+            ...yearVisits.map(
+              (visit) => _ExpandableVisitTile(
+                visit: visit,
+                isExpanded: expandedVisits[visit.id] ?? false,
+                onToggle: () => onToggle(visit.id),
+              ),
             ),
-            SizedBox(height: 8),
-            ...yearVisits.map((visit) => _ExpandableVisitTile(
-              visit: visit,
-              isExpanded: expandedVisits[visit.id] ?? false,
-              onToggle: () => onToggle(visit.id),
-            )),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
         );
       }).toList(),
@@ -121,6 +122,7 @@ class _VisitsByYear extends StatelessWidget {
   }
 }
 
+// ---------------- Expandable Visit Tile ----------------
 class _ExpandableVisitTile extends StatelessWidget {
   const _ExpandableVisitTile({
     required this.visit,
@@ -141,8 +143,8 @@ class _ExpandableVisitTile extends StatelessWidget {
         : '${hours > 0 ? '$hours ч ' : ''}$minutes м';
 
     return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.backgroundSubtle,
         borderRadius: BorderRadius.circular(12),
@@ -159,39 +161,39 @@ class _ExpandableVisitTile extends StatelessWidget {
                 borderRadius: 10,
                 imageUrl: visit.serviceImageUrl,
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 4,
                   children: [
                     AppText(
-                      visit.serviceName, 
+                      visit.serviceName,
                       style: AppTextStyles.bodyLarge,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Row(
-                      spacing: 4,
                       children: [
                         AppIcons.clock.icon(
                           size: 16,
                           color: AppColors.textSecondary,
                         ),
+                        const SizedBox(width: 4),
                         AppText(
                           durationLabel,
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 8),
                         AppText(
                           '|',
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 8),
                         AppText(
                           '₽${visit.price}',
                           style: AppTextStyles.bodyMedium.copyWith(
@@ -200,7 +202,7 @@ class _ExpandableVisitTile extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     GestureDetector(
                       onTap: onToggle,
                       child: AppText(
@@ -214,30 +216,26 @@ class _ExpandableVisitTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Flexible(
-                flex: 0,
-                fit: FlexFit.tight,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  spacing: 4,
-                  children: [
-                    AppText(
-                      visit.date.toDateString('.'),
-                      style: AppTextStyles.bodyMedium,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  AppText(
+                    visit.date.toDateString('.'),
+                    style: AppTextStyles.bodyMedium,
+                  ),
+                  AppText(
+                    visit.status.label,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: visit.status.color,
                     ),
-                    AppText(
-                      visit.status.label,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: visit.status.color,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
           if (isExpanded) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _ExpandedContent(visit: visit),
           ],
         ],
@@ -246,9 +244,9 @@ class _ExpandableVisitTile extends StatelessWidget {
   }
 }
 
+// ---------------- Expanded Content ----------------
 class _ExpandedContent extends StatelessWidget {
   const _ExpandedContent({required this.visit});
-
   final Booking visit;
 
   @override
@@ -258,31 +256,28 @@ class _ExpandedContent extends StatelessWidget {
       children: [
         AppText(
           'Твое примечание',
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         AppText(
-          visit.masterNotes.isNotEmpty ? visit.masterNotes : 'Примечание не добавлено',
+          visit.masterNotes.isNotEmpty
+              ? visit.masterNotes
+              : 'Примечание не добавлено',
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.iconsDefault,
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         AppText(
           'Фото',
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700),
         ),
-        SizedBox(height: 16),
-        // TODO: Добавить фотографии визита
+        const SizedBox(height: 16),
         SizedBox(
           height: 168,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: 3, // Заглушка
+            itemCount: 3,
             itemBuilder: (context, index) {
               return Container(
                 width: 168,
@@ -304,13 +299,82 @@ class _ExpandedContent extends StatelessWidget {
             },
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
       ],
     );
   }
 }
 
-// Вспомогательные функции из client_page.dart
+// ---------------- Client Header (горизонтальный, первый код) ----------------
+class _ClientHeader extends StatelessWidget {
+  const _ClientHeader({
+    required this.client,
+    required this.visitsCount,
+    required this.visits,
+  });
+
+  final Client client;
+  final int visitsCount;
+  final List<Booking> visits;
+
+  @override
+  Widget build(BuildContext context) {
+    final clientStatus = _determineClientStatus(visits);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundSubtle,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BlotAvatar(avatarUrl: client.avatarUrl, size: 64),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 4,
+              children: [
+                AppText(
+                  client.fullName,
+                  style: AppTextStyles.headingSmall.copyWith(height: 1),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (clientStatus.icon.isNotEmpty)
+                      AppText(
+                        clientStatus.icon,
+                        style: AppTextStyles.bodyLarge,
+                      ),
+                    const SizedBox(width: 4),
+                    AppText(
+                      clientStatus.label,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                AppText(
+                  '${client.city} | $visitsCount ${_pluralizeVisits(visitsCount)}',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------- Client Status ----------------
 enum ClientStatus {
   newClient('Новый клиент', '🟢'),
   regularClient('Постоянный клиент', '⚪'),
@@ -325,50 +389,27 @@ enum ClientStatus {
 }
 
 ClientStatus _determineClientStatus(List<Booking> visits) {
-  if (visits.isEmpty) {
-    return ClientStatus.newClient;
-  }
+  if (visits.isEmpty) return ClientStatus.newClient;
 
   final now = DateTime.now();
-  final completedVisits = visits.where((v) => v.status == BookingStatus.completed).toList();
-  
-  if (completedVisits.isEmpty) {
-    return ClientStatus.newClient;
+  final completed = visits
+      .where((v) => v.status == BookingStatus.completed)
+      .toList();
+  if (completed.isEmpty) return ClientStatus.newClient;
+
+  completed.sort((a, b) => b.date.compareTo(a.date));
+  final lastVisit = completed.first.date;
+  final days = now.difference(lastVisit).inDays;
+  final total = completed.length;
+
+  if (total > 3 && completed.length >= 2) {
+    final diff = completed[0].date.difference(completed[1].date).inDays;
+    if (diff <= 45) return ClientStatus.regularClient;
   }
 
-  // Сортируем по дате посещения (самые новые первыми)
-  completedVisits.sort((a, b) => b.date.compareTo(a.date));
-  
-  final lastVisit = completedVisits.first.date;
-  final daysSinceLastVisit = now.difference(lastVisit).inDays;
-  final totalVisits = completedVisits.length;
-
-  // Больше 3 посещений и визиты 1 раз в месяц
-  if (totalVisits > 3) {
-    // Проверяем регулярность посещений (примерно раз в месяц)
-    if (completedVisits.length >= 2) {
-      final secondLastVisit = completedVisits[1].date;
-      final daysBetweenVisits = lastVisit.difference(secondLastVisit).inDays;
-      if (daysBetweenVisits <= 45) { // примерно раз в месяц с небольшим допуском
-        return ClientStatus.regularClient;
-      }
-    }
-  }
-
-  // Последний визит 1-2 месяца назад
-  if (daysSinceLastVisit >= 30 && daysSinceLastVisit <= 60) {
-    return ClientStatus.inactiveClient;
-  }
-
-  // Нет визитов больше 2 месяцев
-  if (daysSinceLastVisit > 60) {
-    return ClientStatus.lostClient;
-  }
-
-  // Первое посещение
-  if (totalVisits == 1) {
-    return ClientStatus.newClient;
-  }
+  if (days >= 30 && days <= 60) return ClientStatus.inactiveClient;
+  if (days > 60) return ClientStatus.lostClient;
+  if (total == 1) return ClientStatus.newClient;
 
   return ClientStatus.regular;
 }
@@ -376,97 +417,10 @@ ClientStatus _determineClientStatus(List<Booking> visits) {
 String _pluralizeVisits(int count) {
   final mod10 = count % 10;
   final mod100 = count % 100;
-  if (mod10 == 1 && mod100 != 11) {
-    return 'посещение';
-  }
+  if (mod10 == 1 && mod100 != 11) return 'посещение';
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
     return 'посещения';
   }
+
   return 'посещений';
-}
-
-class _ClientHeader extends StatelessWidget {
-  const _ClientHeader({required this.client, required this.visitsCount, required this.visits});
-
-  final Client client;
-  final int visitsCount;
-  final List<Booking> visits;
-
-  @override
-  Widget build(BuildContext context) {
-    final clientStatus = _determineClientStatus(visits);
-    
-    return Container(
-      padding: const EdgeInsets.all(24),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppColors.backgroundSubtle,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        children: [
-          BlotAvatar(avatarUrl: client.avatarUrl, size: 160),
-          AppText(
-            client.fullName,
-            style: AppTextStyles.headingLarge,
-            textAlign: TextAlign.center,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              if (clientStatus.icon.isNotEmpty) ...[
-                AppText(
-                  clientStatus.icon,
-                  style: AppTextStyles.bodyLarge,
-                ),
-              ],
-              AppText(
-                clientStatus.label,
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppEmojis.lollipop.icon(),
-                  SizedBox(width: 4),
-                  AppText(
-                    client.city,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppEmojis.scissors.icon(),
-                  SizedBox(width: 4),
-                  AppText(
-                    '$visitsCount ${_pluralizeVisits(visitsCount)}',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }

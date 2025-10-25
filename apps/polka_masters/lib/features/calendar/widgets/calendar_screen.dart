@@ -5,6 +5,7 @@ import 'package:polka_masters/features/calendar/widgets/views/calendar_day_view.
 import 'package:polka_masters/features/calendar/widgets/views/calendar_month_view.dart';
 import 'package:polka_masters/features/calendar/widgets/views/calendar_week_view.dart';
 import 'package:polka_masters/features/clients_pages/client_page.dart';
+import 'package:polka_masters/features/clients_pages/create_client.dart';
 import 'package:polka_masters/scopes/calendar_scope.dart';
 import 'package:shared/shared.dart';
 
@@ -26,17 +27,41 @@ class CalendarScreen extends StatelessWidget {
           CalendarViewMode.day => CalendarDayView(),
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToClientPage(context),
-        backgroundColor: AppColors.accent,
-        child: AppIcons.user.icon(
-          color: AppColors.backgroundHover,
-          size: 24,
-        ),
+
+      // Две кнопки внизу справа
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'create_client_btn',
+            onPressed: () => _navigateToCreateClient(context),
+            backgroundColor: AppColors.accentLight,
+            icon: AppIcons.add.icon(color: AppColors.textPrimary, size: 20),
+            label: Text(
+              'Создать клиента',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'open_client_btn',
+            onPressed: () => _navigateToClientPage(context),
+            backgroundColor: AppColors.accent,
+            child: AppIcons.user.icon(
+              color: AppColors.backgroundHover,
+              size: 24,
+            ),
+          ),
+        ],
       ),
     );
   }
 
+  // Навигация на страницу клиента (пример из твоего кода)
   void _navigateToClientPage(BuildContext context) {
     final client = Client(
       id: 1,
@@ -48,7 +73,7 @@ class CalendarScreen extends StatelessWidget {
       avatarUrl: '',
       email: 'sashamore@gmail.com',
     );
-    
+
     final now = DateTime.now();
     final visits = <Booking>[
       Booking(
@@ -100,5 +125,12 @@ class CalendarScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Навигация на страницу создания клиента
+  void _navigateToCreateClient(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const CreateClientPage()));
   }
 }
