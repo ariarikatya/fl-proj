@@ -25,3 +25,109 @@ class CalendarScreen extends StatelessWidget {
     );
   }
 }
+// Две кнопки внизу справа
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'create_client_btn',
+            onPressed: () => _navigateToCreateClient(context),
+            backgroundColor: AppColors.accentLight,
+            icon: AppIcons.add.icon(color: AppColors.textPrimary, size: 20),
+            label: Text(
+              'Создать клиента',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'open_client_btn',
+            onPressed: () => _navigateToClientPage(context),
+            backgroundColor: AppColors.accent,
+            child: AppIcons.user.icon(
+              color: AppColors.backgroundHover,
+              size: 24,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Навигация на страницу клиента (пример из твоего кода)
+  void _navigateToClientPage(BuildContext context) {
+    final client = Client(
+      id: 1,
+      firstName: 'Саша',
+      lastName: 'Аксентьева',
+      city: 'Екатеринбург',
+      services: const [],
+      preferredServices: const [],
+      avatarUrl: '',
+      email: 'sashamore@gmail.com',
+    );
+
+    final now = DateTime.now();
+    final visits = <Booking>[
+      Booking(
+        id: 10,
+        clientId: client.id,
+        masterId: 100,
+        serviceId: 50,
+        serviceName: 'Окрашивание + стрижка + маникюр',
+        masterName: 'Вы',
+        price: 4500,
+        status: BookingStatus.canceled,
+        date: now.subtract(const Duration(days: 20)),
+        createdAt: now.subtract(const Duration(days: 25)),
+        startTime: const Duration(hours: 10, minutes: 30),
+        endTime: const Duration(hours: 12),
+        serviceImageUrl: null,
+        masterAvatarUrl: null,
+        clientNotes: '',
+        masterNotes: '',
+        reviewSent: false,
+      ),
+      Booking(
+        id: 11,
+        clientId: client.id,
+        masterId: 100,
+        serviceId: 51,
+        serviceName: 'Окрашивание',
+        masterName: 'Вы',
+        price: 2500,
+        status: BookingStatus.completed,
+        date: now.subtract(const Duration(days: 18)),
+        createdAt: now.subtract(const Duration(days: 18)),
+        startTime: const Duration(hours: 14),
+        endTime: const Duration(hours: 16),
+        serviceImageUrl: null,
+        masterAvatarUrl: null,
+        clientNotes: '',
+        masterNotes: '',
+        reviewSent: true,
+      ),
+    ];
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ClientPage(
+          client: client,
+          phoneNumber: '+79538230547',
+          visits: visits,
+        ),
+      ),
+    );
+  }
+
+  // Навигация на страницу создания клиента
+  void _navigateToCreateClient(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const CreateClientPage()));
+  }
+}
