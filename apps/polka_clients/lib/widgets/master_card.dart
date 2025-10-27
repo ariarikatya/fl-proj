@@ -50,7 +50,7 @@ class MasterCard extends StatelessWidget {
               Flexible(
                 child: AppText(
                   master.profession,
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -62,12 +62,12 @@ class MasterCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(padding: const EdgeInsets.only(top: 2), child: AppIcons.location.icon(size: 16)),
+                Padding(padding: const EdgeInsets.only(top: 2), child: AppIcons.location.icon(context, size: 16)),
                 SizedBox(width: 6),
                 Flexible(
                   child: AppText(
                     master.address,
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
@@ -110,9 +110,9 @@ class MasterCard extends StatelessWidget {
                         Icons.favorite,
                         size: 24,
                         color: switch (favoriteStatus) {
-                          FavoriteStatus.liked => AppColors.accent,
-                          FavoriteStatus.loading => AppColors.accentLight,
-                          FavoriteStatus.notLiked => AppColors.backgroundDefault,
+                          FavoriteStatus.liked => context.ext.theme.accent,
+                          FavoriteStatus.loading => context.ext.theme.accentLight,
+                          FavoriteStatus.notLiked => context.ext.theme.backgroundDefault,
                         },
                       ),
                     ),

@@ -167,7 +167,10 @@ class _DayToggle extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
                 child: RichText(
                   text: TextSpan(
-                    style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: context.ext.theme.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                     children: [
                       // We use WidgetSpan because every weekday text has to have exact same width
                       WidgetSpan(
@@ -178,7 +181,7 @@ class _DayToggle extends StatelessWidget {
                           child: AppText(
                             name,
                             style: AppTextStyles.bodyLarge.copyWith(
-                              color: AppColors.textPrimary,
+                              color: context.ext.theme.textPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -200,7 +203,7 @@ class _DayToggle extends StatelessWidget {
                             child: AppText(
                               day.start.toTimeString(),
                               style: AppTextStyles.bodyLarge.copyWith(
-                                color: AppColors.textPrimary,
+                                color: context.ext.theme.textPrimary,
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
                               ),
@@ -225,7 +228,7 @@ class _DayToggle extends StatelessWidget {
                             child: AppText(
                               day.end.toTimeString(),
                               style: AppTextStyles.bodyLarge.copyWith(
-                                color: AppColors.textPrimary,
+                                color: context.ext.theme.textPrimary,
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
                               ),
@@ -243,13 +246,9 @@ class _DayToggle extends StatelessWidget {
         ValueListenableBuilder(
           valueListenable: notifier,
           builder: (context, value, child) {
-            return Switch(
+            return AppSwitch(
               value: value.active,
               onChanged: (value0) => notifier.value = notifier.value.copyWith(active: () => value0),
-              activeThumbColor: AppColors.backgroundDefault,
-              inactiveThumbColor: AppColors.iconsMuted,
-              activeTrackColor: AppColors.accent,
-              inactiveTrackColor: AppColors.backgroundHover,
             );
           },
         ),

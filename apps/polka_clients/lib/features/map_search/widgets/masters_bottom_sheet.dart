@@ -30,8 +30,8 @@ class _MastersBottomSheetState extends State<MastersBottomSheet> {
       controller: _controller,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.backgroundDefault,
+          decoration: BoxDecoration(
+            color: context.ext.theme.backgroundDefault,
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: Column(

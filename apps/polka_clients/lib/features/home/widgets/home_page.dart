@@ -29,22 +29,22 @@ class HomePage extends StatelessWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                  color: AppColors.backgroundHover,
+                  color: context.ext.theme.backgroundHover,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _NavigationBarItem(
-                        icon: AppIcons.home.icon(),
+                        icon: AppIcons.home.icon(context),
                         onTap: () => controller.openHome(),
                         selected: state.index == 0,
                       ),
                       _NavigationBarItem(
-                        icon: AppIcons.search.icon(),
+                        icon: AppIcons.search.icon(context),
                         onTap: () => controller.openMapSearch(),
                         selected: state.index == 1,
                       ),
                       _NavigationBarItem(
-                        icon: AppIcons.file.icon(),
+                        icon: AppIcons.file.icon(context),
                         onTap: () => controller.openBookings(),
                         selected: state.index == 2,
                       ),
@@ -53,7 +53,7 @@ class HomePage extends StatelessWidget {
                           builder: (ctx) => AppAvatar(
                             avatarUrl: ClientScope.of(ctx).client.avatarUrl,
                             size: 24,
-                            borderColor: AppColors.textPrimary,
+                            borderColor: context.ext.theme.textPrimary,
                             shadow: false,
                           ),
                         ),
@@ -90,7 +90,7 @@ class _NavigationBarItem extends StatelessWidget {
       child = Stack(
         alignment: Alignment.center,
         children: [
-          AppIcons.blot.icon(size: 36, color: AppColors.accent),
+          AppIcons.blot.icon(context, size: 36, color: context.ext.theme.accent),
           child,
         ],
       );

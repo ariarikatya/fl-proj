@@ -37,7 +37,11 @@ extension DateTimeX on DateTime {
     return DateTime(year, month, day);
   }
 
-  String toJson() => toUtc().toIso8601String();
+  // String toJson() => toUtc().toIso8601String();
+  String toJson() => toDateString('-', true);
 
   String get weekdayName => WeekDays.values[weekday - 1].label;
+
+  DateTime get dateOnly => DateTime(year, month, day);
+  DateTime get withoutMinutes => DateTime(year, month, day, hour);
 }

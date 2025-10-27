@@ -5,7 +5,8 @@ sealed class ChatsRepository {
   Future<Result<List<ChatPreview>>> getChats();
   Future<Result<List<ChatMessage>>> getChatHistory(int chatId, {int limit, int offset});
   Future<Result<bool>> readAllMessages(int chatId);
-  Future<Result<ChatPreview>> startChat(int masterId, String message);
+  Future<Result<ChatPreview>> startChatWithClient(int clientId, String message);
+  Future<Result<ChatPreview>> startChatWithMaster(int masterId, String message);
 }
 
 final class RestChatsRepository extends ChatsRepository {
@@ -27,14 +28,20 @@ final class RestChatsRepository extends ChatsRepository {
   });
 
   @override
-  Future<Result<ChatPreview>> startChat(int masterId, String message) => tryCatch(() async {
-    final response = await dio.post('/chats', data: {"master_id": masterId, "initial_message": message});
+  Future<Result<bool>> readAllMessages(int chatId) => tryCatch(() async {
+    await dio.put('/chats/$chatId/read');
+    return true;
+  });
+
+  @override
+  Future<Result<ChatPreview>> startChatWithClient(int clientId, String message) => tryCatch(() async {
+    final response = await dio.post('/chat/start', data: {'client_id': clientId, 'initial_message': message});
     return ChatPreview.fromJson(response.data['chats'].first);
   });
 
   @override
-  Future<Result<bool>> readAllMessages(int chatId) => tryCatch(() async {
-    await dio.put('/chats/$chatId/read');
-    return true;
+  Future<Result<ChatPreview>> startChatWithMaster(int masterId, String message) => tryCatch(() async {
+    final response = await dio.post('/chats', data: {'master_id': masterId, 'initial_message': message});
+    return ChatPreview.fromJson(response.data['chats'].first);
   });
 }

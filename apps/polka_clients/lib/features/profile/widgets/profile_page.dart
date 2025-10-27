@@ -45,7 +45,11 @@ class ProfilePage extends StatelessWidget {
             ProfileButton(icon: AppIcons.support, title: 'Поддержка', onTap: () => logger.debug('tap')),
             ProfileButton(icon: AppIcons.settings, title: 'Настройки', onTap: () => context.ext.push(SettingsPage())),
             if (devMode) ...[
-              ProfileButton(icon: AppIcons.filter, title: 'Для разработчиков', onTap: () => openTalkerScreen(context)),
+              ProfileButton(
+                icon: AppIcons.filter,
+                title: 'Для разработчиков',
+                onTap: () => openTalkerScreen(context, getToken: Dependencies().authController.getAccessToken),
+              ),
             ],
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 32, 18, 32),
@@ -83,13 +87,13 @@ class _AddPhotoBtn extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 24),
         padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-        decoration: BoxDecoration(color: AppColors.backgroundHover, borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(16)),
         child: Row(
           spacing: 4,
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppIcons.camera.icon(size: 16),
-            AppText('Добавить', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+            AppIcons.camera.icon(context, size: 16),
+            AppText('Добавить', style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.textSecondary)),
           ],
         ),
       ),
@@ -123,7 +127,7 @@ class _Header extends StatelessWidget {
                   ),
                   AppText(
                     client.city,
-                    style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

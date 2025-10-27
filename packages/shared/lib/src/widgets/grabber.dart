@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 
 class Grabber extends StatelessWidget {
   const Grabber({super.key, required this.controller, required this.builder});
@@ -24,7 +24,7 @@ class Grabber extends StatelessWidget {
       margin: EdgeInsets.all(10),
       width: 36,
       height: 5,
-      decoration: BoxDecoration(color: AppColors.textPrimary, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: context.ext.theme.textPrimary, borderRadius: BorderRadius.circular(5)),
     ),
   );
 }

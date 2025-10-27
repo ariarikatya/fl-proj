@@ -15,12 +15,10 @@ dependencies:
     
   shared:
   dio: ^5.9.0
-  retrofit: ^4.7.2
   flutter_bloc: ^9.1.1
   provider: ^6.1.5+1
   image_picker: ^1.2.0
   flutter_secure_storage: ^9.2.4
-  appmetrica_plugin: ^3.3.0
   calendar_view:
     path: ../../packages/calendar_view
   equatable: ^2.0.7

@@ -16,14 +16,14 @@ class MasterMapCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () => context.ext.push(MasterPage(masterId: info.master.id)),
         child: Container(
-          decoration: BoxDecoration(color: AppColors.backgroundHover, borderRadius: BorderRadius.circular(24)),
+          decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(24)),
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 8,
             children: [
               _MasterHeader(master: info.master, distanceMeters: info.distanceMeters),
-              const Divider(height: 1, thickness: 1, color: AppColors.borderSubtle),
+              Divider(height: 1, thickness: 1, color: context.ext.theme.borderSubtle),
               AppText('Услуги', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
               for (var service in info.services.take(3))
                 Padding(
@@ -78,7 +78,7 @@ class _MasterHeader extends StatelessWidget {
                   Flexible(
                     child: AppText(
                       master.profession,
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -86,12 +86,12 @@ class _MasterHeader extends StatelessWidget {
               ),
               AppText(
                 '⭐ ${master.ratingFixed}',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
                 overflow: TextOverflow.ellipsis,
               ),
               AppText(
                 _distanceText(distanceMeters),
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.textSecondary),
               ),
             ],
           ),
@@ -142,7 +142,7 @@ class _ServiceRow extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      AppIcons.clock.icon(size: 16),
+                      AppIcons.clock.icon(context, size: 16),
                       const SizedBox(width: 2),
                       Flexible(
                         child: AppText(

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared/src/dev/json_equatable.dart';
 import 'package:shared/src/models/master/master.dart';
-import 'package:shared/src/models/service.dart';
+import 'package:shared/src/models/service/service.dart';
 import 'package:shared/src/utils.dart';
 
 class MasterMapInfo extends JsonEquatable {

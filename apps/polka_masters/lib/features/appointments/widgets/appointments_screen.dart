@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:polka_masters/dependencies.dart';
-import 'package:polka_masters/repos/master_repository.dart';
+import 'package:polka_masters/features/calendar/data/bookings_repo.dart';
 import 'package:shared/shared.dart';
 
 class AppointmentsScreen extends StatelessWidget {
   const AppointmentsScreen({super.key, required this.repo});
 
-  final MasterRepository repo;
+  final BookingsRepository repo;
 
   @override
   Widget build(BuildContext context) {
     return LoadDataPage(
       onErrorBehavior: OnErrorBehavior.showErrorPage,
-      future: () => Dependencies().masterRepository.getAllBookings(),
+      future: () => repo.getAllBookings(),
       builder: (bookings) => _AppointmentsView(bookings: bookings, repo: repo),
     );
   }
@@ -22,7 +21,7 @@ class _AppointmentsView extends StatefulWidget {
   const _AppointmentsView({required this.bookings, required this.repo});
 
   final List<Booking> bookings;
-  final MasterRepository repo;
+  final BookingsRepository repo;
 
   @override
   State<_AppointmentsView> createState() => _AppointmentsViewState();
@@ -55,96 +54,93 @@ class _AppointmentsViewState extends State<_AppointmentsView> {
       appBar: CustomAppBar(title: 'Твои записи'),
       child: RefreshIndicator(
         onRefresh: _updateBookings,
-        color: AppColors.accent,
-        backgroundColor: AppColors.accentLight,
+        color: context.ext.theme.accent,
+        backgroundColor: context.ext.theme.accentLight,
         child: ListView.separated(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           itemCount: bookings.length,
           separatorBuilder: (context, index) => SizedBox(height: 16),
-          itemBuilder: (context, index) => Column(
-            spacing: 8,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: AppColors.backgroundHover, borderRadius: BorderRadius.circular(14)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
-                  children: [
-                    AppAvatar(avatarUrl: bookings[index].masterAvatarUrl),
-                    AppText(bookings[index].serviceName, style: AppTextStyles.bodyMedium),
-                    AppText(bookings[index].datetime.toLocal().formatFull(), style: AppTextStyles.bodyMedium),
-                    AppText(
-                      bookings[index].status.label,
-                      style: AppTextStyles.bodyMedium.copyWith(color: bookings[index].status.color),
-                    ),
-                    Row(
-                      spacing: 8,
-                      children: [
-                        if (bookings[index].status == BookingStatus.pending) ...[
-                          Flexible(
-                            child: AppTextButton.small(
-                              text: 'Confirm',
-                              onTap: () => widget.repo
-                                  .confirmBooking(bookings[index].id)
-                                  .then(
-                                    (r) => r.when(
-                                      ok: (data) => _updateBookingStatus(index, BookingStatus.confirmed),
-                                      err: handleError,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                          Flexible(
-                            child: AppTextButton.small(
-                              text: 'Reject',
-                              onTap: () => widget.repo
-                                  .rejectBooking(bookings[index].id)
-                                  .then(
-                                    (r) => r.when(
-                                      ok: (data) => _updateBookingStatus(index, BookingStatus.rejected),
-                                      err: handleError,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                        ],
+          itemBuilder: (context, index) {
+            return _AppointmentCard(
+              booking: bookings[index],
+              repo: widget.repo,
+              onUpdateStatus: (status) => _updateBookingStatus(index, status),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
 
-                        if (bookings[index].status == BookingStatus.confirmed) ...[
-                          Flexible(
-                            child: AppTextButton.small(
-                              text: 'Complete',
-                              onTap: () => widget.repo
-                                  .completeBooking(bookings[index].id)
-                                  .then(
-                                    (r) => r.when(
-                                      ok: (data) => _updateBookingStatus(index, BookingStatus.completed),
-                                      err: handleError,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                          Flexible(
-                            child: AppTextButton.small(
-                              text: 'Cancel',
-                              onTap: () => widget.repo
-                                  .cancelBooking(bookings[index].id)
-                                  .then(
-                                    (r) => r.when(
-                                      ok: (data) => _updateBookingStatus(index, BookingStatus.canceled),
-                                      err: handleError,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ],
+class _AppointmentCard extends StatelessWidget {
+  const _AppointmentCard({required this.booking, required this.repo, required this.onUpdateStatus});
+
+  final Booking booking;
+  final BookingsRepository repo;
+  final void Function(BookingStatus status) onUpdateStatus;
+
+  @override
+  Widget build(BuildContext context) {
+    return DebugWidget(
+      model: booking,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(14)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
+          children: [
+            AppAvatar(avatarUrl: booking.masterAvatarUrl),
+            AppText(booking.serviceName, style: AppTextStyles.bodyMedium),
+            AppText(booking.datetime.toLocal().formatFull(), style: AppTextStyles.bodyMedium),
+            AppText(
+              booking.status.label,
+              style: AppTextStyles.bodyMedium.copyWith(color: booking.status.colorOf(context)),
+            ),
+            Row(
+              spacing: 8,
+              children: [
+                if (booking.status == BookingStatus.pending) ...[
+                  Flexible(
+                    child: AppTextButton.small(
+                      text: 'Confirm',
+                      onTap: () => repo
+                          .confirmBooking(booking.id)
+                          .then((r) => r.when(ok: (data) => onUpdateStatus(BookingStatus.confirmed), err: handleError)),
                     ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                  ),
+                  Flexible(
+                    child: AppTextButton.small(
+                      text: 'Reject',
+                      onTap: () => repo
+                          .rejectBooking(booking.id)
+                          .then((r) => r.when(ok: (data) => onUpdateStatus(BookingStatus.rejected), err: handleError)),
+                    ),
+                  ),
+                ],
+
+                if (booking.status == BookingStatus.confirmed) ...[
+                  Flexible(
+                    child: AppTextButton.small(
+                      text: 'Complete',
+                      onTap: () => repo
+                          .completeBooking(booking.id)
+                          .then((r) => r.when(ok: (data) => onUpdateStatus(BookingStatus.completed), err: handleError)),
+                    ),
+                  ),
+                  Flexible(
+                    child: AppTextButton.small(
+                      text: 'Cancel',
+                      onTap: () => repo
+                          .cancelBooking(booking.id)
+                          .then((r) => r.when(ok: (data) => onUpdateStatus(BookingStatus.canceled), err: handleError)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ),
       ),
     );

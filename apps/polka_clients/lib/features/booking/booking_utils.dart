@@ -3,22 +3,8 @@ import 'package:map_launcher/map_launcher.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
 import 'package:shared/shared.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-Future<void> openChat(BuildContext context, int masterId, String masterName, String? masterAvatar) async {
-  final chats = blocs.get<ChatsCubit>(context);
-  await chats.loadChats();
-  if (!context.mounted) return;
-
-  final chat = chats.maybeGetChatWithMasterId(masterId);
-  if (chat != null) {
-    context.ext.push(ChatScreen(chatId: chat.preview.id));
-  } else {
-    context.ext.push(NewChatPage(masterId: masterId, masterName: masterName, masterAvatar: masterName));
-  }
-}
 
 Future<void> addCalendarEvent(Booking booking) async {
   final Event event = Event(
@@ -32,20 +18,8 @@ Future<void> addCalendarEvent(Booking booking) async {
   await Add2Calendar.addEvent2Cal(event);
 }
 
-Future<void> callMaster(int masterId) async {
-  final phone = await Dependencies().clientRepository.getMasterPhone(masterId);
-
-  phone.when(
-    ok: (phone) {
-      try {
-        launchUrl(Uri.parse('tel:+$phone'));
-      } catch (e, st) {
-        handleError(e, st);
-      }
-    },
-    err: (e, st) => handleError(e, st),
-  );
-}
+Future<void> callMaster(int masterId) =>
+    ChatsUtils().callNumber(Dependencies().clientRepository.getMasterPhone(masterId));
 
 Future<void> showOnMap(BuildContext context, double latitude, double longitude, String title) async {
   Future<AvailableMap?> selectMap(List<AvailableMap> availableMaps) async {

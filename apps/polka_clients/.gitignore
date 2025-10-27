@@ -15,6 +15,9 @@ migrate_working_dir/
 # Environment
 .env*
 
+# We don't need experimental support for other platforms in git
+windows/
+
 # IntelliJ related
 *.iml
 *.ipr

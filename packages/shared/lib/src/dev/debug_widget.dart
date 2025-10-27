@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/dev/json_equatable.dart';
 import 'package:shared/src/dev/debug_model_mbs.dart';
@@ -27,8 +27,11 @@ class DebugWidget extends StatelessWidget {
                 opacity: 0.4,
                 child: Container(
                   padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), color: AppColors.accentLight),
-                  child: AppText('debug', style: AppTextStyles.bodySmall.copyWith(color: AppColors.accent)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: context.ext.theme.accentLight,
+                  ),
+                  child: AppText('debug', style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.accent)),
                 ),
               ),
             ),

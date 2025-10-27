@@ -34,7 +34,7 @@ class _OnboardingPage$InterestsState
     SizedBox(height: 8),
     AppText(
       'Мы сможем сделать для тебя подборку максимально интересной',
-      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
     ),
     SizedBox(height: 24),
     ListView.separated(
@@ -55,14 +55,14 @@ class _OnboardingPage$InterestsState
         child: Container(
           padding: EdgeInsets.fromLTRB(24, 18, 24, 18),
           decoration: BoxDecoration(
-            color: value ? AppColors.accentLight : AppColors.backgroundHover,
+            color: value ? context.ext.theme.accentLight : context.ext.theme.backgroundHover,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(
             children: [
               AppText(interest.label, style: AppTextStyles.bodyLarge),
               Spacer(),
-              if (value) Icon(Icons.check, color: AppColors.iconsDefault, size: 16),
+              if (value) Icon(Icons.check, color: context.ext.theme.iconsDefault, size: 16),
             ],
           ),
         ),

@@ -75,7 +75,7 @@ class _AddressPageState extends State<AddressPage> {
                               margin: EdgeInsets.symmetric(horizontal: 24),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: AppColors.backgroundHover)),
+                                border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
                               ),
                               child: AppText(address.cityAndAddress, style: AppTextStyles.bodyLarge),
                             ),

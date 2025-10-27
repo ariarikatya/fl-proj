@@ -195,7 +195,7 @@ class _ReviewsWidget extends StatelessWidget {
             SizedBox(height: 8),
             if (reviewsCount == 0) AppPlaceholder(text: 'У мастера пока нет отзывов'),
             if (reviewsCount > 0 && lastReview != null) ...[
-              _header(),
+              _header(context),
               SizedBox(height: 16),
               ReviewWidget(review: lastReview!),
               SizedBox(height: 16),
@@ -211,10 +211,10 @@ class _ReviewsWidget extends StatelessWidget {
     );
   }
 
-  Row _header() {
+  Row _header(BuildContext context) {
     return Row(
       children: [
-        AppText('Общий рейтинг:', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+        AppText('Общий рейтинг:', style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary)),
         SizedBox(width: 4),
         AboutInfo.reviews(master: master),
       ],
@@ -238,7 +238,7 @@ class _About extends StatelessWidget {
           children: [
             AppText('Обо мне', style: AppTextStyles.headingSmall),
             SizedBox(height: 8),
-            AppText(about, style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary)),
+            AppText(about, style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary)),
           ],
         ),
       ),
@@ -265,7 +265,7 @@ class _Header extends StatelessWidget {
           ),
           AppText(
             master.profession,
-            style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 16),

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import '../calendar_view.dart';
 
 @immutable
-
 /// {@macro calendar_event_data_doc}
 class CalendarEventData<T extends Object?> {
   /// Specifies date on which all these events are.
@@ -31,7 +30,9 @@ class CalendarEventData<T extends Object?> {
 
   /// Defines color of event.
   /// This color will be used in default widgets provided by plugin.
-  final Color color;
+  final Color backgroundColor;
+
+  final Color foregroundColor;
 
   /// Event on [date].
   final T? event;
@@ -53,15 +54,16 @@ class CalendarEventData<T extends Object?> {
     required DateTime date,
     this.description,
     this.event,
-    this.color = Colors.blue,
+    this.backgroundColor = Colors.blue,
+    this.foregroundColor = Colors.blue,
     this.startTime,
     this.endTime,
     this.titleStyle,
     this.descriptionStyle,
     this.recurrenceSettings,
     DateTime? endDate,
-  })  : _endDate = endDate?.withoutTime,
-        date = date.withoutTime;
+  }) : _endDate = endDate?.withoutTime,
+       date = date.withoutTime;
 
   DateTime get endDate => _endDate ?? date;
 
@@ -80,14 +82,11 @@ class CalendarEventData<T extends Object?> {
   /// span across multiple days.
   ///
   bool get isFullDayEvent {
-    return (startTime == null ||
-        endTime == null ||
-        (startTime!.isDayStart && endTime!.isDayStart));
+    return (startTime == null || endTime == null || (startTime!.isDayStart && endTime!.isDayStart));
   }
 
   bool get isRecurringEvent {
-    return recurrenceSettings != null &&
-        recurrenceSettings!.frequency != RepeatFrequency.doNotRepeat;
+    return recurrenceSettings != null && recurrenceSettings!.frequency != RepeatFrequency.doNotRepeat;
   }
 
   Duration get duration {
@@ -99,8 +98,7 @@ class CalendarEventData<T extends Object?> {
     final start = now.copyFromMinutes(startTime!.getTotalMinutes);
 
     if (end.isDayStart) {
-      final difference =
-          end.add(Duration(days: 1) - Duration(seconds: 1)).difference(start);
+      final difference = end.add(Duration(days: 1) - Duration(seconds: 1)).difference(start);
 
       return difference + Duration(seconds: 1);
     } else {
@@ -114,22 +112,21 @@ class CalendarEventData<T extends Object?> {
   bool occursOnDate(DateTime currentDate) {
     return currentDate == date ||
         currentDate == endDate ||
-        (currentDate.isBefore(endDate.withoutTime) &&
-            currentDate.isAfter(date.withoutTime));
+        (currentDate.isBefore(endDate.withoutTime) && currentDate.isAfter(date.withoutTime));
   }
 
   /// Returns event data in [Map<String, dynamic>] format.
   ///
   Map<String, dynamic> toJson() => {
-        "date": date,
-        "startTime": startTime,
-        "endTime": endTime,
-        "event": event,
-        "title": title,
-        "description": description,
-        "endDate": endDate,
-        "recurrenceSettings": recurrenceSettings,
-      };
+    "date": date,
+    "startTime": startTime,
+    "endTime": endTime,
+    "event": event,
+    "title": title,
+    "description": description,
+    "endDate": endDate,
+    "recurrenceSettings": recurrenceSettings,
+  };
 
   /// Returns new object of [CalendarEventData] with the updated values defined
   /// as the arguments.
@@ -139,6 +136,8 @@ class CalendarEventData<T extends Object?> {
     String? description,
     T? event,
     Color? color,
+    Color? backgroundColor,
+    Color? foregroundColor,
     DateTime? startTime,
     DateTime? endTime,
     TextStyle? titleStyle,
@@ -152,7 +151,8 @@ class CalendarEventData<T extends Object?> {
       date: date ?? this.date,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
-      color: color ?? this.color,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      foregroundColor: foregroundColor ?? this.foregroundColor,
       description: description ?? this.description,
       descriptionStyle: descriptionStyle ?? this.descriptionStyle,
       endDate: endDate ?? this.endDate,
@@ -170,18 +170,14 @@ class CalendarEventData<T extends Object?> {
     return other is CalendarEventData<T> &&
         date.compareWithoutTime(other.date) &&
         endDate.compareWithoutTime(other.endDate) &&
-        ((event == null && other.event == null) ||
-            (event != null && other.event != null && event == other.event)) &&
+        ((event == null && other.event == null) || (event != null && other.event != null && event == other.event)) &&
         ((startTime == null && other.startTime == null) ||
-            (startTime != null &&
-                other.startTime != null &&
-                startTime!.hasSameTimeAs(other.startTime!))) &&
+            (startTime != null && other.startTime != null && startTime!.hasSameTimeAs(other.startTime!))) &&
         ((endTime == null && other.endTime == null) ||
-            (endTime != null &&
-                other.endTime != null &&
-                endTime!.hasSameTimeAs(other.endTime!))) &&
+            (endTime != null && other.endTime != null && endTime!.hasSameTimeAs(other.endTime!))) &&
         title == other.title &&
-        color == other.color &&
+        backgroundColor == other.backgroundColor &&
+        foregroundColor == other.foregroundColor &&
         titleStyle == other.titleStyle &&
         descriptionStyle == other.descriptionStyle &&
         description == other.description;
@@ -192,7 +188,8 @@ class CalendarEventData<T extends Object?> {
       description.hashCode ^
       descriptionStyle.hashCode ^
       titleStyle.hashCode ^
-      color.hashCode ^
+      backgroundColor.hashCode ^
+      foregroundColor.hashCode ^
       title.hashCode ^
       date.hashCode;
 }

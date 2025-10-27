@@ -77,15 +77,23 @@ class _MapViewState extends State<MapView> {
   }
 
   void _addMarkers(List<MasterMarker> markers) {
+    // MapView has its own widget tree so we read them theme value and do not subscribe to its changes
+    final theme = context.ext.theme;
     Widget mark(MasterMarker marker) => Container(
       width: 42,
       height: 42,
       decoration: BoxDecoration(
-        color: AppColors.backgroundDefault,
+        color: theme.backgroundDefault,
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: AppColors.textPrimary, width: 2),
+        border: Border.all(color: theme.textPrimary, width: 2),
       ),
-      child: Center(child: AppText('⭐${marker.rating.toStringAsFixed(1)}', style: AppTextStyles.bodySmall)),
+      child: Center(
+        child: AppText(
+          '⭐${marker.rating.toStringAsFixed(1)}',
+          // Passing color explicitly is imporant because map's context is different and does not have [AppThemeWidget] above
+          style: AppTextStyles.bodySmall.copyWith(color: theme.textPrimary),
+        ),
+      ),
     );
 
     for (var data in markers) {

@@ -61,7 +61,7 @@ class ServiceWidget extends StatelessWidget {
           SizedBox(height: 4),
           Row(
             children: [
-              AppIcons.clock.icon(size: 14),
+              AppIcons.clock.icon(context, size: 14),
               SizedBox(width: 2),
               Expanded(
                 child: AppText(

@@ -1,9 +1,12 @@
 import 'package:calendar_view/calendar_view.dart';
-import 'package:polka_masters/features/calendar/widgets/schedule_hour_line_painter.dart';
+import 'package:polka_masters/features/calendar/widgets/events/event_tile.dart';
+import 'package:polka_masters/features/calendar/widgets/mbs/booking_info_mbs.dart';
+import 'package:polka_masters/features/calendar/widgets/painters/schedule_hour_line_painter.dart';
 import 'package:polka_masters/features/calendar/widgets/week_header_widget.dart';
 import 'package:polka_masters/scopes/calendar_scope.dart';
 import 'package:polka_masters/scopes/master_scope.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class CalendarWeekView extends StatefulWidget {
@@ -14,60 +17,57 @@ class CalendarWeekView extends StatefulWidget {
 }
 
 class _CalendarWeekViewState extends State<CalendarWeekView> {
-  static const _heightPerMinuteRatio = 1.75;
-
   @override
   Widget build(BuildContext context) {
-    final offset = (DateTime.now().hour - 1.5) * _heightPerMinuteRatio * 60;
-    final scope = CalendarScope.of(context);
+    final offset = (DateTime.now().hour - 1.5) * CalendarScope.heigthPerMinuteRatio * 60;
+    final scope = context.read<CalendarScope>();
 
-    return WeekView(
-      onPageChange: (date, __) => scope.calendarAppbarKey.currentState?.updateDate(date),
+    return WeekView<Booking>(
+      initialDay: scope.date,
+      onPageChange: (date, __) => scope.setDate(date),
       key: scope.weekViewKey,
       safeAreaOption: SafeAreaOption(bottom: false),
       weekDayBuilder: WeekHeaderWidget.new,
       weekPageHeaderBuilder: (_, _) => SizedBox.shrink(),
-      weekNumberBuilder: (_) => Material(color: AppColors.backgroundSubtle),
-      backgroundColor: AppColors.backgroundDefault,
-      heightPerMinute: _heightPerMinuteRatio,
+      weekNumberBuilder: (_) => Material(color: context.ext.theme.backgroundSubtle),
+      backgroundColor: context.ext.theme.backgroundDefault,
+      heightPerMinute: CalendarScope.heigthPerMinuteRatio,
+      eventTileBuilder: (date, events, boundary, startDuration, endDuration) => GestureDetector(
+        onTap: () {
+          if (events.firstOrNull?.event case Booking booking) {
+            showBookingInfoMbs(context: context, booking: booking);
+          }
+        },
+        onLongPress: devMode
+            ? () {
+                if (events.firstOrNull?.event case Booking booking) showDebugModel(context, booking);
+              }
+            : null,
+        child: SmallBookingEventTile(
+          date: date,
+          events: events,
+          boundary: boundary,
+          startDuration: startDuration,
+          endDuration: endDuration,
+        ),
+      ),
       timeLineBuilder: (date) => DefaultTimeLineMark(
         date: date,
         timeStringBuilder: (date, {secondaryDate}) => date.formatTimeOnly(),
-        markingStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textPlaceholder),
+        markingStyle: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.textPlaceholder),
       ),
-      hourIndicatorSettings: HourIndicatorSettings(height: 1, color: AppColors.backgroundDisabled, offset: 5),
-      hourLinePainter: _scheduleHourLinePainter,
-      liveTimeIndicatorSettings: LiveTimeIndicatorSettings(color: AppColors.textPrimary, bulletRadius: 0, height: 1.5),
+      hourIndicatorSettings: HourIndicatorSettings(height: 1, color: context.ext.theme.backgroundDisabled, offset: 5),
+      hourLinePainter: scheduleHourLinePainter(context, MasterScope.of(context).schedule),
+      liveTimeIndicatorSettings: LiveTimeIndicatorSettings(
+        color: context.ext.theme.textPrimary,
+        bulletRadius: 0,
+        height: 1.5,
+      ),
       scrollOffset: offset,
+      onDateTap: (date) {
+        scope.setViewMode(CalendarViewMode.day);
+        scope.setDate(date);
+      },
     );
   }
-
-  ScheduleHourLinePainter _scheduleHourLinePainter(
-    Color lineColor,
-    double lineHeight,
-    double offset,
-    double minuteHeight,
-    bool showVerticalLine,
-    double verticalLineOffset,
-    LineStyle lineStyle,
-    double dashWidth,
-    double dashSpaceWidth,
-    double emulateVerticalOffsetBy,
-    int startHour,
-    int endHour,
-  ) => ScheduleHourLinePainter(
-    lineColor: lineColor,
-    lineHeight: lineHeight,
-    offset: offset,
-    minuteHeight: minuteHeight,
-    showVerticalLine: showVerticalLine,
-    startHour: startHour,
-    emulateVerticalOffsetBy: emulateVerticalOffsetBy,
-    verticalLineOffset: verticalLineOffset,
-    lineStyle: lineStyle,
-    dashWidth: dashWidth,
-    dashSpaceWidth: dashSpaceWidth,
-    endHour: endHour,
-    schedule: MasterScope.of(context).schedule,
-  );
 }

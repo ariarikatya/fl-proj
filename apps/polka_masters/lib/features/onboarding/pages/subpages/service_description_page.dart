@@ -64,7 +64,7 @@ class _ServiceDescriptionPageState
     SizedBox(height: 24),
     AppText('Выбери длительность', style: AppTextStyles.headingSmall),
     SizedBox(height: 8),
-    _DurationPicker(duration: duration),
+    DurationPicker(duration: duration),
     SizedBox(height: 24),
     AppText('Добавь фотографию результата этой услуги', style: AppTextStyles.headingSmall),
     SizedBox(height: 16),
@@ -89,42 +89,4 @@ class _ServiceDescriptionPageState
       ],
     ),
   ];
-}
-
-class _DurationPicker extends StatelessWidget {
-  const _DurationPicker({required this.duration});
-
-  final ValueNotifier<Duration> duration;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: duration,
-      builder: (context, value, child) {
-        return Row(
-          spacing: 8,
-          children: [
-            Expanded(
-              child: AppTextButtonSecondary.large(
-                text: '${duration.value.inHours} час(ов)',
-                onTap: () async {
-                  final duration0 = await DateTimePickerMBS.pickDuration(context, initValue: duration.value);
-                  if (duration0 != null) duration.value = duration0;
-                },
-              ),
-            ),
-            Expanded(
-              child: AppTextButtonSecondary.large(
-                text: '${duration.value.inMinutes % 60} минут',
-                onTap: () async {
-                  final duration0 = await DateTimePickerMBS.pickDuration(context, initValue: duration.value);
-                  if (duration0 != null) duration.value = duration0;
-                },
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

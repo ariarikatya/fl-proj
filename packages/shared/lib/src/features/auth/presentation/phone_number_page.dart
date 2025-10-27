@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/result.dart';
 import 'package:shared/src/widgets/app_page.dart';
@@ -35,7 +35,7 @@ class PhoneNumberPage extends StatelessWidget {
                 SizedBox(height: 8),
                 AppText(
                   'Мы отправим вам SMS с кодом\nдля входа',
-                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                 ),
                 SizedBox(height: 24),
                 AppPhoneForm(onSubmit: _onSubmit),

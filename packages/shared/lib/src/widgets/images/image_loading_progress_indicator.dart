@@ -1,13 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/utils.dart';
 import 'package:shared/src/widgets/app_text.dart';
 import 'package:shared/src/widgets/loading/loading_indicator.dart';
 
 Widget imageLoadingProgressIndicator(BuildContext context, String url, DownloadProgress progress) => ColoredBox(
-  color: AppColors.backgroundHover.withValues(alpha: 0.5),
+  color: context.ext.theme.backgroundHover.withValues(alpha: 0.5),
   child: Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,

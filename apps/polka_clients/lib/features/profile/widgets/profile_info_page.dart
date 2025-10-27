@@ -153,7 +153,7 @@ class _DeleteAccountButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          AppIcons.trash.icon(),
+          AppIcons.trash.icon(context),
           AppText('Удалить мой аккаунт', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
         ],
       ),
@@ -174,7 +174,7 @@ class _MockReadOnlyPhoneTextFieldState extends State<_MockReadOnlyPhoneTextField
 
   @override
   void initState() {
-    _controller.text = mockPhoneFormatter.maskText(widget.phoneNumber);
+    _controller.text = phoneFormatter.maskText(widget.phoneNumber);
     super.initState();
   }
 

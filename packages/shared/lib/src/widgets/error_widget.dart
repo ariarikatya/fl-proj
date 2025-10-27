@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/widgets/app_text.dart';
 
@@ -13,7 +13,7 @@ class AppErrorWidget extends StatelessWidget {
     return Center(
       child: Container(
         padding: EdgeInsets.all(24),
-        child: AppText(error, style: AppTextStyles.bodyLarge.copyWith(color: AppColors.error)),
+        child: AppText(error, style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.error)),
       ),
     );
   }

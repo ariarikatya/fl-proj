@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 
 class AppPage extends StatelessWidget {
   const AppPage({super.key, required this.child, this.safeAreaBuilder, this.appBar, this.backgroundColor});
@@ -13,7 +13,7 @@ class AppPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar,
-      backgroundColor: backgroundColor ?? AppColors.backgroundDefault,
+      backgroundColor: backgroundColor ?? context.ext.theme.backgroundDefault,
       body: safeAreaBuilder?.call(child) ?? SafeArea(child: child),
     );
   }

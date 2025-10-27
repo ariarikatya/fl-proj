@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared/src/dev/json_equatable.dart';
-import 'package:shared/src/models/service_categories.dart';
-import 'package:shared/src/models/service_location.dart';
+import 'package:shared/src/models/service/service_categories.dart';
+import 'package:shared/src/models/service/service_location.dart';
 
 class Service extends JsonEquatable {
   const Service({
@@ -23,7 +23,7 @@ class Service extends JsonEquatable {
     category: ServiceCategories.fromJson(json['category']),
     title: json['title'] as String,
     duration: Duration(minutes: json['duration_min'] as int),
-    description: json['activity'] as String? ?? 'activity',
+    description: (json['activity'] ?? json['description']) as String? ?? '',
     location: ServiceLocation.fromJson(json['location']),
     resultPhotos: (json['result_photos'] as List).cast<String>(),
     price: (json['price'] as num).toInt(),

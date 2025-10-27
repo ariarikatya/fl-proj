@@ -67,11 +67,11 @@ class _ReviewPageState extends State<ReviewPage> {
               child: _BookingInfoCard(booking: widget.booking),
             ),
             _Stars(stars: _stars),
-            Divider(color: AppColors.backgroundHover, height: 1),
+            Divider(color: context.ext.theme.backgroundHover, height: 1),
 
             _subtitle('Что особенно понравилось?'),
             _Tags(tags: _tags),
-            Divider(color: AppColors.backgroundHover, height: 1),
+            Divider(color: context.ext.theme.backgroundHover, height: 1),
 
             _subtitle('Напиши комментарий'),
             Padding(
@@ -84,7 +84,7 @@ class _ReviewPageState extends State<ReviewPage> {
                 maxLength: 1000,
               ),
             ),
-            Divider(color: AppColors.backgroundHover, height: 1),
+            Divider(color: context.ext.theme.backgroundHover, height: 1),
 
             _subtitle('Добавь фото'),
             MultiImagePickerWidget(count: 5, onImagesChanged: (images) => _images.value = images),
@@ -125,7 +125,10 @@ class _Disclaimer extends StatelessWidget {
           children: [
             TextSpan(
               text: 'Нажимая кнопку, вы принимаете ',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.ext.theme.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
             WidgetSpan(
               child: GestureDetector(
@@ -133,7 +136,7 @@ class _Disclaimer extends StatelessWidget {
                 child: AppText(
                   'условия публикации',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.ext.theme.textPrimary,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -141,7 +144,10 @@ class _Disclaimer extends StatelessWidget {
             ),
             TextSpan(
               text: ' отзыва - он появится в карточке мастера',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.ext.theme.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -203,8 +209,9 @@ class _Stars extends StatelessWidget {
                   GestureDetector(
                     onTap: () => _stars.value = i,
                     child: AppIcons.star.icon(
+                      context,
                       size: 44,
-                      color: value >= i ? Colors.amberAccent : AppColors.backgroundDisabled,
+                      color: value >= i ? Colors.amberAccent : context.ext.theme.backgroundDisabled,
                     ),
                   ),
               ],

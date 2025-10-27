@@ -27,7 +27,6 @@ class OnboardingController extends $OnboardingController {
       firstName: setupData.userData?.firstName ?? 'Имя',
       lastName: setupData.userData?.lastName ?? '',
       city: setupData.userData?.city ?? '',
-      services: [],
       preferredServices: setupData.interests ?? [],
       avatarUrl: '',
       email: null,

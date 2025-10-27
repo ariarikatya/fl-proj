@@ -72,7 +72,7 @@ class BookingView extends StatelessWidget {
             Container(
               padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
               decoration: BoxDecoration(
-                border: Border.symmetric(horizontal: BorderSide(color: AppColors.backgroundHover, width: 1)),
+                border: Border.symmetric(horizontal: BorderSide(color: context.ext.theme.backgroundHover, width: 1)),
               ),
               width: double.infinity,
               child: Column(
@@ -82,7 +82,7 @@ class BookingView extends StatelessWidget {
                   AppText('Когда:', style: AppTextStyles.headingSmall),
                   AppText(
                     booking.datetime.formatFull(),
-                    style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                   ),
                   if (booking.status == BookingStatus.confirmed)
                     Padding(
@@ -106,12 +106,12 @@ class BookingView extends StatelessWidget {
                     AppText('Где:', style: AppTextStyles.headingSmall),
                     AppText(
                       service.location.label,
-                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                     AppText(
                       master.address,
-                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 12),
@@ -135,7 +135,7 @@ class BookingView extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
               width: double.infinity,
               decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: AppColors.backgroundHover, width: 1)),
+                border: Border(top: BorderSide(color: context.ext.theme.backgroundHover, width: 1)),
               ),
               child: Column(
                 spacing: 8,
@@ -159,7 +159,13 @@ class BookingView extends StatelessWidget {
                       Flexible(
                         child: AppTextButtonSecondary.large(
                           text: 'Чат',
-                          onTap: () => openChat(context, master.id, master.fullName, master.avatarUrl),
+                          onTap: () => ChatsUtils().openChat(
+                            context,
+                            master.id,
+                            master.fullName,
+                            master.avatarUrl,
+                            withClient: true,
+                          ),
                         ),
                       ),
                     ],
@@ -220,7 +226,10 @@ class _Header extends StatelessWidget {
                   style: AppTextStyles.headingSmall.copyWith(height: 1),
                 ),
                 SizedBox(height: 4),
-                AppText(master.profession, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                AppText(
+                  master.profession,
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                ),
                 SizedBox(height: 8),
                 Wrap(
                   spacing: 4,
@@ -250,20 +259,20 @@ class _BookingStatusBadge extends StatelessWidget {
 
   final BookingStatus status;
 
-  Color get color => switch (status) {
-    BookingStatus.pending => AppColors.accent,
-    BookingStatus.confirmed => AppColors.success,
-    BookingStatus.canceled => AppColors.error,
-    BookingStatus.rejected => AppColors.error,
-    BookingStatus.completed => AppColors.textPrimary,
+  Color colorOf(BuildContext context) => switch (status) {
+    BookingStatus.pending => context.ext.theme.accent,
+    BookingStatus.confirmed => context.ext.theme.success,
+    BookingStatus.canceled => context.ext.theme.error,
+    BookingStatus.rejected => context.ext.theme.error,
+    BookingStatus.completed => context.ext.theme.textPrimary,
   };
 
-  Color get bgColor => switch (status) {
-    BookingStatus.pending => AppColors.accentLight,
-    BookingStatus.confirmed => AppColors.successLight,
-    BookingStatus.canceled => AppColors.accentLight,
-    BookingStatus.rejected => AppColors.accentLight,
-    BookingStatus.completed => AppColors.backgroundHover,
+  Color bgColorOf(BuildContext context) => switch (status) {
+    BookingStatus.pending => context.ext.theme.accentLight,
+    BookingStatus.confirmed => context.ext.theme.successLight,
+    BookingStatus.canceled => context.ext.theme.accentLight,
+    BookingStatus.rejected => context.ext.theme.accentLight,
+    BookingStatus.completed => context.ext.theme.backgroundHover,
   };
 
   @override
@@ -271,11 +280,11 @@ class _BookingStatusBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
       decoration: BoxDecoration(
-        color: bgColor,
-        border: Border.all(color: color),
+        color: bgColorOf(context),
+        border: Border.all(color: colorOf(context)),
         borderRadius: BorderRadius.circular(100),
       ),
-      child: AppText(status.label, style: AppTextStyles.bodyMedium.copyWith(color: color)),
+      child: AppText(status.label, style: AppTextStyles.bodyMedium.copyWith(color: colorOf(context))),
     );
   }
 }

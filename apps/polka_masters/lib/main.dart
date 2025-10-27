@@ -3,24 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:polka_masters/app.dart';
 import 'package:polka_masters/dependencies.dart';
+import 'package:polka_masters/splash_screen.dart';
 import 'package:shared/shared.dart';
-import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 
 void main() => runZonedGuarded(
   () async {
-    FlutterError.onError = (FlutterErrorDetails details) {
-      logger.handle(details.exception, details.stack);
-    };
-
+    runApp(SplashScreen());
     WidgetsFlutterBinding.ensureInitialized();
     await Dependencies.init();
+    await Future.delayed(Duration(seconds: 2));
     runApp(const App());
   },
   (error, stack) {
-    AppMetrica.reportError(
-      message: error.toString(),
-      errorDescription: AppMetricaErrorDescription(stack, type: 'Unhandled Exception'),
-    );
+    CrashlyticsService().reportError(error, stack);
     logger.handle(error, stack, 'This error was caught by ZoneGuarded');
   },
 );

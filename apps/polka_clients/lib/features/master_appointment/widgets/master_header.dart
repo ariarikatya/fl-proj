@@ -11,7 +11,7 @@ class MasterHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-      decoration: BoxDecoration(color: AppColors.backgroundSubtle, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(color: context.ext.theme.backgroundSubtle, borderRadius: BorderRadius.circular(24)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -26,10 +26,13 @@ class MasterHeader extends StatelessWidget {
                   '${master.firstName} ${master.lastName}',
                   style: AppTextStyles.headingSmall.copyWith(height: 1),
                 ),
-                AppText(master.profession, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                AppText(
+                  master.profession,
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                ),
                 AppText(
                   '⭐ ${master.ratingFixed} | Опыт: ${master.experience}',
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
                 ),
               ],
             ),

@@ -37,7 +37,7 @@ class _AvatarUploadPageState extends OnboardingPageState<AvatarUploadPage, Onboa
     SizedBox(height: 16),
     AppText(
       'Мы покажем его в твоей карточке, это поможет клиентам лучше узнать тебя',
-      style: AppTextStyles.headingSmall.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+      style: AppTextStyles.headingSmall.copyWith(color: context.ext.theme.textSecondary, fontWeight: FontWeight.w500),
     ),
     SizedBox(height: 40),
     Center(
@@ -49,13 +49,16 @@ class _AvatarUploadPageState extends OnboardingPageState<AvatarUploadPage, Onboa
             return Stack(
               alignment: Alignment.center,
               children: [
-                AppIcons.blotBig.icon(size: 168, color: AppColors.accent),
+                AppIcons.blotBig.icon(context, size: 168, color: context.ext.theme.accent),
                 AppAvatar(avatarUrl: '', size: 160, provider: value != null ? FileImage(File(value.path)) : null),
                 if (value == null)
                   Container(
                     padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(color: AppColors.accentLight, borderRadius: BorderRadius.circular(40)),
-                    child: AppIcons.add.icon(size: 16),
+                    decoration: BoxDecoration(
+                      color: context.ext.theme.accentLight,
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    child: AppIcons.add.icon(context, size: 16),
                   ),
               ],
             );

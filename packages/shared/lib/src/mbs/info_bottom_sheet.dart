@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
-import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/extensions/context.dart';
+import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/mbs/mbs_base.dart';
 import 'package:shared/src/widgets/app_text.dart';
 import 'package:shared/src/widgets/app_text_button.dart';
@@ -15,7 +14,7 @@ Future<bool?> showInfoBottomSheet({
 }) {
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: context.ext.theme.backgroundDefault,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (_) => _InfoBottomSheet(
       title: title,
@@ -59,7 +58,7 @@ class _InfoBottomSheet extends StatelessWidget {
             child: AppText(
               description,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
             ),
           ),
           const SizedBox(height: 24),

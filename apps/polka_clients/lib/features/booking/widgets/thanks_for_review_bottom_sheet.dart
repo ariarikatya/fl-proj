@@ -30,7 +30,10 @@ class ThanksForReviewBottomSheet extends StatelessWidget {
           SizedBox(height: 8),
           AppText(
             'Твой отклик помогает другим найти своего мастера, а мастеру — расти и становиться лучше. 💛',
-            style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+            style: AppTextStyles.bodyLarge.copyWith(
+              color: context.ext.theme.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 24),
           AppTextButton.large(

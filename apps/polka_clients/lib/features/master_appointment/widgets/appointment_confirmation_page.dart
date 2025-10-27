@@ -39,7 +39,9 @@ class AppointmentConfirmationPage extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
                     decoration: BoxDecoration(
-                      border: Border.symmetric(horizontal: BorderSide(color: AppColors.backgroundHover, width: 1)),
+                      border: Border.symmetric(
+                        horizontal: BorderSide(color: context.ext.theme.backgroundHover, width: 1),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -64,7 +66,7 @@ class AppointmentConfirmationPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: AppText(
                     'Записываясь, вы подтверждаете свое согласие с обработкой персональных данных',
-                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.textSecondary),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -118,7 +120,10 @@ class _Header extends StatelessWidget {
                   style: AppTextStyles.headingSmall.copyWith(height: 1),
                 ),
                 SizedBox(height: 4),
-                AppText(master.profession, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                AppText(
+                  master.profession,
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                ),
                 SizedBox(height: 8),
                 Wrap(
                   spacing: 4,

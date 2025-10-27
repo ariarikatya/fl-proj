@@ -5,7 +5,7 @@ import 'package:polka_clients/features/favorites/controller/favorites_cubit.dart
 import 'package:polka_clients/features/home/controller/home_navigation_cubit.dart';
 import 'package:polka_clients/features/map_search/controller/map_markers_paginator.dart';
 import 'package:polka_clients/features/map_search/controller/map_search_cubit.dart';
-import 'package:polka_clients/features/search/controller/search_cubit.dart';
+import 'package:polka_clients/features/search/controller/feed_search_cubit.dart';
 import 'package:shared/shared.dart';
 import 'package:polka_clients/features/feed/controller/feed_cubit.dart';
 
@@ -15,7 +15,7 @@ class ClientBlocsProvider extends BlocsProvider {
         factories: {
           FeedCubit: (_) => FeedCubit(),
           CitySearchCubit: (_) => CitySearchCubit(Dependencies().dio),
-          SearchCubit: (_) => SearchCubit(),
+          FeedSearchCubit: (_) => FeedSearchCubit(),
           HomeNavigationCubit: (_) => HomeNavigationCubit(),
           BookingsCubit: (_) => BookingsCubit(),
           FavoritesCubit: (_) => FavoritesCubit(),

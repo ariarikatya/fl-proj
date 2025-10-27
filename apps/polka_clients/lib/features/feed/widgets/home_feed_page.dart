@@ -27,7 +27,10 @@ class HomeFeedPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
-                AppText('г. ${client.city}', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary)),
+                AppText(
+                  'г. ${client.city}',
+                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                ),
                 AppSearchBar(),
               ],
             ),
@@ -122,8 +125,8 @@ class AppSearchBar extends StatelessWidget {
         child: AppTextFormField(
           compact: true,
           hintText: 'Например, Airtouch',
-          prefixIcon: AppIcons.search.icon(color: AppColors.textPlaceholder),
-          fillColor: AppColors.backgroundDefault,
+          prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
+          fillColor: context.ext.theme.backgroundDefault,
         ),
       ),
     );
@@ -152,7 +155,10 @@ class CategoryFilterButton extends StatelessWidget {
               width: 60,
               height: 56,
               padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(color: AppColors.backgroundHover, borderRadius: BorderRadius.circular(14)),
+              decoration: BoxDecoration(
+                color: context.ext.theme.backgroundHover,
+                borderRadius: BorderRadius.circular(14),
+              ),
               child: icon,
             ),
             SizedBox(height: 2),

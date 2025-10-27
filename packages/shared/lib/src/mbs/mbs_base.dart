@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
+import 'package:shared/src/initialization.dart';
 
 class MbsBase extends StatelessWidget {
   const MbsBase({super.key, required this.child, this.showGrabber = true, this.expandContent = true});
@@ -11,11 +12,13 @@ class MbsBase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var content = expandContent ? Expanded(child: child) : child;
+    double bottomPadding = 32;
+    if (navigatorKey.currentContext case BuildContext ctx) bottomPadding = MediaQuery.of(ctx).padding.bottom + 8;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
+      padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPadding),
       decoration: BoxDecoration(
-        color: AppColors.backgroundDefault,
+        color: context.ext.theme.backgroundDefault,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: SizedBox(
@@ -29,7 +32,10 @@ class MbsBase extends StatelessWidget {
                   width: 36,
                   height: 5,
                   margin: EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(color: AppColors.textPrimary, borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: context.ext.theme.textPrimary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
             content,

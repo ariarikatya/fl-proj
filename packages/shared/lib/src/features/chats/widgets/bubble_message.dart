@@ -11,7 +11,7 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = message.isOwnMessage ? AppColors.backgroundDefault : AppColors.textPrimary;
+    final textColor = message.isOwnMessage ? context.ext.theme.backgroundDefault : context.ext.theme.textPrimary;
 
     Widget content = Padding(
       padding: EdgeInsets.symmetric(horizontal: 10),
@@ -28,8 +28,8 @@ class MessageBubble extends StatelessWidget {
                 children: [
                   if (message.isOwnMessage)
                     switch (message.status) {
-                      'sent' => AppIcons.check.icon(size: 20, color: textColor),
-                      'read' => AppIcons.checkDouble.icon(size: 20, color: textColor),
+                      'sent' => AppIcons.check.icon(context, size: 20, color: textColor),
+                      'read' => AppIcons.checkDouble.icon(context, size: 20, color: textColor),
                       _ => SizedBox.shrink(),
                     },
                   AppText(
@@ -63,7 +63,7 @@ class MessageBubble extends StatelessWidget {
                 clipper: BubbleClipper(clipRightBottom: !message.isOwnMessage, clipLeftBottom: message.isOwnMessage),
                 child: Container(
                   padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
-                  color: message.isOwnMessage ? AppColors.accent : AppColors.backgroundHover,
+                  color: message.isOwnMessage ? context.ext.theme.buttonPrimary : context.ext.theme.backgroundHover,
                   child: content,
                 ),
               ),
@@ -81,7 +81,7 @@ class MessageBubble extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.fromLTRB(8, 2.5, 8, 2.5),
-            decoration: BoxDecoration(color: AppColors.accentLight, borderRadius: BorderRadius.circular(100)),
+            decoration: BoxDecoration(color: context.ext.theme.accentLight, borderRadius: BorderRadius.circular(100)),
             child: AppText(message.sentAt.formatDateRelative(), style: AppTextStyles.bodyMedium),
           ),
           widget,
@@ -106,7 +106,7 @@ class _AttachmentsWrapper extends StatelessWidget {
     if (message.attachments.isNotEmpty) {
       final imageProvider = message.attachments.length == 1
           ? SingleImageProvider(CachedNetworkImageProvider(message.attachments.first))
-          : MultiImageProvider([for (var url in message.attachments) CachedNetworkImageProvider(url)]);
+          : ChatMultiImageProvider([for (var url in message.attachments) CachedNetworkImageProvider(url)]);
 
       Widget attachment = GestureDetector(
         onTap: () => showImageViewerPager(
@@ -133,13 +133,13 @@ class _AttachmentsWrapper extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.accentLight,
+                  color: context.ext.theme.accentLight,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.accent, width: 1),
+                  border: Border.all(color: context.ext.theme.accent, width: 1),
                 ),
                 child: AppText(
                   '+ ${message.attachments.length - 1}',
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.accent),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.accent),
                 ),
               ),
             ),

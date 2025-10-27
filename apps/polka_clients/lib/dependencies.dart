@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:polka_clients/features/booking/data/bookings_repo.dart';
 import 'package:polka_clients/features/favorites/data/favorites_repo.dart';
@@ -23,8 +24,14 @@ class Dependencies {
     // For debugging released apps
     if (devMode) logger.info('[dev-mode] env values: ${Env.values}');
 
-    // Initialize AppMetrica
-    await AppMetrica.activate(AppMetricaConfig(Env.appMetricaApiKey));
+    // Initialize Crashlytics
+    if (Platform.isAndroid || Platform.isIOS) {
+      _instance.crashlyticsService = Crashlytics$AppMetricaImpl(apiKey: Env.appMetricaApiKey);
+    } else {
+      _instance.crashlyticsService = Crashlytics$LoggerImpl();
+    }
+    await _instance.crashlyticsService.init();
+    errorHandler = _instance.crashlyticsService.reportError;
 
     _instance.dio = DioFactory.createDio();
     _instance.secureStorage = createSecureStorage();
@@ -32,8 +39,12 @@ class Dependencies {
 
     await _instance._initRepositories();
 
-    _instance.mapkitInit = Completer()
-      ..future.whenComplete(() => logger.info('[mapkit] mapkit initialization completed'));
+    if (Platform.isAndroid || Platform.isIOS) {
+      _instance.mapkitInit = Completer()
+        ..future.whenComplete(() => logger.info('[mapkit] mapkit initialization completed'));
+    } else {
+      _instance.mapkitInit = Completer()..complete();
+    }
 
     blocs = ClientBlocsProvider();
     await _instance._initAuth();
@@ -41,8 +52,8 @@ class Dependencies {
 
     await initializeFormatting();
 
-    await AppMetrica.reportEvent('App initialized');
-    AppMetrica.sendEventsBuffer();
+    await _instance.crashlyticsService.reportEvent('Clients App initialized');
+    if (_instance.crashlyticsService is Crashlytics$AppMetricaImpl) AppMetrica.sendEventsBuffer();
   }
 
   Future<void> _initAuth() async {
@@ -106,6 +117,8 @@ class Dependencies {
   late final AuthController<Client> authController;
 
   late final WebSocketService webSocketService;
+
+  late final CrashlyticsService crashlyticsService;
 
   late final AuthRepository authRepository;
   late final ProfileRepository profileRepository;

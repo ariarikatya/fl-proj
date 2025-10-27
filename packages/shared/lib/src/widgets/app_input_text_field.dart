@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/icons.dart';
 import 'package:shared/src/widgets/app_text.dart';
@@ -53,7 +53,7 @@ class _AppInputTextFieldState extends State<AppInputTextField> {
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
-      borderSide: BorderSide(color: AppColors.iconsDefault),
+      borderSide: BorderSide(color: context.ext.theme.iconsDefault),
       borderRadius: BorderRadius.circular(16),
     );
 
@@ -73,10 +73,10 @@ class _AppInputTextFieldState extends State<AppInputTextField> {
             margin: EdgeInsets.all(8),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: hasFocus ? AppColors.accent : AppColors.textDisabled,
+              color: hasFocus ? context.ext.theme.buttonPrimary : context.ext.theme.textDisabled,
               borderRadius: BorderRadius.circular(40),
             ),
-            child: AppIcons.arrowUp.icon(size: 16, color: AppColors.backgroundDefault),
+            child: AppIcons.arrowUp.icon(context, size: 16, color: context.ext.theme.backgroundDefault),
           ),
         );
       },
@@ -96,11 +96,11 @@ class _AppInputTextFieldState extends State<AppInputTextField> {
             minLines: 1,
             controller: widget.controller,
             style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            cursorColor: AppColors.textPlaceholder,
+            cursorColor: context.ext.theme.textPlaceholder,
             onFieldSubmitted: widget.onFieldSubmitted,
             autovalidateMode: AutovalidateMode.onUnfocus,
             errorBuilder: (context, error) =>
-                AppText(error, style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
+                AppText(error, style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.error)),
             decoration: InputDecoration(
               prefixIcon: SizedBox(),
               prefixIconConstraints: BoxConstraints.tight(Size(40, 40)),
@@ -108,17 +108,17 @@ class _AppInputTextFieldState extends State<AppInputTextField> {
               suffixIconConstraints: BoxConstraints.tightFor(width: widget.suffixWidth ?? 48, height: 48),
               floatingLabelBehavior: FloatingLabelBehavior.auto,
               hintText: widget.hintText,
-              floatingLabelStyle: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPlaceholder),
+              floatingLabelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
               alignLabelWithHint: true,
-              labelStyle: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPlaceholder),
-              hintStyle: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPlaceholder),
+              labelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
+              hintStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
               border: border,
               filled: true,
-              fillColor: AppColors.backgroundDefault,
+              fillColor: context.ext.theme.backgroundDefault,
               enabledBorder: border,
               disabledBorder: border,
               focusedBorder: border,
-              errorBorder: border.copyWith(borderSide: BorderSide(color: AppColors.error)),
+              errorBorder: border.copyWith(borderSide: BorderSide(color: context.ext.theme.error)),
             ),
           ),
         ),

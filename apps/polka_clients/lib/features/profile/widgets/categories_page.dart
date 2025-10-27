@@ -50,7 +50,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
                   child: AppText(
                     'На основе твоего выбора мы показываем мастеров на "Главной"',
-                    style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                   ),
                 ),
                 Padding(

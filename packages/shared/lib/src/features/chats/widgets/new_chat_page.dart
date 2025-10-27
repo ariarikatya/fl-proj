@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
-import 'package:shared/src/features/chats/chat_input_field.dart';
 
 class NewChatPage extends StatefulWidget {
-  const NewChatPage({super.key, required this.masterId, required this.masterName, required this.masterAvatar});
+  const NewChatPage({
+    super.key,
+    required this.otherUserId,
+    required this.otherUserName,
+    required this.otherUserAvatar,
+    required this.withClient,
+  });
 
-  final int masterId;
-  final String masterName;
-  final String? masterAvatar;
+  final int otherUserId;
+  final String otherUserName;
+  final String? otherUserAvatar;
+  final bool withClient;
 
   @override
   State<NewChatPage> createState() => _NewChatPageState();
@@ -15,11 +21,11 @@ class NewChatPage extends StatefulWidget {
 
 class _NewChatPageState extends State<NewChatPage> {
   void _startChat(String text, {List<String> attachments = const []}) async {
-    await blocs.get<ChatsCubit>(context).startChat(widget.masterId, text);
+    await blocs.get<ChatsCubit>(context).startChat(widget.otherUserId, text, withClient: widget.withClient);
     if (!mounted) return;
     await blocs.get<ChatsCubit>(context).loadChats(force: true);
     if (!mounted) return;
-    final chat = blocs.get<ChatsCubit>(context).maybeGetChatWithMasterId(widget.masterId);
+    final chat = blocs.get<ChatsCubit>(context).maybeGetChatWithOtherUserId(widget.otherUserId);
     if (mounted && chat != null) {
       context.ext.replace(ChatScreen(chatId: chat.preview.id));
     }
@@ -36,14 +42,14 @@ class _NewChatPageState extends State<NewChatPage> {
             Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: AppColors.borderStrong, borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: context.ext.theme.borderStrong, borderRadius: BorderRadius.circular(8)),
             ),
-            Flexible(child: AppText(widget.masterName)),
+            Flexible(child: AppText(widget.otherUserName)),
           ],
         ),
         action: Padding(
           padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
-          child: ImageClipped(imageUrl: widget.masterAvatar, borderRadius: 40),
+          child: ImageClipped(imageUrl: widget.otherUserAvatar, borderRadius: 40),
         ),
       ),
       child: Column(

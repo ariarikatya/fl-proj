@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 
 const _defaultSize = 40.0;
 
@@ -20,12 +20,12 @@ class AppAvatar extends StatelessWidget {
       height: size ?? _defaultSize,
       width: size ?? _defaultSize,
       decoration: BoxDecoration(
-        border: Border.all(color: borderColor ?? AppColors.backgroundHover, width: 1),
+        border: Border.all(color: borderColor ?? context.ext.theme.backgroundHover, width: 1),
         borderRadius: BorderRadius.circular(100),
         boxShadow: [
           if (shadow) BoxShadow(blurRadius: 4, offset: Offset(0, 1), color: Colors.black.withValues(alpha: 0.1)),
         ],
-        color: avatarUrl != null && avatarUrl!.isNotEmpty ? null : AppColors.backgroundHover,
+        color: avatarUrl != null && avatarUrl!.isNotEmpty ? null : context.ext.theme.backgroundHover,
         image: provider != null
             ? DecorationImage(image: provider!, fit: BoxFit.cover)
             : avatarUrl != null && avatarUrl!.isNotEmpty

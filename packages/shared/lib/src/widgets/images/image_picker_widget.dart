@@ -47,7 +47,7 @@ class ImagePickerWidget extends StatelessWidget {
                       // ? Container(
                       //     decoration: BoxDecoration(
                       //       borderRadius: BorderRadius.circular(14),
-                      //       color: AppColors.backgroundDisabled,
+                      //       color: context.ext.theme.backgroundDisabled,
                       //     ),
                       //   )
                       : Image.file(File(image!.path), fit: BoxFit.cover),
@@ -57,7 +57,7 @@ class ImagePickerWidget extends StatelessWidget {
                 options: RoundedRectDottedBorderOptions(
                   radius: Radius.circular(14),
                   dashPattern: [3, 3],
-                  color: AppColors.iconsDefault,
+                  color: context.ext.theme.iconsDefault,
                 ),
                 child: Center(
                   child: image != null
@@ -65,10 +65,10 @@ class ImagePickerWidget extends StatelessWidget {
                       : Container(
                           padding: EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: AppColors.accentLight,
+                            color: context.ext.theme.accentLight,
                             borderRadius: BorderRadius.circular(40),
                           ),
-                          child: AppIcons.add.icon(size: 16),
+                          child: AppIcons.add.icon(context, size: 16),
                         ),
                 ),
               ),
@@ -80,8 +80,11 @@ class ImagePickerWidget extends StatelessWidget {
                     onTap: onDelete,
                     child: Container(
                       padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(color: AppColors.accentLight, borderRadius: BorderRadius.circular(14)),
-                      child: AppIcons.close.icon(size: 16),
+                      decoration: BoxDecoration(
+                        color: context.ext.theme.accentLight,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: AppIcons.close.icon(context, size: 16),
                     ),
                   ),
                 ),
@@ -101,7 +104,7 @@ class ImagePickerWidget extends StatelessWidget {
 //       children: [
 //         Checkbox(
 //           value: isMain,
-//           activeColor: AppColors.accent,
+//           activeColor: context.ext.theme.accent,
 //           onChanged: (_) => onMain(),
 //           visualDensity: VisualDensity.compact,
 //         ),

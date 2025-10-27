@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:polka_clients/features/search/controller/search_cubit.dart';
+import 'package:polka_clients/features/search/controller/feed_search_cubit.dart';
 import 'package:polka_clients/features/search/filters/filters_page.dart';
 import 'package:polka_clients/features/search/filters/search_filter.dart';
 import 'package:polka_clients/widgets/masters_view.dart';
@@ -23,7 +23,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    blocs.get<SearchCubit>(context);
+    blocs.get<FeedSearchCubit>(context);
     _focusNode.requestFocus();
   }
 
@@ -31,7 +31,7 @@ class _SearchPageState extends State<SearchPage> {
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
-    blocs.destroy<SearchCubit>();
+    blocs.destroy<FeedSearchCubit>();
     super.dispose();
   }
 
@@ -49,7 +49,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _search() {
-    blocs.get<SearchCubit>(context).search(_controller.text.trim(), _filter);
+    blocs.get<FeedSearchCubit>(context).search(_controller.text.trim(), _filter);
   }
 
   @override
@@ -66,10 +66,10 @@ class _SearchPageState extends State<SearchPage> {
               children: [
                 Expanded(
                   child: AppTextFormField(
-                    fillColor: AppColors.backgroundSubtle,
+                    fillColor: context.ext.theme.backgroundSubtle,
                     hintText: 'Например, Airtouch',
                     compact: true,
-                    prefixIcon: AppIcons.search.icon(color: AppColors.textPlaceholder),
+                    prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
                     controller: _controller,
                     focusNode: _focusNode,
                     onFieldSubmitted: (value) => _search(),
@@ -84,13 +84,13 @@ class _SearchPageState extends State<SearchPage> {
             child: AppText('Нашли для тебя', style: AppTextStyles.headingSmall),
           ),
           Expanded(
-            child: BlocBuilder<SearchCubit, SearchState>(
-              bloc: blocs.get<SearchCubit>(context),
+            child: BlocBuilder<FeedSearchCubit, FeedSearchState>(
+              bloc: blocs.get<FeedSearchCubit>(context),
               builder: (context, state) => switch (state) {
-                SearchInitial() => SizedBox.shrink(),
-                SearchLoading() => Center(child: LoadingIndicator()),
-                SearchError(:final error) => Center(child: AppText(error)),
-                SearchLoaded(:final data) =>
+                FeedSearchInitial() => SizedBox.shrink(),
+                FeedSearchLoading() => Center(child: LoadingIndicator()),
+                FeedSearchError(:final error) => Center(child: AppText(error)),
+                FeedSearchLoaded(:final data) =>
                   data.isEmpty
                       ? EmptySearchView(onResetFilters: _filter.hasActiveFilters ? _resetFilters : null)
                       : MastersView(masters: data),
@@ -119,11 +119,11 @@ class FilterButton extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(11),
             decoration: BoxDecoration(
-              color: enabled ? AppColors.accentLight : AppColors.backgroundSubtle,
+              color: enabled ? context.ext.theme.accentLight : context.ext.theme.backgroundSubtle,
               borderRadius: BorderRadius.circular(14),
-              border: enabled ? Border.all(color: AppColors.accent, width: 1) : null,
+              border: enabled ? Border.all(color: context.ext.theme.accent, width: 1) : null,
             ),
-            child: AppIcons.filter.icon(),
+            child: AppIcons.filter.icon(context),
           ),
           if (enabled)
             Positioned(
@@ -133,9 +133,9 @@ class FilterButton extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: AppColors.accent,
+                  color: context.ext.theme.accent,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.backgroundDefault, width: 1),
+                  border: Border.all(color: context.ext.theme.backgroundDefault, width: 1),
                 ),
               ),
             ),

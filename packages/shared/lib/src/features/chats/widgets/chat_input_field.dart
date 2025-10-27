@@ -87,7 +87,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         child: SizedBox(
           height: 32,
           width: 32,
-          child: Padding(padding: EdgeInsets.all(6), child: AppIcons.add.icon(size: 20)),
+          child: Padding(padding: EdgeInsets.all(6), child: AppIcons.add.icon(context, size: 20)),
         ),
       ),
     );
@@ -96,18 +96,18 @@ class _ChatInputFieldState extends State<ChatInputField> {
       onTap: _pickAttachmentsFromCamera,
       child: Material(
         color: Colors.transparent,
-        child: Padding(padding: EdgeInsets.all(6), child: AppIcons.camera.icon(size: 20)),
+        child: Padding(padding: EdgeInsets.all(6), child: AppIcons.camera.icon(context, size: 20)),
       ),
     );
 
     final deleteIcon = GestureDetector(
       onTap: _deleteAttachments,
-      child: Padding(padding: EdgeInsets.all(8), child: AppIcons.close.icon(size: 24)),
+      child: Padding(padding: EdgeInsets.all(8), child: AppIcons.close.icon(context, size: 24)),
     );
 
     return Container(
       padding: EdgeInsets.fromLTRB(24, 10, 24, 10),
-      color: AppColors.backgroundHover,
+      color: context.ext.theme.backgroundHover,
       child: Column(
         children: [
           ValueListenableBuilder(
@@ -131,7 +131,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                                       width: 48,
                                       height: 48,
                                       decoration: BoxDecoration(
-                                        color: AppColors.backgroundHover,
+                                        color: context.ext.theme.backgroundHover,
                                         borderRadius: BorderRadius.circular(6),
                                         image: DecorationImage(
                                           image: FileImage(File(value[i].path)),

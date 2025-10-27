@@ -59,7 +59,7 @@ class _ChatView extends StatelessWidget {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: chat.preview.isOnline ? AppColors.success : AppColors.borderStrong,
+                        color: chat.preview.isOnline ? context.ext.theme.success : context.ext.theme.borderStrong,
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),

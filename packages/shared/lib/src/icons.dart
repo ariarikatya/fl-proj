@@ -38,11 +38,11 @@ enum AppIcons {
   calendarViewWeek,
   calendarViewMonth;
 
-  Widget icon({double size = 24, Color? color}) => SvgPicture.string(
+  Widget icon(BuildContext context, {double size = 24, Color? color}) => SvgPicture.string(
     iconsMap[this]!,
     width: size,
     height: size,
-    colorFilter: ColorFilter.mode(color ?? AppColors.iconsDefault, BlendMode.srcIn),
+    colorFilter: ColorFilter.mode(color ?? context.ext.theme.iconsDefault, BlendMode.srcIn),
   );
 }
 

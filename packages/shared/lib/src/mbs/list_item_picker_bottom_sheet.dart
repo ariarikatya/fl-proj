@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
-import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/extensions/context.dart';
+import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/mbs/mbs_base.dart';
 import 'package:shared/src/widgets/app_text.dart';
 
@@ -13,7 +12,7 @@ Future<T?> showListItemPickerBottomSheet<T extends Object?>({
 }) {
   return showModalBottomSheet<T>(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: context.ext.theme.backgroundDefault,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (_) => _ListSheet(title: title, items: items, builder: builder),
   );
@@ -37,7 +36,7 @@ class _ListSheet<T extends Object?> extends StatelessWidget {
             child: Container(
               width: 36,
               height: 5,
-              decoration: BoxDecoration(color: AppColors.iconsDefault, borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(color: context.ext.theme.iconsDefault, borderRadius: BorderRadius.circular(4)),
             ),
           ),
           Padding(

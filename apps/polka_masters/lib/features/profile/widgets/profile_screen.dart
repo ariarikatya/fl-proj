@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/scopes/master_scope.dart';
 import 'package:shared/shared.dart';
 
@@ -16,7 +17,11 @@ class ProfileScreen extends StatelessWidget {
           children: [
             _Header(),
             SizedBox(height: 40),
-            if (devMode) AppTextButton.medium(text: 'Для разработчиков', onTap: () => openTalkerScreen(context)),
+            if (devMode)
+              AppTextButton.medium(
+                text: 'Для разработчиков',
+                onTap: () => openTalkerScreen(context, getToken: Dependencies().authController.getAccessToken),
+              ),
             AppTextButton.medium(text: 'Logout', onTap: () => AuthenticationScope.of(context).logout()),
             AppTextButton.medium(
               text: 'Delete Account',
@@ -56,7 +61,7 @@ class _Header extends StatelessWidget {
                 ),
                 AppText(
                   master.city,
-                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

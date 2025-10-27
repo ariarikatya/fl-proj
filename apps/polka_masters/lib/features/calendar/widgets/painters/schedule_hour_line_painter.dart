@@ -2,6 +2,38 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
+CustomHourLinePainter scheduleHourLinePainter(BuildContext context, Schedule schedule) =>
+    (
+      Color lineColor,
+      double lineHeight,
+      double offset,
+      double minuteHeight,
+      bool showVerticalLine,
+      double verticalLineOffset,
+      LineStyle lineStyle,
+      double dashWidth,
+      double dashSpaceWidth,
+      double emulateVerticalOffsetBy,
+      int startHour,
+      int endHour,
+    ) => ScheduleHourLinePainter(
+      lineColor: lineColor,
+      lineHeight: lineHeight,
+      offset: offset,
+      minuteHeight: minuteHeight,
+      showVerticalLine: showVerticalLine,
+      startHour: startHour,
+      emulateVerticalOffsetBy: emulateVerticalOffsetBy,
+      verticalLineOffset: verticalLineOffset,
+      lineStyle: lineStyle,
+      dashWidth: dashWidth,
+      dashSpaceWidth: dashSpaceWidth,
+      endHour: endHour,
+      schedule: schedule,
+      defaultColor: context.ext.theme.backgroundDefault,
+      disabledColor: context.ext.theme.backgroundHover,
+    );
+
 /// Paints 24 hour lines, schedule specific.
 class ScheduleHourLinePainter extends CustomPainter {
   /// Color of hour line
@@ -42,6 +74,9 @@ class ScheduleHourLinePainter extends CustomPainter {
 
   final Schedule schedule;
 
+  final Color disabledColor;
+  final Color defaultColor;
+
   /// Paints 24 hour lines.
   ScheduleHourLinePainter({
     required this.lineColor,
@@ -57,6 +92,8 @@ class ScheduleHourLinePainter extends CustomPainter {
     this.dashWidth = 4,
     this.dashSpaceWidth = 4,
     required this.schedule,
+    required this.defaultColor,
+    required this.disabledColor,
   });
 
   @override
@@ -66,7 +103,7 @@ class ScheduleHourLinePainter extends CustomPainter {
       ..color = lineColor
       ..strokeWidth = lineHeight;
 
-    canvas.drawRect(Rect.fromLTWH(dx, 0, size.width, size.height), Paint()..color = AppColors.backgroundHover);
+    canvas.drawRect(Rect.fromLTWH(dx, 0, size.width, size.height), Paint()..color = disabledColor);
     final dayWidth = (size.width - dx) / 7;
     for (var entry in schedule.days.entries) {
       final startX = dx + dayWidth * entry.key.index;
@@ -74,10 +111,7 @@ class ScheduleHourLinePainter extends CustomPainter {
       final height = entry.value.end.inMinutes - entry.value.start.inMinutes;
 
       if (entry.value.active) {
-        canvas.drawRect(
-          Rect.fromLTWH(startX, startY, dayWidth, height * minuteHeight),
-          Paint()..color = AppColors.backgroundDefault,
-        );
+        canvas.drawRect(Rect.fromLTWH(startX, startY, dayWidth, height * minuteHeight), Paint()..color = defaultColor);
       }
     }
 

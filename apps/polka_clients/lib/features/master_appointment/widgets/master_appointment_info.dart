@@ -11,7 +11,7 @@ class MasterAppointmentInfo extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.backgroundHover, width: 1)),
+        border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover, width: 1)),
       ),
       child: Column(
         spacing: 4,
@@ -19,20 +19,20 @@ class MasterAppointmentInfo extends StatelessWidget {
           Row(
             spacing: 4,
             children: [
-              AppIcons.clock.icon(),
+              AppIcons.clock.icon(context),
               AppText(
                 'Политика отмены: -',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
               ),
             ],
           ),
           Row(
             spacing: 4,
             children: [
-              AppIcons.lock.icon(),
+              AppIcons.lock.icon(context),
               AppText(
                 'Требует подтверждения мастера ',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
               ),
             ],
           ),

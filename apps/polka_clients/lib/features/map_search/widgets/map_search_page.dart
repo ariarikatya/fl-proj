@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:polka_clients/client_scope.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/map_search/controller/map_markers_paginator.dart';
 import 'package:polka_clients/features/map_search/controller/map_search_cubit.dart';
 import 'package:polka_clients/features/map_search/widgets/masters_bottom_sheet.dart';
 import 'package:polka_clients/features/map_search/widgets/map_view.dart';
+import 'package:polka_clients/features/map_search/widgets/mock_map_view.dart';
 import 'package:polka_clients/features/search/filters/filters_page.dart';
 import 'package:polka_clients/features/search/filters/search_filter.dart';
 import 'package:polka_clients/features/search/search_page.dart';
@@ -60,15 +63,15 @@ class __MapSearchPageState extends State<_MapSearchPage> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      backgroundColor: AppColors.backgroundHover,
+      backgroundColor: context.ext.theme.backgroundHover,
       safeAreaBuilder: (child) => SafeArea(bottom: false, child: child),
       child: Stack(
         children: [
-          MapView(),
+          if (Platform.isAndroid || Platform.isIOS) MapView() else MockMapView(),
 
           Container(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-            color: AppColors.backgroundHover,
+            color: context.ext.theme.backgroundHover,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +79,7 @@ class __MapSearchPageState extends State<_MapSearchPage> {
               children: [
                 AppText(
                   'г. ${ClientScope.of(context).client.city}',
-                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                 ),
                 MastersSearchBar(controller: _controller),
               ],
@@ -157,8 +160,8 @@ class _MastersSearchBarState extends State<MastersSearchBar> {
               controller: widget.controller,
               compact: true,
               hintText: 'Например, Airtouch',
-              prefixIcon: AppIcons.search.icon(color: AppColors.textPlaceholder),
-              fillColor: AppColors.backgroundDefault,
+              prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
+              fillColor: context.ext.theme.backgroundDefault,
               onFieldSubmitted: (value) {
                 blocs.get<MapFeedCubit>(context).reset();
                 blocs.get<MapMarkersPaginator>(context).reset();

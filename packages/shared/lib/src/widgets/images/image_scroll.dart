@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/widgets/images/image_loading_progress_indicator.dart';
 
 class ImageScroll extends StatelessWidget {
@@ -25,14 +25,14 @@ class ImageScroll extends StatelessWidget {
                 width: 168,
                 height: 224,
                 memCacheHeight: (224 * MediaQuery.of(context).devicePixelRatio).toInt(),
-                errorWidget: (context, url, error) => ColoredBox(color: AppColors.backgroundHover),
+                errorWidget: (context, url, error) => ColoredBox(color: context.ext.theme.backgroundHover),
                 progressIndicatorBuilder: imageLoadingProgressIndicator,
                 fit: BoxFit.cover,
                 imageBuilder: (context, imageProvider) => Container(
                   width: 168,
                   height: 224,
                   decoration: BoxDecoration(
-                    color: AppColors.backgroundHover,
+                    color: context.ext.theme.backgroundHover,
                     borderRadius: BorderRadius.circular(24),
                     image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
                   ),

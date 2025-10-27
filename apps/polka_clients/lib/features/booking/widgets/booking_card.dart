@@ -52,12 +52,15 @@ class BookingCard extends StatelessWidget {
                 Row(
                   spacing: 4,
                   children: [
-                    AppIcons.clock.icon(size: 16),
+                    AppIcons.clock.icon(context, size: 16),
                     Flexible(child: AppText(timeLabel.capitalized, style: AppTextStyles.bodyMedium)),
                   ],
                 ),
                 AppText('₽${booking.price}', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
-                AppText(booking.status.label, style: AppTextStyles.bodyMedium.copyWith(color: booking.status.color)),
+                AppText(
+                  booking.status.label,
+                  style: AppTextStyles.bodyMedium.copyWith(color: booking.status.colorOf(context)),
+                ),
                 _buttonsForStatus(context, booking.status),
               ],
             ),
@@ -75,7 +78,7 @@ class BookingCard extends StatelessWidget {
         onEnd: () => blocs.get<BookingsCubit>(context).markAsRead(),
         builder: (context, value, child) {
           return ColoredBox(
-            color: AppColors.accent.withValues(alpha: value),
+            color: context.ext.theme.accent.withValues(alpha: value),
             child: child,
           );
         },
@@ -102,14 +105,26 @@ class BookingCard extends StatelessWidget {
           Expanded(
             child: AppTextButtonSecondary.medium(
               text: 'Чат',
-              onTap: () => openChat(context, booking.masterId, booking.masterName, booking.masterAvatarUrl),
+              onTap: () => ChatsUtils().openChat(
+                context,
+                booking.masterId,
+                booking.masterName,
+                booking.masterAvatarUrl,
+                withClient: false,
+              ),
             ),
           ),
         ],
       ),
       BookingStatus.pending => AppTextButtonSecondary.medium(
         text: 'Чат',
-        onTap: () => openChat(context, booking.masterId, booking.masterName, booking.masterAvatarUrl),
+        onTap: () => ChatsUtils().openChat(
+          context,
+          booking.masterId,
+          booking.masterName,
+          booking.masterAvatarUrl,
+          withClient: false,
+        ),
       ),
       BookingStatus.completed =>
         booking.reviewSent
@@ -133,7 +148,7 @@ class _AddToCalendarBtn extends StatelessWidget {
       offset: Offset(0, 24),
       menuPadding: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: AppColors.backgroundDefault,
+      color: context.ext.theme.backgroundDefault,
       onSelected: (value) {
         if (value == 'calendar') addCalendarEvent(booking);
       },
@@ -143,13 +158,13 @@ class _AddToCalendarBtn extends StatelessWidget {
           child: Row(
             spacing: 8,
             children: [
-              AppIcons.calendar.icon(size: 24, color: AppColors.accent),
+              AppIcons.calendar.icon(context, size: 24, color: context.ext.theme.accent),
               AppText('Добавить в календарь', style: AppTextStyles.bodyMedium),
             ],
           ),
         ),
       ],
-      child: Padding(padding: const EdgeInsets.all(4), child: AppIcons.dotsVertical.icon(size: 24)),
+      child: Padding(padding: const EdgeInsets.all(4), child: AppIcons.dotsVertical.icon(context, size: 24)),
     );
   }
 }

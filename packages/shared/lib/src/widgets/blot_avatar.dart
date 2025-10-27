@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/icons.dart';
 import 'package:shared/src/widgets/app_avatar.dart';
 
@@ -14,7 +14,7 @@ class BlotAvatar extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        AppIcons.blotBig.icon(size: size * 1.1, color: AppColors.accent),
+        AppIcons.blotBig.icon(context, size: size * 1.1, color: context.ext.theme.accent),
         AppAvatar(avatarUrl: avatarUrl, size: size),
       ],
     );

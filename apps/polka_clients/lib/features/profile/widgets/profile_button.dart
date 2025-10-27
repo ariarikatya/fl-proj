@@ -15,14 +15,14 @@ class ProfileButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: AppColors.backgroundHover)),
+          border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
         ),
         child: Row(
           spacing: 8,
           children: [
-            icon.icon(),
+            icon.icon(context),
             Expanded(child: AppText(title, overflow: TextOverflow.ellipsis)),
-            AppIcons.chevronForward.icon(),
+            AppIcons.chevronForward.icon(context),
           ],
         ),
       ),

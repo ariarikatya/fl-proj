@@ -39,10 +39,17 @@ class RoundedEventTile extends StatelessWidget {
   /// Style for description
   final TextStyle? descriptionStyle;
 
+  final Color? foregroundColor;
+
+  final double backgroundBorderWidth;
+
+  final Rect boundary;
+
   /// This is default tile to display in day view.
   const RoundedEventTile({
     super.key,
     required this.title,
+    required this.boundary,
     this.padding = EdgeInsets.zero,
     this.margin = EdgeInsets.zero,
     this.description,
@@ -51,60 +58,70 @@ class RoundedEventTile extends StatelessWidget {
     this.backgroundColor = Colors.blue,
     this.titleStyle,
     this.descriptionStyle,
+    this.foregroundColor,
+    this.backgroundBorderWidth = 4,
   });
 
   @override
   Widget build(BuildContext context) {
+    // final $padding = boundary.height > 28 ? padding : EdgeInsets.zero;
+    final minHeight = padding.vertical + (titleStyle?.fontSize ?? 16) * (titleStyle?.height ?? 1);
+    final showOnlyTitle = boundary.height < minHeight;
+    final $padding = showOnlyTitle ? EdgeInsets.only(left: padding.left, right: padding.right) : padding;
     return Container(
-      padding: padding,
       margin: margin,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: borderRadius,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (title.isNotEmpty)
-            Expanded(
-              child: Text(
+      decoration: BoxDecoration(color: backgroundColor, borderRadius: borderRadius),
+      child: Container(
+        padding: $padding,
+        alignment: showOnlyTitle ? Alignment.centerLeft : null,
+        margin: EdgeInsets.only(left: backgroundBorderWidth),
+        decoration: BoxDecoration(
+          color: foregroundColor,
+          borderRadius: BorderRadius.horizontal(
+            right: Radius.circular(borderRadius.topRight.x),
+            left: Radius.elliptical(borderRadius.topLeft.x, borderRadius.topLeft.x * 2),
+          ),
+        ),
+        child: showOnlyTitle
+            ? Text(
                 title,
-                style: titleStyle ??
-                    TextStyle(
-                      fontSize: 20,
-                      color: backgroundColor.accent,
-                    ),
-                softWrap: true,
+                style: titleStyle?.copyWith(height: 1),
+                maxLines: 1,
+                softWrap: false,
                 overflow: TextOverflow.fade,
-              ),
-            ),
-          if (description?.isNotEmpty ?? false)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 15.0),
-                child: Text(
-                  description!,
-                  style: descriptionStyle ??
-                      TextStyle(
-                        fontSize: 17,
-                        color: backgroundColor.accent.withAlpha(200),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (title.isNotEmpty)
+                    Text(
+                      title,
+                      style: titleStyle?.copyWith(height: 1),
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                    ),
+                  if ((description?.isNotEmpty ?? false) && boundary.height > 60)
+                    Flexible(
+                      child: Text(
+                        description!,
+                        style: descriptionStyle,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.fade,
                       ),
-                ),
+                    ),
+                  if (totalEvents > 1)
+                    Text(
+                      "+${totalEvents - 1} more",
+                      style: descriptionStyle,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                    ),
+                ],
               ),
-            ),
-          if (totalEvents > 1)
-            Expanded(
-              child: Text(
-                "+${totalEvents - 1} more",
-                style: (descriptionStyle ??
-                        TextStyle(
-                          color: backgroundColor.accent.withAlpha(200),
-                        ))
-                    .copyWith(fontSize: 17),
-              ),
-            ),
-        ],
       ),
     );
   }
@@ -121,12 +138,7 @@ class DefaultTimeLineMark extends StatelessWidget {
   final TextStyle? markingStyle;
 
   /// Time marker for timeline used in week and day view.
-  const DefaultTimeLineMark({
-    super.key,
-    required this.date,
-    this.markingStyle,
-    this.timeStringBuilder,
-  });
+  const DefaultTimeLineMark({super.key, required this.date, this.markingStyle, this.timeStringBuilder});
 
   @override
   Widget build(BuildContext context) {
@@ -134,20 +146,13 @@ class DefaultTimeLineMark extends StatelessWidget {
     final timeString = (timeStringBuilder != null)
         ? timeStringBuilder!(date)
         : date.minute != 0
-            ? "$hour:${date.minute}"
-            : "$hour ${date.hour ~/ 12 == 0 ? "am" : "pm"}";
+        ? "$hour:${date.minute}"
+        : "$hour ${date.hour ~/ 12 == 0 ? "am" : "pm"}";
     return Transform.translate(
       offset: Offset(0, -7.5),
       child: Padding(
         padding: const EdgeInsets.only(right: 7.0),
-        child: Text(
-          timeString,
-          textAlign: TextAlign.right,
-          style: markingStyle ??
-              TextStyle(
-                fontSize: 15.0,
-              ),
-        ),
+        child: Text(timeString, textAlign: TextAlign.right, style: markingStyle ?? TextStyle(fontSize: 15.0)),
       ),
     );
   }
@@ -207,24 +212,18 @@ class FullDayEventView<T> extends StatelessWidget {
           onLongPress: () => onEventLongPress?.call(events, date),
           onTap: () => onEventTap?.call(events, date),
           onDoubleTap: () => onEventDoubleTap?.call(events, date),
-          child: itemView?.call(events[index]) ??
+          child:
+              itemView?.call(events[index]) ??
               Container(
                 margin: const EdgeInsets.all(5.0),
                 padding: const EdgeInsets.all(1.0),
                 height: 24,
                 child: Text(
                   events[index].title,
-                  style: titleStyle ??
-                      TextStyle(
-                        fontSize: 16,
-                        color: events[index].color.accent,
-                      ),
+                  style: titleStyle ?? TextStyle(fontSize: 16, color: events[index].backgroundColor.accent),
                   maxLines: 1,
                 ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: events[index].color,
-                ),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: events[index].backgroundColor),
                 alignment: Alignment.centerLeft,
               ),
         ),

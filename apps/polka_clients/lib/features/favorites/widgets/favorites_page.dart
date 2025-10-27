@@ -23,6 +23,14 @@ class FavoritesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final content = switch (masters.length) {
+      > 0 => MastersView(masters: masters),
+      _ => Padding(
+        padding: EdgeInsetsGeometry.all(24),
+        child: Center(child: AppText('Пока у тебя нет сохраненных мастеров')),
+      ),
+    };
+
     return AppPage(
       appBar: CustomAppBar(title: 'Избранное'),
       child: Column(
@@ -32,7 +40,7 @@ class FavoritesView extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
             child: AppText('Твои мастера', style: AppTextStyles.headingSmall),
           ),
-          Expanded(child: MastersView(masters: masters)),
+          Expanded(child: content),
         ],
       ),
     );

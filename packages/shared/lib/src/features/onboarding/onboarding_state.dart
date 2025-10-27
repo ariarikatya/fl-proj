@@ -116,7 +116,10 @@ abstract class OnboardingPageState<S extends StatefulWidget, C extends $Onboardi
                   if (value > 1)
                     GestureDetector(
                       onTap: $OnboardingController.of<C>(context).back,
-                      child: Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: AppIcons.arrowBack.icon()),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: AppIcons.arrowBack.icon(context),
+                      ),
                     ),
                 ],
               ),

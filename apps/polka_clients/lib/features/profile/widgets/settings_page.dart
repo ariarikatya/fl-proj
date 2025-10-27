@@ -14,6 +14,7 @@ class SettingsPage extends StatelessWidget {
     return AppPage(
       appBar: CustomAppBar(title: 'Настройки'),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 16),
           ProfileButton(
@@ -31,6 +32,30 @@ class SettingsPage extends StatelessWidget {
             title: 'Условия пользования',
             onTap: () => _launchLink(AppLinks.termsOfUse),
           ),
+          if (devMode) ...[
+            SizedBox(height: 24),
+            Padding(
+              padding: EdgeInsets.only(left: 24),
+              child: AppText('Themes', style: AppTextStyles.headingSmall),
+            ),
+            SizedBox(height: 8),
+            for (var MapEntry(:key, :value) in AppThemeWidget.of(context).themes.entries)
+              Padding(
+                padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
+                child: Row(
+                  children: [
+                    AppText(key),
+                    Spacer(),
+                    AppSwitch(
+                      value: context.ext.theme == value,
+                      onChanged: (v) {
+                        if (v) AppThemeWidget.of(context).changeTheme(value);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ],
       ),
     );

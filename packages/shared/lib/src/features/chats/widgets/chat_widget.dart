@@ -30,7 +30,7 @@ class ChatWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(child: AppText(chat.preview.otherUserName, overflow: TextOverflow.ellipsis)),
-                            Padding(padding: EdgeInsets.only(left: 8), child: AppIcons.check.icon()),
+                            Padding(padding: EdgeInsets.only(left: 8), child: AppIcons.check.icon(context)),
                           ],
                         ),
                         Row(
@@ -40,7 +40,7 @@ class ChatWidget extends StatelessWidget {
                             Expanded(
                               child: AppText(
                                 (chat.preview.lastMessage ?? 'Пока что нет сообщений'),
-                                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 2,
                               ),
@@ -82,7 +82,7 @@ class _UnreadCounter extends StatelessWidget {
         '$count',
         textAlign: TextAlign.center,
         style: AppTextStyles.bodySmall.copyWith(
-          color: AppColors.backgroundDefault,
+          color: context.ext.theme.backgroundDefault,
           height: 0.75,
           overflow: TextOverflow.ellipsis,
         ),

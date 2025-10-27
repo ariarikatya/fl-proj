@@ -11,11 +11,11 @@ enum BookingStatus {
   const BookingStatus(this.label);
   final String label;
 
-  Color get color => switch (this) {
-    BookingStatus.confirmed => AppColors.success,
-    BookingStatus.canceled => AppColors.error,
-    BookingStatus.rejected => AppColors.error,
-    _ => AppColors.textSecondary,
+  Color colorOf(BuildContext context) => switch (this) {
+    BookingStatus.confirmed => context.ext.theme.success,
+    BookingStatus.canceled => context.ext.theme.error,
+    BookingStatus.rejected => context.ext.theme.error,
+    _ => context.ext.theme.textSecondary,
   };
 }
 
@@ -27,6 +27,7 @@ class Booking extends JsonEquatable {
     required this.serviceId,
     required this.serviceName,
     required this.masterName,
+    required this.clientName,
     required this.price,
     required this.status,
     required this.date,
@@ -42,12 +43,13 @@ class Booking extends JsonEquatable {
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) => Booking(
-    id: json['id'] as int,
+    id: (json['id'] ?? json['booking_id']) as int,
     clientId: json['client_id'] as int,
     masterId: json['master_id'] as int,
     serviceId: json['service_id'] as int,
     serviceName: json['service_name'] as String,
     masterName: json['master_name'] as String? ?? '',
+    clientName: json['client_name'] as String? ?? '',
     price: json['price'] as int,
     status: BookingStatus.values.byName(json['status'] as String),
     date: DateTime.parse(json['date'] as String),
@@ -56,18 +58,18 @@ class Booking extends JsonEquatable {
     endTime: DurationX.fromTimeString(json['end_time'] as String),
     serviceImageUrl: json['service_image_url'] as String?,
     masterAvatarUrl: json['master_avatar_url'] as String?,
-    clientNotes: json['client_notes'] as String,
-    masterNotes: json['master_notes'] as String,
+    clientNotes: json['client_notes'] as String?,
+    masterNotes: json['master_notes'] as String?,
     reviewSent: json['review_sent'] as bool? ?? false,
     json: json,
   );
 
   final int id, clientId, masterId, serviceId, price;
-  final String serviceName, masterName, clientNotes, masterNotes;
+  final String serviceName, masterName, clientName;
   final BookingStatus status;
   final DateTime date, createdAt;
   final Duration startTime, endTime;
-  final String? serviceImageUrl, masterAvatarUrl;
+  final String? serviceImageUrl, masterAvatarUrl, clientNotes, masterNotes;
   final bool reviewSent;
 
   DateTime get datetime => date.add(startTime);
@@ -82,6 +84,7 @@ class Booking extends JsonEquatable {
     price,
     serviceName,
     masterName,
+    clientName,
     clientNotes,
     masterNotes,
     status,
@@ -101,6 +104,7 @@ class Booking extends JsonEquatable {
     ValueGetter<int>? serviceId,
     ValueGetter<String>? serviceName,
     ValueGetter<String>? masterName,
+    ValueGetter<String>? clientName,
     ValueGetter<int>? price,
     ValueGetter<BookingStatus>? status,
     ValueGetter<DateTime>? date,
@@ -109,8 +113,8 @@ class Booking extends JsonEquatable {
     ValueGetter<Duration>? endTime,
     ValueGetter<String>? serviceImageUrl,
     ValueGetter<String>? masterAvatarUrl,
-    ValueGetter<String>? clientNotes,
-    ValueGetter<String>? masterNotes,
+    ValueGetter<String?>? clientNotes,
+    ValueGetter<String?>? masterNotes,
     ValueGetter<bool>? reviewSent,
   }) => Booking(
     id: id,
@@ -118,6 +122,7 @@ class Booking extends JsonEquatable {
     masterId: masterId != null ? masterId() : this.masterId,
     serviceId: serviceId != null ? serviceId() : this.serviceId,
     serviceName: serviceName != null ? serviceName() : this.serviceName,
+    clientName: clientName != null ? clientName() : this.clientName,
     masterName: masterName != null ? masterName() : this.masterName,
     price: price != null ? price() : this.price,
     status: status != null ? status() : this.status,
@@ -140,6 +145,7 @@ class Booking extends JsonEquatable {
     'service_id': serviceId,
     'service_name': serviceName,
     'master_name': masterName,
+    'client_name': clientName,
     'price': price,
     'status': status.name,
     'date': date.toJson(),
@@ -147,8 +153,9 @@ class Booking extends JsonEquatable {
     'end_time': endTime.toTimeString(),
     'service_image_url': serviceImageUrl,
     'master_avatar_url': masterAvatarUrl,
-    'client_notes': clientNotes,
-    'master_notes': masterNotes,
+    'client_notes': ?clientNotes,
+    'master_notes': ?masterNotes,
+    'notes': ?masterNotes,
     'created_at': createdAt.toJson(),
     'review_sent': reviewSent,
   };

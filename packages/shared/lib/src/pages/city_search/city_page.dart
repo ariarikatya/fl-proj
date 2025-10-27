@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/blocs_provider.dart';
 import 'package:shared/src/logger.dart';
@@ -83,7 +83,7 @@ class _CityPageState extends State<CityPage> {
                               margin: EdgeInsets.symmetric(horizontal: 24),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: AppColors.backgroundHover)),
+                                border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
                               ),
                               child: AppText(city.fullName, style: AppTextStyles.bodyLarge),
                             ),

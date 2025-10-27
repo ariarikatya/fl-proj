@@ -37,7 +37,7 @@ class _PortfolioPageState extends OnboardingPageState<PortfolioPage, OnboardingC
     SizedBox(height: 16),
     AppText(
       'Мы покажем их клиентам в твоей карточке',
-      style: AppTextStyles.headingSmall.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+      style: AppTextStyles.headingSmall.copyWith(color: context.ext.theme.textSecondary, fontWeight: FontWeight.w500),
     ),
     SizedBox(height: 16),
     Row(

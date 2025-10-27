@@ -22,7 +22,7 @@ class _AboutExperience extends AboutInfo {
       emoji: AppEmojis.scissors,
       child: RichText(
         text: TextSpan(
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
           children: [
             if (!short) TextSpan(text: 'опыт: '),
             TextSpan(
@@ -44,7 +44,7 @@ class _AboutReviews extends AboutInfo {
     final label = master.reviewsCount == 0 ? 'Нет отзывов' : master.reviewsCount.pluralMasculine('отзыв');
     return AppText(
       '⭐ ${master.ratingFixed} ($label)',
-      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+      style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
     );
   }
 }
@@ -72,7 +72,7 @@ class _AboutInfo extends StatelessWidget {
       children: [
         emoji.icon(size: Size(14, 14)),
         SizedBox(width: 4),
-        child ?? AppText(text ?? '', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+        child ?? AppText(text ?? '', style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary)),
       ],
     );
   }

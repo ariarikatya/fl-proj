@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/dev/json_equatable.dart';
 import 'package:shared/src/widgets/app_text.dart';
@@ -45,8 +45,8 @@ class _DebugModelBottomSheetState extends State<_DebugModelBottomSheet> {
       maxChildSize: 0.8,
       controller: _controller,
       builder: (context, scrollController) => Container(
-        decoration: const BoxDecoration(
-          color: AppColors.backgroundDefault,
+        decoration: BoxDecoration(
+          color: context.ext.theme.backgroundDefault,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(

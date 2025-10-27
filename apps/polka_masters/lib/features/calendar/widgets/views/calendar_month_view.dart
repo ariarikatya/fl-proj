@@ -2,6 +2,7 @@ import 'package:calendar_view/calendar_view.dart' hide WeekDays;
 import 'package:flutter/material.dart';
 import 'package:polka_masters/features/calendar/widgets/app_filled_cell.dart';
 import 'package:polka_masters/scopes/calendar_scope.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class CalendarMonthView extends StatelessWidget {
@@ -9,10 +10,11 @@ class CalendarMonthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scope = CalendarScope.of(context);
+    final scope = context.read<CalendarScope>();
 
-    return MonthView(
-      onPageChange: (date, __) => scope.calendarAppbarKey.currentState?.updateDate(date),
+    return MonthView<Booking>(
+      initialMonth: scope.date,
+      onPageChange: (date, __) => scope.setDate(date),
       key: scope.monthViewKey,
       useAvailableVerticalSpace: true,
       safeAreaOption: SafeAreaOption(bottom: false),
@@ -20,14 +22,26 @@ class CalendarMonthView extends StatelessWidget {
         dayIndex: index,
         displayBorder: false,
         weekDayStringBuilder: (index) => WeekDays.values[index].short,
-        backgroundColor: AppColors.backgroundSubtle,
-        textStyle: AppTextStyles.bodyLarge2.copyWith(color: AppColors.textPlaceholder),
+        backgroundColor: context.ext.theme.backgroundSubtle,
+        textStyle: AppTextStyles.bodyLarge2.copyWith(color: context.ext.theme.textPlaceholder),
       ),
-      cellBuilder: AppFilledCell.factory,
-      borderColor: AppColors.backgroundDisabled,
+      cellBuilder: (date, event, isToday, isInMonth, hideDaysNotInMonth) => AppFilledCell.factory(
+        date,
+        event,
+        isToday,
+        isInMonth,
+        hideDaysNotInMonth,
+        onTileTap: (event, date) => _openDate(scope, date),
+      ),
+      borderColor: context.ext.theme.backgroundDisabled,
       borderSize: 0.5,
       headerBuilder: (_) => SizedBox.shrink(),
-      onCellTap: (events, date) => CalendarScope.of(context).monthViewKey.currentState?.animateToMonth(date),
+      onCellTap: (events, date) => _openDate(scope, date),
     );
+  }
+
+  void _openDate(CalendarScope scope, DateTime date) {
+    scope.setViewMode(CalendarViewMode.day);
+    scope.setDate(date);
   }
 }

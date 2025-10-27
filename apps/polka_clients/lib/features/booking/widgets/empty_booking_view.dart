@@ -14,16 +14,12 @@ class EmptyBookingView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppText(
-              'Пока у тебя нет посещений.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.headingSmall,
-            ),
+            AppText('Пока у тебя нет посещений.', textAlign: TextAlign.center, style: AppTextStyles.headingSmall),
             SizedBox(height: 8),
             AppText(
               'Посмотри в нашем бьюти-каталоге',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
             ),
             if (action != null) ...[
               SizedBox(height: 16),

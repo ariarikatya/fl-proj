@@ -4,12 +4,9 @@ import 'package:dio/dio.dart';
 sealed class MasterRepository {
   Future<Result<Service>> createMasterService(Service service);
   Future<Result<Schedule>> createMasterSchedule(Schedule schedule);
+  Future<Result<MasterInfo>> getMasterInfo(int id);
 
-  Future<Result<List<Booking>>> getAllBookings();
-  Future<Result> confirmBooking(int bookingId);
-  Future<Result> rejectBooking(int bookingId);
-  Future<Result> cancelBooking(int bookingId);
-  Future<Result> completeBooking(int bookingId);
+  Future<Result<String>> getClientPhone(int clientId);
 
   /// Takes a list of filepaths for photos
   Future<Result<List<String>>> uploadPortfolioPhotos(Iterable<String> photos);
@@ -57,32 +54,14 @@ class RestMasterRepository extends MasterRepository {
   }
 
   @override
-  Future<Result<List<Booking>>> getAllBookings() => tryCatch(() async {
-    final response = await dio.get('/appointments');
-    return parseJsonList(response.data['appointments'], Booking.fromJson);
+  Future<Result<MasterInfo>> getMasterInfo(int masterId) => tryCatch(() async {
+    final response = await dio.get('/masters/$masterId');
+    return MasterInfo.fromJson(response.data);
   });
 
   @override
-  Future<Result> confirmBooking(int bookingId) => tryCatch(() async {
-    await dio.patch('/appointments/$bookingId/confirm');
-    return Result.ok(null);
-  });
-
-  @override
-  Future<Result> rejectBooking(int bookingId) => tryCatch(() async {
-    await dio.patch('/appointments/$bookingId/reject');
-    return Result.ok(null);
-  });
-
-  @override
-  Future<Result> cancelBooking(int bookingId) => tryCatch(() async {
-    await dio.patch('/appointments/$bookingId/cancel');
-    return Result.ok(null);
-  });
-
-  @override
-  Future<Result> completeBooking(int bookingId) => tryCatch(() async {
-    await dio.patch('/appointments/$bookingId/complete', data: {'finished': true});
-    return Result.ok(null);
+  Future<Result<String>> getClientPhone(int clientId) async => tryCatch(() async {
+    final response = await dio.get('/client-phone/$clientId');
+    return response.data['phone_number'] as String;
   });
 }

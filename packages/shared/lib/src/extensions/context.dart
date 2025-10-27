@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared/src/features/theme/app_theme.dart';
+import 'package:shared/src/features/theme/app_theme_widget.dart';
 
 extension type ContextExt(BuildContext self) {
   Future<T?> push<T>(Widget page) async {
@@ -10,6 +12,8 @@ extension type ContextExt(BuildContext self) {
   }
 
   void pop<T extends Object?>([T? result]) => Navigator.pop(self, result);
+
+  AppTheme get theme => AppThemeWidget.of(self).theme;
 }
 
 extension ContextX on BuildContext {

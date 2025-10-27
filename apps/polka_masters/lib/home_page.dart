@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/appointments/widgets/appointments_screen.dart';
+import 'package:polka_masters/features/calendar/controllers/events_cubit.dart';
 import 'package:polka_masters/features/calendar/widgets/calendar_screen.dart';
 import 'package:polka_masters/features/profile/widgets/profile_screen.dart';
 import 'package:polka_masters/scopes/master_scope.dart';
@@ -17,17 +18,18 @@ class _HomePageState extends State<HomePage> {
   late final _pages = [
     CalendarScreen(),
     ChatsPage(),
-    AppointmentsScreen(repo: Dependencies().masterRepository),
+    AppointmentsScreen(repo: Dependencies().bookingsRepository),
     ProfileScreen(),
   ];
 
   int _index = 3;
 
   @override
-  void initState() {
-    super.initState();
-    // By calling this cubit we create and initialize it
+  void didChangeDependencies() {
+    // By calling these cubits we create and initialize them
     blocs.get<ChatsCubit>(context);
+    blocs.get<EventsCubit>(context);
+    super.didChangeDependencies();
   }
 
   @override
@@ -48,24 +50,24 @@ class _HomePageState extends State<HomePage> {
             Container(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
               decoration: BoxDecoration(
-                color: AppColors.backgroundSubtle,
-                border: Border(top: BorderSide(color: AppColors.backgroundDisabled, width: 1)),
+                color: context.ext.theme.backgroundSubtle,
+                border: Border(top: BorderSide(color: context.ext.theme.backgroundDisabled, width: 1)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _NavigationBarItem(
-                    icon: AppIcons.calendar.icon(),
+                    icon: AppIcons.calendar.icon(context),
                     onTap: () => setState(() => _index = 0),
                     selected: _index == 0,
                   ),
                   _NavigationBarItem(
-                    icon: AppIcons.chats.icon(),
+                    icon: AppIcons.chats.icon(context),
                     onTap: () => setState(() => _index = 1),
                     selected: _index == 1,
                   ),
                   _NavigationBarItem(
-                    icon: AppIcons.file.icon(),
+                    icon: AppIcons.file.icon(context),
                     onTap: () => setState(() => _index = 2),
                     selected: _index == 2,
                   ),
@@ -74,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                       builder: (ctx) => AppAvatar(
                         avatarUrl: MasterScope.of(ctx).master.avatarUrl,
                         size: 24,
-                        borderColor: AppColors.textPrimary,
+                        borderColor: context.ext.theme.textPrimary,
                         shadow: false,
                       ),
                     ),
@@ -109,7 +111,7 @@ class _NavigationBarItem extends StatelessWidget {
       child = Stack(
         alignment: Alignment.center,
         children: [
-          AppIcons.blot.icon(size: 36, color: AppColors.accent),
+          AppIcons.blot.icon(context, size: 36, color: context.ext.theme.accent),
           child,
         ],
       );

@@ -1,36 +1,21 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
 
 /// Cubit for handling chats info and web_socket updates
-class ChatsCubit extends Cubit<int> {
+class ChatsCubit extends Cubit<int> with SocketListenerMixin {
   ChatsCubit({required this.websockets, required this.chatsRepo, required this.userId, required this.profileRepository})
     : super(0) {
     loadChats(force: true);
-    websockets.addListener(_listener);
-    websockets.addOnConnectedListener(_onConnectedListener);
+    listenSockets(websockets);
   }
 
-  final int userId;
-  Map<int, ChatController> chats = {};
-  final WebSocketService websockets;
-  final ChatsRepository chatsRepo;
-  final ProfileRepository profileRepository;
-
-  bool _loading = false;
-
-  bool get loading => _loading;
-
-  ChatController? maybeGetChatWithMasterId(int masterId) =>
-      chats.values.firstWhereOrNull((chat) => chat.preview.otherUserId == masterId);
-
-  void _onConnectedListener() => loadChats(force: true);
-
-  void _listener(dynamic message) {
-    try {
-      final json = jsonDecode(message.toString());
+  @override
+  void onSocketsMessage(json) {
+    const chatTypes = ['online', 'offline', 'typing', 'message', 'message_read'];
+    if (json case <String, Object?>{'type': String eventType, 'sender_id': int _}) {
+      if (!chatTypes.contains(eventType)) return;
       final event = ChatEvent.fromJson(json);
       final chat = switch (event) {
         ChatEvent$Message(:final int chatId) => chats[chatId],
@@ -46,15 +31,28 @@ class ChatsCubit extends Cubit<int> {
       if (event is ChatEvent$Message && chat == null) {
         loadChats(force: true);
       }
-    } catch (e) {
-      logger.error('Unable to parse socket message: $message', e);
     }
   }
 
   @override
+  void onSocketsReconnect() => loadChats(force: true);
+
+  final int userId;
+  Map<int, ChatController> chats = {};
+  final WebSocketService websockets;
+  final ChatsRepository chatsRepo;
+  final ProfileRepository profileRepository;
+
+  bool _loading = false;
+
+  bool get loading => _loading;
+
+  ChatController? maybeGetChatWithOtherUserId(int otherUserId) =>
+      chats.values.firstWhereOrNull((chat) => chat.preview.otherUserId == otherUserId);
+
+  @override
   Future<void> close() {
-    websockets.removeListener(_listener);
-    websockets.removeOnConnectedListener(_onConnectedListener);
+    unsubscribeSockets(websockets);
     return super.close();
   }
 
@@ -74,8 +72,11 @@ class ChatsCubit extends Cubit<int> {
     _loading = false;
   }
 
-  Future<ChatPreview?> startChat(int masterId, String message) async {
-    final result = await chatsRepo.startChat(masterId, message);
+  Future<ChatPreview?> startChat(int otherUserId, String message, {required bool withClient}) async {
+    final result = await switch (withClient) {
+      true => chatsRepo.startChatWithClient(otherUserId, message),
+      false => chatsRepo.startChatWithMaster(otherUserId, message),
+    };
     return result.when<ChatPreview?>(
       ok: (chat) {
         chats[chat.id] = _createChat(chat);

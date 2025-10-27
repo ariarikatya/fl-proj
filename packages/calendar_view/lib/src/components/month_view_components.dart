@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 
 import '../calendar_event_data.dart';
 import '../constants.dart';
-import '../extensions.dart';
 import '../typedefs.dart';
 
 class CircularCell extends StatelessWidget {
@@ -47,10 +46,7 @@ class CircularCell extends StatelessWidget {
         backgroundColor: shouldHighlight ? backgroundColor : Colors.transparent,
         child: Text(
           "${date.day}",
-          style: TextStyle(
-            fontSize: 20,
-            color: shouldHighlight ? highlightedTitleColor : titleColor,
-          ),
+          style: TextStyle(fontSize: 20, color: shouldHighlight ? highlightedTitleColor : titleColor),
         ),
       ),
     );
@@ -131,20 +127,14 @@ class FilledCell<T extends Object?> extends StatelessWidget {
       color: backgroundColor,
       child: Column(
         children: [
-          SizedBox(
-            height: 5.0,
-          ),
+          SizedBox(height: 5.0),
           if (!(!isInMonth && hideDaysNotInMonth))
             CircleAvatar(
               radius: highlightRadius,
-              backgroundColor:
-                  shouldHighlight ? highlightColor : Colors.transparent,
+              backgroundColor: shouldHighlight ? highlightColor : Colors.transparent,
               child: Text(
                 dateStringBuilder?.call(date) ?? "${date.day}",
-                style: TextStyle(
-                  color: shouldHighlight ? highlightedTitleColor : titleColor,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: shouldHighlight ? highlightedTitleColor : titleColor, fontSize: 12),
               ),
             ),
           if (events.isNotEmpty)
@@ -161,17 +151,14 @@ class FilledCell<T extends Object?> extends StatelessWidget {
                       events.length,
                       (index) => GestureDetector(
                         onTap: () => onTileTap?.call(events[index], date),
-                        onLongPress: () =>
-                            onTileLongTap?.call(events[index], date),
-                        onDoubleTap: () =>
-                            onTileDoubleTap?.call(events[index], date),
+                        onLongPress: () => onTileLongTap?.call(events[index], date),
+                        onDoubleTap: () => onTileDoubleTap?.call(events[index], date),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: events[index].color,
+                            color: events[index].backgroundColor,
                             borderRadius: BorderRadius.circular(4.0),
                           ),
-                          margin: EdgeInsets.symmetric(
-                              vertical: 2.0, horizontal: 3.0),
+                          margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 3.0),
                           padding: const EdgeInsets.all(2.0),
                           alignment: Alignment.center,
                           child: Row(
@@ -181,11 +168,9 @@ class FilledCell<T extends Object?> extends StatelessWidget {
                                   events[index].title,
                                   overflow: TextOverflow.clip,
                                   maxLines: 1,
-                                  style: events[index].titleStyle ??
-                                      TextStyle(
-                                        color: events[index].color.accent,
-                                        fontSize: 12,
-                                      ),
+                                  style:
+                                      events[index].titleStyle ??
+                                      TextStyle(color: events[index].foregroundColor, fontSize: 12),
                                 ),
                               ),
                             ],
@@ -237,20 +222,11 @@ class WeekDayTile extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 10.0),
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: displayBorder
-            ? Border.all(
-                color: Constants.defaultBorderColor,
-                width: 0.5,
-              )
-            : null,
+        border: displayBorder ? Border.all(color: Constants.defaultBorderColor, width: 0.5) : null,
       ),
       child: Text(
         weekDayStringBuilder?.call(dayIndex) ?? Constants.weekTitles[dayIndex],
-        style: textStyle ??
-            TextStyle(
-              fontSize: 17,
-              color: Constants.black,
-            ),
+        style: textStyle ?? TextStyle(fontSize: 17, color: Constants.black),
       ),
     );
   }

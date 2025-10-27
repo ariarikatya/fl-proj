@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/models/service_categories.dart';
+import 'package:shared/src/models/service/service_categories.dart';
 
 enum AppEmojis {
   eye,

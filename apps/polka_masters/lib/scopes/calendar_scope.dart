@@ -1,6 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:polka_masters/features/calendar/widgets/calendar_appbar.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 enum CalendarViewMode {
@@ -13,72 +13,47 @@ enum CalendarViewMode {
   const CalendarViewMode(this.label, this.icon);
 }
 
-class CalendarScope extends InheritedWidget {
-  const CalendarScope({
-    super.key,
-    required this.controller,
-    required this.viewMode,
-    required this.changeViewMode,
-    required this.monthViewKey,
-    required this.weekViewKey,
-    required this.dayViewKey,
-    required this.calendarAppbarKey,
-    required super.child,
-  });
+class CalendarScope extends ChangeNotifier {
+  CalendarScope();
 
-  final EventController controller;
-  final CalendarViewMode viewMode;
-  final GlobalKey<MonthViewState> monthViewKey;
-  final GlobalKey<WeekViewState> weekViewKey;
-  final GlobalKey<DayViewState> dayViewKey;
-  final GlobalKey<CalendarAppbarState> calendarAppbarKey;
-  final void Function(CalendarViewMode viewMode) changeViewMode;
+  final _controller = EventController<Booking>();
+  final monthViewKey = GlobalKey<MonthViewState>();
+  final weekViewKey = GlobalKey<WeekViewState>();
+  final dayViewKey = GlobalKey<DayViewState>();
 
-  static CalendarScope of(BuildContext context, {bool listen = true}) =>
-      CalendarScope.maybeOf(context, listen: listen)!;
+  var _viewMode = CalendarViewMode.month;
+  CalendarViewMode get viewMode => _viewMode;
 
-  static CalendarScope? maybeOf(BuildContext context, {bool listen = true}) {
-    if (listen) {
-      return context.dependOnInheritedWidgetOfExactType<CalendarScope>();
-    }
-    return context.getInheritedWidgetOfExactType<CalendarScope>();
+  var _date = DateTime.now();
+  DateTime get date => _date;
+
+  static double heigthPerMinuteRatio = 1.75;
+
+  void setDate($date) {
+    _date = $date;
+    notifyListeners();
   }
 
-  @override
-  bool updateShouldNotify(CalendarScope oldWidget) =>
-      controller != oldWidget.controller || viewMode != oldWidget.viewMode;
+  void setViewMode(CalendarViewMode $mode) {
+    _viewMode = $mode;
+    // _date = DateTime.now();
+    notifyListeners();
+  }
 }
 
-class CalendarScopeWidget extends StatefulWidget {
-  const CalendarScopeWidget({required this.controller, required this.child, super.key});
+class CalendarScopeWidget extends StatelessWidget {
+  const CalendarScopeWidget({required this.child, super.key});
 
-  final EventController controller;
   final Widget child;
 
   @override
-  State<CalendarScopeWidget> createState() => _CalendarScopeWidgetState();
-}
-
-class _CalendarScopeWidgetState extends State<CalendarScopeWidget> {
-  var _viewMode = CalendarViewMode.month;
-
-  void _changeViewMode(CalendarViewMode viewMode) {
-    if (viewMode != _viewMode) {
-      setState(() => _viewMode = viewMode);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return CalendarScope(
-      controller: widget.controller,
-      viewMode: _viewMode,
-      changeViewMode: _changeViewMode,
-      monthViewKey: GlobalKey<MonthViewState>(),
-      weekViewKey: GlobalKey<WeekViewState>(),
-      dayViewKey: GlobalKey<DayViewState>(),
-      calendarAppbarKey: GlobalKey<CalendarAppbarState>(),
-      child: CalendarControllerProvider(controller: widget.controller, child: widget.child),
+    return ChangeNotifierProvider(
+      create: (context) => CalendarScope(),
+      builder: (ctx, _) {
+        final controller = ctx.read<CalendarScope>()._controller;
+        return CalendarControllerProvider(controller: controller, child: child);
+      },
     );
   }
 }

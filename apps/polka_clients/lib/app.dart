@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:polka_clients/authentication_scope.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/main_page.dart';
+import 'package:polka_clients/theme.dart';
 import 'package:shared/shared.dart';
 
 class App extends StatefulWidget {
@@ -14,7 +15,11 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> {
   Widget $injectScopes(Widget child) {
-    return AuthenticationScopeWidget(controller: Dependencies().authController, child: child);
+    return AppThemeScope(
+      initialTheme: clientsTheme,
+      themes: themes,
+      child: AuthenticationScopeWidget(controller: Dependencies().authController, child: child),
+    );
   }
 
   @override

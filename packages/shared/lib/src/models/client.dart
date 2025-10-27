@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared/src/dev/json_equatable.dart';
-import 'package:shared/src/models/service_categories.dart';
+import 'package:shared/src/models/service/service_categories.dart';
 import 'package:shared/src/models/user.dart';
 
 class Client extends JsonEquatable implements User {
@@ -9,11 +9,9 @@ class Client extends JsonEquatable implements User {
     required this.firstName,
     required this.lastName,
     required this.city,
-    required this.services,
     required this.preferredServices,
     required this.avatarUrl,
     required this.email,
-    this.isBlacklisted = false,
     super.json,
   });
 
@@ -22,22 +20,16 @@ class Client extends JsonEquatable implements User {
     firstName: json['first_name'] as String,
     lastName: json['last_name'] as String,
     city: json['city'] as String,
-    preferredServices: (json['preferred_services'] as List)
-        .map((e) => ServiceCategories.fromJson(e))
-        .toList(),
-    services: (json['services'] as List).map((e) => e as String).toList(),
+    preferredServices: (json['preferred_services'] as List? ?? []).map((e) => ServiceCategories.fromJson(e)).toList(),
     avatarUrl: json['avatar_url'] as String? ?? '',
     email: json['email'] as String?,
-    isBlacklisted: json['is_blacklisted'] as bool? ?? false,
     json: json,
   );
 
   final int id;
   final String firstName, lastName, city, avatarUrl;
-  final List<String> services;
   final List<ServiceCategories> preferredServices;
   final String? email;
-  final bool isBlacklisted;
 
   @override
   String get identifier => 'client-$id';
@@ -45,17 +37,7 @@ class Client extends JsonEquatable implements User {
   String get fullName => '$firstName $lastName';
 
   @override
-  List<Object?> get props => [
-    id,
-    firstName,
-    lastName,
-    city,
-    services,
-    preferredServices,
-    avatarUrl,
-    email,
-    isBlacklisted,
-  ];
+  List<Object?> get props => [id, firstName, lastName, city, preferredServices, avatarUrl, email];
 
   Client copyWith({
     ValueGetter<int>? id,
@@ -64,21 +46,15 @@ class Client extends JsonEquatable implements User {
     ValueGetter<String>? lastName,
     ValueGetter<String>? city,
     ValueGetter<List<ServiceCategories>>? preferredServices,
-    ValueGetter<List<String>>? services,
     ValueGetter<String?>? email,
-    ValueGetter<bool>? isBlacklisted,
   }) => Client(
     id: id != null ? id() : this.id,
     firstName: firstName != null ? firstName() : this.firstName,
     avatarUrl: avatarUrl != null ? avatarUrl() : this.avatarUrl,
     lastName: lastName != null ? lastName() : this.lastName,
     city: city != null ? city() : this.city,
-    preferredServices: preferredServices != null
-        ? preferredServices()
-        : this.preferredServices,
-    services: services != null ? services() : this.services,
+    preferredServices: preferredServices != null ? preferredServices() : this.preferredServices,
     email: email != null ? email() : this.email,
-    isBlacklisted: isBlacklisted != null ? isBlacklisted() : this.isBlacklisted,
     json: json,
   );
 
@@ -87,10 +63,8 @@ class Client extends JsonEquatable implements User {
     'first_name': firstName,
     'last_name': lastName,
     'city': city,
-    'services': services,
     'preferred_services': preferredServices.map((e) => e.toJson()).toList(),
     'avatar_url': avatarUrl,
     'email': ?email,
-    'is_blacklisted': isBlacklisted,
   };
 }

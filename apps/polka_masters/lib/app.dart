@@ -1,10 +1,10 @@
-import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/home_page.dart';
 import 'package:polka_masters/scopes/authentication_scope.dart';
 import 'package:polka_masters/scopes/calendar_scope.dart';
+import 'package:polka_masters/theme.dart';
 import 'package:shared/shared.dart';
 
 class App extends StatefulWidget {
@@ -16,9 +16,13 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> {
   Widget $injectScopes(Widget child) {
-    return AuthenticationScopeWidget(
-      controller: Dependencies().authController,
-      child: CalendarScopeWidget(controller: EventController(), child: child),
+    return AppThemeScope(
+      initialTheme: mastersTheme,
+      themes: themes,
+      child: AuthenticationScopeWidget(
+        controller: Dependencies().authController,
+        child: CalendarScopeWidget(child: child),
+      ),
     );
   }
 

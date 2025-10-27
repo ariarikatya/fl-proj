@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/widgets/images/image_loading_progress_indicator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -13,7 +13,7 @@ class ImageClipped extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultColor = AppColors.backgroundHover;
+    final defaultColor = context.ext.theme.backgroundHover;
     final cacheHeight = height == null ? null : (height! * MediaQuery.of(context).devicePixelRatio).toInt();
 
     return SizedBox(

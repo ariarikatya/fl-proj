@@ -1,7 +1,7 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/widgets/app_text.dart';
 import 'package:shared/src/widgets/app_text_button.dart';
@@ -11,7 +11,7 @@ abstract class DateTimePickerMBS {
   static Future<Duration?> pickDuration(BuildContext context, {Duration? initValue, String? title}) {
     return showModalBottomSheet<Duration?>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.ext.theme.backgroundDefault,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (context) => DurationPickerBottomSheet(initValue: initValue, title: title),
     );
@@ -41,7 +41,7 @@ abstract class DateTimePickerMBS {
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
         calendarType: calendarType,
-        selectedDayHighlightColor: AppColors.accent,
+        selectedDayHighlightColor: context.ext.theme.accent,
         dayTextStyle: textStyle,
         weekdayLabels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
         monthTextStyle: textStyle,
@@ -50,11 +50,11 @@ abstract class DateTimePickerMBS {
         selectedMonthTextStyle: textStyle,
         selectedDayTextStyle: textStyle,
         disableModePicker: true,
-        weekdayLabelTextStyle: textStyle.copyWith(color: AppColors.textSecondary),
+        weekdayLabelTextStyle: textStyle.copyWith(color: context.ext.theme.textSecondary),
         daySplashColor: Colors.transparent,
       ),
       value: initValue ?? [],
-      dialogBackgroundColor: AppColors.backgroundDefault,
+      dialogBackgroundColor: context.ext.theme.backgroundDefault,
       dialogSize: Size.fromHeight(400),
     ))?.nonNulls.toList();
   }

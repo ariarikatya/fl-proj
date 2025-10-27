@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared/src/dev/json_equatable.dart';
-import 'package:shared/src/models/service_categories.dart';
+import 'package:shared/src/models/service/service_categories.dart';
 import 'package:shared/src/models/user.dart';
 
 class Master extends JsonEquatable implements User {

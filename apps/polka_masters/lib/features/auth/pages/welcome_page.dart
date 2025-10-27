@@ -22,7 +22,7 @@ class WelcomePage extends StatelessWidget {
                 AppText('Добро пожаловать\nв POLKA!', style: AppTextStyles.headingLarge),
                 AppText(
                   'Находи клиентов, управляй расписанием,\nСоздавай бьюти-услуги',
-                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                 ),
               ],
             ),

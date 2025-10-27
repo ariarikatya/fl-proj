@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_colors.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/widgets/images/image_clipped.dart';
 
 class ImagePageView extends StatefulWidget {
@@ -59,7 +59,7 @@ class _ImagePageViewState extends State<ImagePageView> {
                         width: value == i ? 16 : 4,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: value == i ? AppColors.accent : AppColors.borderSubtle,
+                          color: value == i ? context.ext.theme.accent : context.ext.theme.borderSubtle,
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
