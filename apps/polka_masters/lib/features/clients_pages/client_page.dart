@@ -18,7 +18,6 @@ enum ClientStatus {
 }
 
 ClientStatus _determineClientStatus(List<Booking> visits, bool isBlacklisted) {
-  // Проверяем на черный список в первую очередь
   if (isBlacklisted) {
     return ClientStatus.blacklistedClient;
   }
@@ -36,42 +35,55 @@ ClientStatus _determineClientStatus(List<Booking> visits, bool isBlacklisted) {
     return ClientStatus.newClient;
   }
 
-  // Сортируем по дате посещения (самые новые первыми)
   completedVisits.sort((a, b) => b.date.compareTo(a.date));
 
   final lastVisit = completedVisits.first.date;
   final daysSinceLastVisit = now.difference(lastVisit).inDays;
   final totalVisits = completedVisits.length;
 
-  // Больше 3 посещений и визиты 1 раз в месяц
   if (totalVisits > 3) {
-    // Проверяем регулярность посещений (примерно раз в месяц)
     if (completedVisits.length >= 2) {
       final secondLastVisit = completedVisits[1].date;
       final daysBetweenVisits = lastVisit.difference(secondLastVisit).inDays;
       if (daysBetweenVisits <= 45) {
-        // примерно раз в месяц с небольшим допуском
         return ClientStatus.regularClient;
       }
     }
   }
 
-  // Последний визит 1-2 месяца назад
   if (daysSinceLastVisit >= 30 && daysSinceLastVisit <= 60) {
     return ClientStatus.inactiveClient;
   }
 
-  // Нет визитов больше 2 месяцев
   if (daysSinceLastVisit > 60) {
     return ClientStatus.lostClient;
   }
 
-  // Первое посещение
   if (totalVisits == 1) {
     return ClientStatus.newClient;
   }
 
   return ClientStatus.regular;
+}
+
+String _pluralizeVisits(int count) {
+  final mod10 = count % 10;
+  final mod100 = count % 100;
+  if (mod10 == 1 && mod100 != 11) {
+    return 'посещение';
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return 'посещения';
+  }
+  return 'посещений';
+}
+
+extension on Duration {
+  String toLabel() {
+    final h = inHours;
+    final m = inMinutes % 60;
+    return m == 0 ? '$h ч' : '${h > 0 ? '$h ч ' : ''}$m м';
+  }
 }
 
 class ClientPage extends StatefulWidget {
@@ -133,6 +145,15 @@ class _ClientPageState extends State<ClientPage> {
     }
   }
 
+  Widget _section(String title, List<Widget> children) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 12,
+    children: [
+      AppText(title, style: AppTextStyles.headingSmall),
+      ...children,
+    ],
+  );
+
   Widget _buildContent(List<Booking> visits) {
     return AppPage(
       appBar: const CustomAppBar(title: 'Твой клиент'),
@@ -156,143 +177,118 @@ class _ClientPageState extends State<ClientPage> {
                 spacing: 4,
                 children: [
                   Expanded(
-                    child: SizedBox(
-                      child: AppTextButtonSecondary.large(
-                        text: 'Чат',
-                        onTap: () => _openChatWithClient(
-                          context,
-                          client.id,
-                          client.fullName,
-                          client.avatarUrl,
-                        ),
+                    child: AppTextButtonSecondary.large(
+                      text: 'Чат',
+                      onTap: () => _openChatWithClient(
+                        context,
+                        client.id,
+                        client.fullName,
+                        client.avatarUrl,
                       ),
                     ),
                   ),
                   Expanded(
-                    child: SizedBox(
-                      child: AppTextButtonSecondary.large(
-                        text: 'Позвонить',
-                        onTap: () => _callClient(client.id),
-                      ),
+                    child: AppTextButtonSecondary.large(
+                      text: 'Позвонить',
+                      onTap: () => _callClient(client.id),
                     ),
                   ),
                 ],
               ),
             ),
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 12,
-              children: [
-                AppText(
-                  'Персональная информация',
-                  style: AppTextStyles.headingSmall,
-                ),
-                AppTextFormField(
-                  labelText: 'Имя и Фамилия',
-                  controller: _nameController,
-                  onFieldSubmitted: (value) {
-                    if (!mounted) return;
-                    final parts = value.trim().split(' ');
-                    if (parts.length >= 2) {
-                      _saveClient(() {
-                        client = client.copyWith(
-                          firstName: () => parts[0],
-                          lastName: () => parts.sublist(1).join(' '),
-                        );
-                      });
-                    }
-                  },
-                ),
-                AppTextFormField(
-                  labelText: 'Город',
-                  controller: _cityController,
-                  onFieldSubmitted: (value) {
-                    if (!mounted) return;
-                    _saveClient(
-                      () => client = client.copyWith(city: () => value.trim()),
-                    );
-                  },
-                ),
-                AppTextFormField(
-                  labelText: 'День рождения',
-                  controller: _birthdayController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    _DateInputFormatter(),
-                  ],
-                  onFieldSubmitted: (_) {
-                    if (!mounted) return;
-                    _saveClient(() {});
-                  },
-                ),
-              ],
-            ),
+            _section('Персональная информация', [
+              AppTextFormField(
+                labelText: 'Имя и Фамилия',
+                controller: _nameController,
+                onFieldSubmitted: (value) {
+                  if (!mounted) return;
+                  final parts = value.trim().split(' ');
+                  if (parts.length >= 2) {
+                    _saveClient(() {
+                      client = client.copyWith(
+                        firstName: () => parts[0],
+                        lastName: () => parts.sublist(1).join(' '),
+                      );
+                    });
+                  }
+                },
+              ),
+              AppTextFormField(
+                labelText: 'Город',
+                controller: _cityController,
+                onFieldSubmitted: (value) {
+                  if (!mounted) return;
+                  _saveClient(
+                    () => client = client.copyWith(city: () => value.trim()),
+                  );
+                },
+              ),
+              AppTextFormField(
+                labelText: 'День рождения',
+                controller: _birthdayController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  _DateInputFormatter(),
+                ],
+                onFieldSubmitted: (_) {
+                  if (!mounted) return;
+                  _saveClient(() {});
+                },
+              ),
+            ]),
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 12,
-              children: [
-                AppText('Контакты', style: AppTextStyles.headingSmall),
-                AppTextFormField(
-                  labelText: 'Номер телефона',
-                  controller: TextEditingController(
-                    text: mockPhoneFormatter.maskText(widget.phoneNumber),
+            _section('Контакты', [
+              AppTextFormField(
+                labelText: 'Номер телефона',
+                controller: TextEditingController(
+                  text: mockPhoneFormatter.maskText(widget.phoneNumber),
+                ),
+                enabled: false,
+                readOnly: true,
+              ),
+              AppTextFormField(
+                labelText: 'E-mail',
+                controller: _emailController,
+                onFieldSubmitted: (value) {
+                  if (!mounted) return;
+                  _saveClient(
+                    () => client = client.copyWith(email: () => value.trim()),
+                  );
+                },
+              ),
+            ]),
+
+            _section('Заметки', [
+              Stack(
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: 104, maxHeight: 104),
+                    child: AppTextFormField(
+                      labelText: 'Например, аллергия на коллаген',
+                      controller: _notesController,
+                      maxLines: 4,
+                      onFieldSubmitted: (_) {
+                        if (!mounted) return;
+                        _saveClient(() {});
+                      },
+                    ),
                   ),
-                  enabled: false,
-                  readOnly: true,
-                ),
-                AppTextFormField(
-                  labelText: 'E-mail',
-                  controller: _emailController,
-                  onFieldSubmitted: (value) {
-                    if (!mounted) return;
-                    _saveClient(
-                      () => client = client.copyWith(email: () => value.trim()),
-                    );
-                  },
-                ),
-              ],
-            ),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 12,
-              children: [
-                AppText('Заметки', style: AppTextStyles.headingSmall),
-                Stack(
-                  children: [
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: 104,
-                        maxHeight: 104,
-                      ),
-                      child: AppTextFormField(
-                        labelText: 'Например, аллергия на коллаген',
-                        controller: _notesController,
-                        maxLines: 4,
-                        onFieldSubmitted: (_) {
-                          if (!mounted) return;
-                          _saveClient(() {});
-                        },
-                      ),
+                  Positioned(
+                    right: 12,
+                    top: 12,
+                    child: GestureDetector(
+                      onTap: () {
+                        _notesController.clear();
+                        if (mounted) _saveClient(() {});
+                      },
+                      child: AppIcons.close.icon(size: 16),
                     ),
-                    Positioned(
-                      right: 12,
-                      top: 12,
-                      child: GestureDetector(
-                        onTap: () {
-                          _notesController.clear();
-                          if (mounted) _saveClient(() {});
-                        },
-                        child: AppIcons.close.icon(size: 16),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ]),
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -561,30 +557,12 @@ class _ClientHeader extends StatelessWidget {
   }
 }
 
-String _pluralizeVisits(int count) {
-  final mod10 = count % 10;
-  final mod100 = count % 100;
-  if (mod10 == 1 && mod100 != 11) {
-    return 'посещение';
-  }
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return 'посещения';
-  }
-  return 'посещений';
-}
-
 class _VisitTile extends StatelessWidget {
   const _VisitTile({required this.booking});
   final Booking booking;
 
   @override
   Widget build(BuildContext context) {
-    final hours = booking.duration.inHours;
-    final minutes = booking.duration.inMinutes % 60;
-    final durationLabel = minutes == 0
-        ? '$hours ч'
-        : '${hours > 0 ? '$hours ч ' : ''}$minutes м';
-
     return Container(
       padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
       decoration: BoxDecoration(
@@ -621,7 +599,7 @@ class _VisitTile extends StatelessWidget {
                       color: AppColors.textSecondary,
                     ),
                     AppText(
-                      durationLabel,
+                      booking.duration.toLabel(),
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                       ),

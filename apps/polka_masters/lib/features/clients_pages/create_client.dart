@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:polka_masters/dependencies.dart';
 import 'package:shared/shared.dart';
 
 class CreateClientPage extends StatefulWidget {
@@ -12,56 +11,42 @@ class CreateClientPage extends StatefulWidget {
 }
 
 class _CreateClientPageState extends State<CreateClientPage> {
-  final _nameController = TextEditingController();
-  final _cityController = TextEditingController();
-  final _birthdayController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _notesController = TextEditingController();
-
+  final _controllers = _FormControllers();
   String? _uploadedAvatarUrl;
   bool _isSaving = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _cityController.dispose();
-    _birthdayController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
-    _notesController.dispose();
+    _controllers.dispose();
     super.dispose();
   }
 
   Future<void> _pickAvatar() async {
     logger.debug('picking client avatar');
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      logger.info(
-        'Image picked: ${image.path}, size: ${await image.length() ~/ 1024} KB',
-      );
+    if (image == null) return;
 
-      try {
-        // Временно показываем локальное фото, пока не реализована загрузка на сервер
-        // TODO: Добавить метод загрузки аватара клиента в repository
-        setState(() => _uploadedAvatarUrl = image.path);
-      } catch (e, st) {
-        handleError(e, st);
-      }
+    logger.info(
+      'Image picked: ${image.path}, size: ${await image.length() ~/ 1024} KB',
+    );
+
+    try {
+      setState(() => _uploadedAvatarUrl = image.path);
+    } catch (e, st) {
+      handleError(e, st);
     }
   }
 
   bool _validateForm() {
-    final nameParts = _nameController.text.trim().split(' ');
-    if (nameParts.length < 2) {
+    if (_controllers.name.text.trim().split(' ').length < 2) {
       showErrorSnackbar('Введите имя и фамилию');
       return false;
     }
-    if (_cityController.text.trim().isEmpty) {
+    if (_controllers.city.text.trim().isEmpty) {
       showErrorSnackbar('Введите город');
       return false;
     }
-    if (_phoneController.text.trim().isEmpty) {
+    if (_controllers.phone.text.trim().isEmpty) {
       showErrorSnackbar('Введите номер телефона');
       return false;
     }
@@ -73,9 +58,22 @@ class _CreateClientPageState extends State<CreateClientPage> {
 
     setState(() => _isSaving = true);
     try {
-      // Логика сохранения клиента
-      await Future.delayed(const Duration(seconds: 1));
+      final nameParts = _controllers.name.text.trim().split(' ');
+      final client = {
+        'firstName': nameParts.first,
+        'lastName': nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
+        'city': _controllers.city.text.trim(),
+        'birthday': _controllers.birthday.text.trim(),
+        'phone': _controllers.phone.text.trim(),
+        'email': _controllers.email.text.trim(),
+        'messenger': _controllers.messenger.text.trim(),
+        'notes': _controllers.notes.text.trim(),
+        'avatarUrl': _uploadedAvatarUrl,
+      };
 
+      logger.debug('added client: $client');
+
+      await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
         showSuccessSnackbar('Клиент успешно создан');
         Navigator.pop(context, true);
@@ -87,10 +85,28 @@ class _CreateClientPageState extends State<CreateClientPage> {
     }
   }
 
+  Widget _buildSection(String title, String subtitle, List<Widget> children) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(title, style: AppTextStyles.headingSmall),
+        const SizedBox(height: 8),
+        AppText(
+          subtitle,
+          style: AppTextStyles.bodyMedium500.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...children,
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Создай новую карточку'),
+      appBar: const CustomAppBar(title: 'Создай новую карточку'),
       backgroundColor: AppColors.backgroundDefault,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
@@ -98,7 +114,6 @@ class _CreateClientPageState extends State<CreateClientPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 24,
           children: [
-            // ===== Верхний блок с аватаром и кнопкой "Добавить" =====
             Center(
               child: Column(
                 children: [
@@ -139,35 +154,23 @@ class _CreateClientPageState extends State<CreateClientPage> {
                 ],
               ),
             ),
-            // ===========================================================
-
-            // Personal Info Section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
-              children: [
-                AppText(
-                  'Расскажи о клиенте',
-                  style: AppTextStyles.headingSmall,
-                ),
-                AppText(
-                  'Запиши данные, чтобы сохранить все данные и поздравлять с Днём рождения',
-                  style: AppTextStyles.bodyMedium500.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 4),
+            _buildSection(
+              'Расскажи о клиенте',
+              'Запиши данные, чтобы сохранить все данные и поздравлять с Днём рождения',
+              [
                 AppTextFormField(
                   labelText: 'Имя и Фамилия',
-                  controller: _nameController,
+                  controller: _controllers.name,
                 ),
+                const SizedBox(height: 8),
                 AppTextFormField(
                   labelText: 'Город',
-                  controller: _cityController,
+                  controller: _controllers.city,
                 ),
+                const SizedBox(height: 8),
                 AppTextFormField(
                   labelText: 'День рождения',
-                  controller: _birthdayController,
+                  controller: _controllers.birthday,
                   keyboardType: TextInputType.number,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
@@ -176,54 +179,33 @@ class _CreateClientPageState extends State<CreateClientPage> {
                 ),
               ],
             ),
-
-            // Contacts Section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
-              children: [
-                AppText('Контакты', style: AppTextStyles.headingSmall),
-                AppText(
-                  'Запиши данные, чтобы быть на связи с клиентом',
-                  style: AppTextStyles.bodyMedium500.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 4),
+            _buildSection(
+              'Контакты',
+              'Запиши данные, чтобы быть на связи с клиентом',
+              [
                 AppTextFormField(
                   labelText: 'Номер телефона',
-                  controller: _phoneController,
+                  controller: _controllers.phone,
                   keyboardType: TextInputType.phone,
+                  inputFormatters: [_PhoneInputFormatter()],
                 ),
+                const SizedBox(height: 8),
                 AppTextFormField(
                   labelText: 'E-mail',
-                  controller: _emailController,
+                  controller: _controllers.email,
                   keyboardType: TextInputType.emailAddress,
                 ),
+                const SizedBox(height: 8),
                 AppTextFormField(
                   labelText: 'Telegram/WhatsApp',
-                  controller: TextEditingController(),
-                  keyboardType: TextInputType.text,
+                  controller: _controllers.messenger,
                 ),
               ],
             ),
-
-            // Notes Section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
-              children: [
-                AppText(
-                  'Добавь заметку о клиенте',
-                  style: AppTextStyles.headingSmall,
-                ),
-                AppText(
-                  'Запиши данные, чтобы не забыть важные детали, например, предпочтения или аллергии',
-                  style: AppTextStyles.bodyMedium500.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 4),
+            _buildSection(
+              'Добавь заметку о клиенте',
+              'Запиши данные, чтобы не забыть важные детали, например, предпочтения или аллергии',
+              [
                 Stack(
                   children: [
                     ConstrainedBox(
@@ -233,16 +215,17 @@ class _CreateClientPageState extends State<CreateClientPage> {
                       ),
                       child: AppTextFormField(
                         labelText: 'Например, аллергия на коллаген',
-                        controller: _notesController,
+                        controller: _controllers.notes,
                         maxLines: 4,
                       ),
                     ),
-                    if (_notesController.text.isNotEmpty)
+                    if (_controllers.notes.text.isNotEmpty)
                       Positioned(
                         right: 12,
                         top: 12,
                         child: GestureDetector(
-                          onTap: () => setState(() => _notesController.clear()),
+                          onTap: () =>
+                              setState(() => _controllers.notes.clear()),
                           child: AppIcons.close.icon(size: 16),
                         ),
                       ),
@@ -267,6 +250,26 @@ class _CreateClientPageState extends State<CreateClientPage> {
   }
 }
 
+class _FormControllers {
+  final name = TextEditingController();
+  final city = TextEditingController();
+  final birthday = TextEditingController();
+  final phone = TextEditingController();
+  final email = TextEditingController();
+  final messenger = TextEditingController();
+  final notes = TextEditingController();
+
+  void dispose() {
+    name.dispose();
+    city.dispose();
+    birthday.dispose();
+    phone.dispose();
+    email.dispose();
+    messenger.dispose();
+    notes.dispose();
+  }
+}
+
 class _DateInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -274,7 +277,6 @@ class _DateInputFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text;
-
     if (text.length > 10) return oldValue;
 
     String formatted = '';
@@ -296,5 +298,35 @@ class _DateInputFormatter extends TextInputFormatter {
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
+  }
+}
+
+class _PhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+
+    if (text.isEmpty) {
+      return const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
+
+    if (!text.startsWith('+7')) {
+      final digitsOnly = text.replaceAll(RegExp(r'\D'), '');
+      final newText = '+7$digitsOnly';
+      return TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: newText.length),
+      );
+    }
+
+    if (text.length > 12) return oldValue;
+
+    return newValue;
   }
 }

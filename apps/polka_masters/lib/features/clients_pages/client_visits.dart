@@ -33,15 +33,13 @@ class _ClientVisitsPageState extends State<ClientVisitsPage> {
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 16,
           children: [
-            // 🔹 Header из первого кода (горизонтальный)
             _ClientHeader(
               client: widget.client,
               visitsCount: widget.visits.length,
               visits: widget.visits,
             ),
-            _AllVisitsSection(),
+            _buildSectionHeader(),
             _VisitsByYear(
               visits: widget.visits,
               expandedVisits: _expandedVisits,
@@ -52,12 +50,8 @@ class _ClientVisitsPageState extends State<ClientVisitsPage> {
       ),
     );
   }
-}
 
-// ---------------- All Visits Section ----------------
-class _AllVisitsSection extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildSectionHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -75,7 +69,6 @@ class _AllVisitsSection extends StatelessWidget {
   }
 }
 
-// ---------------- Visits By Year ----------------
 class _VisitsByYear extends StatelessWidget {
   const _VisitsByYear({
     required this.visits,
@@ -89,12 +82,7 @@ class _VisitsByYear extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<int, List<Booking>> visitsByYear = {};
-    for (final visit in visits) {
-      final year = visit.date.year;
-      visitsByYear[year] = [...(visitsByYear[year] ?? []), visit];
-    }
-
+    final visitsByYear = _groupByYear(visits);
     final sortedYears = visitsByYear.keys.toList()
       ..sort((a, b) => b.compareTo(a));
 
@@ -120,9 +108,17 @@ class _VisitsByYear extends StatelessWidget {
       }).toList(),
     );
   }
+
+  Map<int, List<Booking>> _groupByYear(List<Booking> visits) {
+    final Map<int, List<Booking>> result = {};
+    for (final visit in visits) {
+      final year = visit.date.year;
+      result[year] = [...(result[year] ?? []), visit];
+    }
+    return result;
+  }
 }
 
-// ---------------- Expandable Visit Tile ----------------
 class _ExpandableVisitTile extends StatelessWidget {
   const _ExpandableVisitTile({
     required this.visit,
@@ -136,11 +132,8 @@ class _ExpandableVisitTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hours = visit.duration.inHours;
-    final minutes = visit.duration.inMinutes % 60;
-    final durationLabel = minutes == 0
-        ? '$hours ч'
-        : '${hours > 0 ? '$hours ч ' : ''}$minutes м';
+    final screenWidth = MediaQuery.of(context).size.width;
+    final statusWidth = screenWidth >= 430 ? 160.0 : 120.0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -173,35 +166,7 @@ class _ExpandableVisitTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        AppIcons.clock.icon(
-                          size: 16,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: 4),
-                        AppText(
-                          durationLabel,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        AppText(
-                          '|',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        AppText(
-                          '₽${visit.price}',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
+                    _buildMetadata(context),
                     const SizedBox(height: 8),
                     GestureDetector(
                       onTap: onToggle,
@@ -217,28 +182,7 @@ class _ExpandableVisitTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              SizedBox(
-                width: 105,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    AppText(
-                      visit.date.toDateString('.'),
-                      style: AppTextStyles.bodyMedium,
-                    ),
-                    AppText(
-                      visit.status.label,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: visit.status.color,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-              ),
+              SizedBox(width: statusWidth, child: _buildDateAndStatus()),
             ],
           ),
           if (isExpanded) ...[
@@ -249,9 +193,49 @@ class _ExpandableVisitTile extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildMetadata(BuildContext context) {
+    final hours = visit.duration.inHours;
+    final minutes = visit.duration.inMinutes % 60;
+    final durationLabel = minutes == 0
+        ? '$hours ч'
+        : '${hours > 0 ? '$hours ч ' : ''}$minutes м';
+
+    final secondaryStyle = AppTextStyles.bodyMedium.copyWith(
+      color: AppColors.textSecondary,
+    );
+
+    return Row(
+      children: [
+        AppIcons.clock.icon(size: 16, color: AppColors.textSecondary),
+        const SizedBox(width: 4),
+        AppText(durationLabel, style: secondaryStyle),
+        const SizedBox(width: 8),
+        AppText('|', style: secondaryStyle),
+        const SizedBox(width: 8),
+        AppText('₽${visit.price}', style: secondaryStyle),
+      ],
+    );
+  }
+
+  Widget _buildDateAndStatus() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        AppText(visit.date.toDateString('.'), style: AppTextStyles.bodyMedium),
+        AppText(
+          visit.status.label,
+          style: AppTextStyles.bodyMedium.copyWith(color: visit.status.color),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+          textAlign: TextAlign.right,
+        ),
+      ],
+    );
+  }
 }
 
-// ---------------- Expanded Content ----------------
 class _ExpandedContent extends StatelessWidget {
   const _ExpandedContent({required this.visit});
   final Booking visit;
@@ -312,7 +296,6 @@ class _ExpandedContent extends StatelessWidget {
   }
 }
 
-// ---------------- Client Header (горизонтальный, первый код) ----------------
 class _ClientHeader extends StatelessWidget {
   const _ClientHeader({
     required this.client,
@@ -326,11 +309,11 @@ class _ClientHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final clientStatus = _determineClientStatus(visits);
+    final clientStatus = _ClientStatusHelper.determine(visits);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.backgroundSubtle,
         borderRadius: BorderRadius.circular(24),
@@ -343,7 +326,6 @@ class _ClientHeader extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
               children: [
                 AppText(
                   client.fullName,
@@ -381,7 +363,6 @@ class _ClientHeader extends StatelessWidget {
   }
 }
 
-// ---------------- Client Status ----------------
 enum ClientStatus {
   newClient('Новый клиент', '🟢'),
   regularClient('Постоянный клиент', '⚪'),
@@ -395,30 +376,33 @@ enum ClientStatus {
   final String icon;
 }
 
-ClientStatus _determineClientStatus(List<Booking> visits) {
-  if (visits.isEmpty) return ClientStatus.newClient;
+class _ClientStatusHelper {
+  static ClientStatus determine(List<Booking> visits) {
+    if (visits.isEmpty) return ClientStatus.newClient;
 
-  final now = DateTime.now();
-  final completed = visits
-      .where((v) => v.status == BookingStatus.completed)
-      .toList();
-  if (completed.isEmpty) return ClientStatus.newClient;
+    final completed = visits
+        .where((v) => v.status == BookingStatus.completed)
+        .toList();
+    if (completed.isEmpty) return ClientStatus.newClient;
 
-  completed.sort((a, b) => b.date.compareTo(a.date));
-  final lastVisit = completed.first.date;
-  final days = now.difference(lastVisit).inDays;
-  final total = completed.length;
+    completed.sort((a, b) => b.date.compareTo(a.date));
+    final now = DateTime.now();
+    final lastVisit = completed.first.date;
+    final days = now.difference(lastVisit).inDays;
+    final total = completed.length;
 
-  if (total > 3 && completed.length >= 2) {
-    final diff = completed[0].date.difference(completed[1].date).inDays;
-    if (diff <= 45) return ClientStatus.regularClient;
+    if (total == 1) return ClientStatus.newClient;
+
+    if (total > 3 && completed.length >= 2) {
+      final diff = completed[0].date.difference(completed[1].date).inDays;
+      if (diff <= 45) return ClientStatus.regularClient;
+    }
+
+    if (days >= 30 && days <= 60) return ClientStatus.inactiveClient;
+    if (days > 60) return ClientStatus.lostClient;
+
+    return ClientStatus.regular;
   }
-
-  if (days >= 30 && days <= 60) return ClientStatus.inactiveClient;
-  if (days > 60) return ClientStatus.lostClient;
-  if (total == 1) return ClientStatus.newClient;
-
-  return ClientStatus.regular;
 }
 
 String _pluralizeVisits(int count) {
@@ -428,6 +412,5 @@ String _pluralizeVisits(int count) {
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
     return 'посещения';
   }
-
   return 'посещений';
 }
