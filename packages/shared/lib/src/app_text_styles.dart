@@ -41,7 +41,7 @@ abstract class AppTextStyles {
     letterSpacing: 0,
   );
 
-  static const bodyLarge2 = TextStyle(
+  static const bodyLarge500 = TextStyle(
     fontFamily: 'Manrope',
     fontSize: 16,
     height: 1.5,

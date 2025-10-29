@@ -46,23 +46,19 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
   }
 
   Future<void> addEvent(Booking event) async {
-    final colors = _getEventColors(event.status);
+    final colors = _getEventColors(event);
     controller.add(_createEvent(event, colors.bgcolor, colors.fgcolor));
   }
 
   Future<void> updateEvent(int bookingId, Booking newEvent) async {
-    final colors = _getEventColors(newEvent.status);
+    final colors = _getEventColors(newEvent);
     final oldEvent = controller.allEvents.firstWhere((e) => e.event?.id == bookingId);
     controller.update(oldEvent, _createEvent(newEvent, colors.bgcolor, colors.fgcolor));
   }
 
   Future<void> removeEvent(Booking event) async {
-    final colors = _getEventColors(event.status);
+    final colors = _getEventColors(event);
     controller.remove(_createEvent(event, colors.bgcolor, colors.fgcolor));
-  }
-
-  Future<void> addTimeBlock(DateTime date, Duration startTime, Duration endTime) async {
-    controller.add(_createTimeBlock(date, startTime, endTime));
   }
 
   Future<void> reloadEvents() async {
@@ -72,41 +68,40 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
     if (result.unpack() case List<Booking> data) {
       for (var e in data) {
         if (const [BookingStatus.pending, BookingStatus.confirmed, BookingStatus.completed].contains(e.status)) {
-          final colors = _getEventColors(e.status);
+          final colors = _getEventColors(e);
           controller.add(_createEvent(e, colors.bgcolor, colors.fgcolor));
         }
       }
     }
   }
 
-  CalendarEventData<Booking> _createEvent(Booking event, Color bgcolor, Color fgcolor) => CalendarEventData(
-    title: event.clientName,
-    date: event.date,
-    startTime: event.date.add(event.startTime),
-    endTime: event.date.add(event.endTime),
-    backgroundColor: bgcolor,
-    foregroundColor: fgcolor,
-    description: event.serviceName,
-    titleStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: context.ext.theme.textPrimary),
-    descriptionStyle: AppTextStyles.bodySmall.copyWith(
-      fontWeight: FontWeight.w700,
-      color: context.ext.theme.textSecondary,
-    ),
-    event: event,
-  );
+  CalendarEventData<Booking> _createEvent(Booking event, Color bgcolor, Color fgcolor) {
+    return CalendarEventData(
+      title: event.isTimeBlock ? 'Перерыв' : event.clientName,
+      date: event.date,
+      startTime: event.date.add(event.startTime),
+      endTime: event.date.add(event.endTime),
+      backgroundColor: bgcolor,
+      foregroundColor: fgcolor,
+      description: event.serviceName,
+      titleStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: context.ext.theme.textPrimary),
+      descriptionStyle: AppTextStyles.bodySmall.copyWith(
+        fontWeight: FontWeight.w700,
+        color: context.ext.theme.textSecondary,
+      ),
+      event: event,
+    );
+  }
 
-  CalendarEventData<Booking> _createTimeBlock(DateTime date, Duration startTime, Duration endTime) => CalendarEventData(
-    title: 'time block',
-    date: date,
-    startTime: date.add(startTime),
-    endTime: date.add(endTime),
-    backgroundColor: context.ext.theme.iconsDefault,
-    foregroundColor: context.ext.theme.backgroundDisabled,
-  );
-
-  ({Color bgcolor, Color fgcolor}) _getEventColors(BookingStatus status) => switch (status) {
-    BookingStatus.confirmed => (bgcolor: context.ext.theme.accent, fgcolor: context.ext.theme.accentLight),
-    BookingStatus.completed => (bgcolor: context.ext.theme.accent, fgcolor: context.ext.theme.accentLight),
-    _ => (bgcolor: context.ext.theme.textPrimary, fgcolor: context.ext.theme.backgroundHover),
+  ({Color bgcolor, Color fgcolor}) _getEventColors(Booking booking) => switch (booking) {
+    Booking() when booking.isTimeBlock => ((
+      bgcolor: context.ext.theme.iconsDefault,
+      fgcolor: context.ext.theme.backgroundDisabled,
+    )),
+    _ => switch (booking.status) {
+      BookingStatus.confirmed => (bgcolor: context.ext.theme.accent, fgcolor: context.ext.theme.accentLight),
+      BookingStatus.completed => (bgcolor: context.ext.theme.accent, fgcolor: context.ext.theme.accentLight),
+      _ => (bgcolor: context.ext.theme.textPrimary, fgcolor: context.ext.theme.backgroundHover),
+    },
   };
 }

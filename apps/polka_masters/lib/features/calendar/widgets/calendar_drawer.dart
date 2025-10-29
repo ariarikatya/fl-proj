@@ -23,7 +23,7 @@ class CalendarDrawer extends StatelessWidget {
                   AppText('Выбери пероид', style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600)),
                   AppText(
                     'Мы покажем твое расписание на эти даты',
-                    style: AppTextStyles.bodyLarge2.copyWith(color: context.ext.theme.textSecondary),
+                    style: AppTextStyles.bodyLarge500.copyWith(color: context.ext.theme.textSecondary),
                   ),
                 ],
               ),

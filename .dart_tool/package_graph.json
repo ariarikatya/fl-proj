@@ -4,6 +4,7 @@
     "polka_clients",
     "polka_masters",
     "polka_monorepo",
+    "polka_online",
     "shared"
   ],
   "packages": [
@@ -43,7 +44,7 @@
     },
     {
       "name": "polka_masters",
-      "version": "2.2.5+31",
+      "version": "2.3.0+32",
       "dependencies": [
         "calendar_view",
         "dio",
@@ -58,6 +59,20 @@
       ],
       "devDependencies": [
         "flutter_lints",
+        "flutter_test"
+      ]
+    },
+    {
+      "name": "polka_online",
+      "version": "1.0.0+1",
+      "dependencies": [
+        "cupertino_icons",
+        "flutter",
+        "flutter_svg",
+        "shared",
+        "url_launcher"
+      ],
+      "devDependencies": [
         "flutter_test"
       ]
     },
@@ -440,6 +455,11 @@
         "vector_graphics_codec",
         "vector_graphics_compiler"
       ]
+    },
+    {
+      "name": "cupertino_icons",
+      "version": "1.0.8",
+      "dependencies": []
     },
     {
       "name": "provider",

@@ -64,7 +64,7 @@ class AppFilledCell<T extends Object?> extends StatelessWidget {
           : null,
       child: AppText(
         '${date.day}',
-        style: AppTextStyles.bodyLarge2.copyWith(
+        style: AppTextStyles.bodyLarge500.copyWith(
           color: isToday
               ? context.ext.theme.backgroundDefault
               : isInMonth

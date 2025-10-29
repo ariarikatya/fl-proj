@@ -3,6 +3,8 @@
 library;
 
 export 'src/app_colors.dart';
+export 'src/features/theme/app_theme.dart';
+export 'src/features/theme/app_theme_widget.dart';
 export 'src/app_text_styles.dart';
 export 'src/blocs_provider.dart';
 export 'src/controllers/search_cubit.dart';

@@ -164,6 +164,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cupertino_icons",
+      "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/cupertino_icons-1.0.8",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
       "name": "dart_style",
       "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/dart_style-3.1.2",
       "packageUri": "lib/",
@@ -1116,6 +1122,12 @@
       "rootUri": "../apps/polka_masters",
       "packageUri": "lib/",
       "languageVersion": "3.8"
+    },
+    {
+      "name": "polka_online",
+      "rootUri": "../apps/polka_online",
+      "packageUri": "lib/",
+      "languageVersion": "3.9"
     },
     {
       "name": "shared",

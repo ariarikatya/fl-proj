@@ -1,6 +1,6 @@
 name: polka_monorepo
 description: "Polka Project monorepo."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -9,5 +9,6 @@ environment:
 workspace:
   - apps/polka_clients
   - apps/polka_masters
+  - apps/polka_online
   - packages/shared
   - packages/calendar_view

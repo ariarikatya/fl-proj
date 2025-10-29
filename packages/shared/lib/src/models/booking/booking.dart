@@ -39,6 +39,7 @@ class Booking extends JsonEquatable {
     required this.clientNotes,
     required this.masterNotes,
     required this.reviewSent,
+    required this.isTimeBlock,
     super.json,
   });
 
@@ -47,7 +48,7 @@ class Booking extends JsonEquatable {
     clientId: json['client_id'] as int,
     masterId: json['master_id'] as int,
     serviceId: json['service_id'] as int,
-    serviceName: json['service_name'] as String,
+    serviceName: json['service_name'] as String? ?? '',
     masterName: json['master_name'] as String? ?? '',
     clientName: json['client_name'] as String? ?? '',
     price: json['price'] as int,
@@ -61,6 +62,7 @@ class Booking extends JsonEquatable {
     clientNotes: json['client_notes'] as String?,
     masterNotes: json['master_notes'] as String?,
     reviewSent: json['review_sent'] as bool? ?? false,
+    isTimeBlock: json['block_time'] as bool? ?? false,
     json: json,
   );
 
@@ -70,7 +72,7 @@ class Booking extends JsonEquatable {
   final DateTime date, createdAt;
   final Duration startTime, endTime;
   final String? serviceImageUrl, masterAvatarUrl, clientNotes, masterNotes;
-  final bool reviewSent;
+  final bool reviewSent, isTimeBlock;
 
   DateTime get datetime => date.add(startTime);
   Duration get duration => endTime - startTime;
@@ -95,6 +97,7 @@ class Booking extends JsonEquatable {
     serviceImageUrl,
     masterAvatarUrl,
     reviewSent,
+    isTimeBlock,
   ];
 
   Booking copyWith({
@@ -116,6 +119,7 @@ class Booking extends JsonEquatable {
     ValueGetter<String?>? clientNotes,
     ValueGetter<String?>? masterNotes,
     ValueGetter<bool>? reviewSent,
+    ValueGetter<bool>? isTimeBlock,
   }) => Booking(
     id: id,
     clientId: clientId != null ? clientId() : this.clientId,
@@ -135,6 +139,7 @@ class Booking extends JsonEquatable {
     clientNotes: clientNotes != null ? clientNotes() : this.clientNotes,
     masterNotes: masterNotes != null ? masterNotes() : this.masterNotes,
     reviewSent: reviewSent != null ? reviewSent() : this.reviewSent,
+    isTimeBlock: isTimeBlock != null ? isTimeBlock() : this.isTimeBlock,
     json: json,
   );
 
@@ -158,5 +163,6 @@ class Booking extends JsonEquatable {
     'notes': ?masterNotes,
     'created_at': createdAt.toJson(),
     'review_sent': reviewSent,
+    'block_time': isTimeBlock,
   };
 }

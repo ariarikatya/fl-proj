@@ -23,7 +23,7 @@ class CalendarMonthView extends StatelessWidget {
         displayBorder: false,
         weekDayStringBuilder: (index) => WeekDays.values[index].short,
         backgroundColor: context.ext.theme.backgroundSubtle,
-        textStyle: AppTextStyles.bodyLarge2.copyWith(color: context.ext.theme.textPlaceholder),
+        textStyle: AppTextStyles.bodyLarge500.copyWith(color: context.ext.theme.textPlaceholder),
       ),
       cellBuilder: (date, event, isToday, isInMonth, hideDaysNotInMonth) => AppFilledCell.factory(
         date,

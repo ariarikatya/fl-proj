@@ -6,6 +6,7 @@ import 'package:polka_masters/features/contacts/widgets/contact_card.dart';
 import 'package:shared/shared.dart';
 
 Future<Booking?> showBookingInfoMbs({required BuildContext context, required Booking booking}) {
+  if (booking.isTimeBlock) return Future.value(null);
   return showModalBottomSheet<Booking?>(
     context: context,
     backgroundColor: context.ext.theme.backgroundDefault,
@@ -14,22 +15,6 @@ Future<Booking?> showBookingInfoMbs({required BuildContext context, required Boo
     builder: (_) => _View(booking: booking),
   );
 }
-
-BookingInfo _mockInfo(Booking booking) => BookingInfo(
-  booking: booking,
-  client: null,
-  contact: Contact(id: 1, name: 'Client Name', number: '+79999999999', avatarUrl: null),
-  service: Service(
-    id: 1,
-    duration: Duration.zero,
-    price: 100,
-    category: ServiceCategories.nailService,
-    title: 'Service Title',
-    description: 'Service Description',
-    location: ServiceLocation.studio,
-    resultPhotos: [],
-  ),
-);
 
 class _View extends StatelessWidget {
   const _View({required this.booking});

@@ -47,7 +47,7 @@ final class RestBookingsRepository extends BookingsRepository {
 
   @override
   Future<Result<List<Booking>>> getAllBookings() => tryCatch(() async {
-    final response = await dio.get('/appointments');
+    final response = await dio.get('/appointments?role=master');
     return parseJsonList(response.data['appointments'], Booking.fromJson);
   });
 
@@ -142,8 +142,7 @@ final class RestBookingsRepository extends BookingsRepository {
       'end_time': ?endTime?.toJson(),
       'date': ?date?.toJson(),
     };
-    final response = await dio.put('/master/appointment/$bookingId', data: body);
-    return null;
-    return Booking.fromJson(response.data); // Потому что поля на бэке своей жизнью живут
+    await dio.put('/master/appointment/$bookingId', data: body);
+    return null; // Потому что поля на бэке своей жизнью живут
   });
 }

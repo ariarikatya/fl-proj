@@ -132,3 +132,52 @@ class AppTextButtonSecondary extends StatelessWidget {
     );
   }
 }
+
+class AppTextButtonTertiary extends StatelessWidget {
+  const AppTextButtonTertiary._({
+    required this.text,
+    required this.onTap,
+    required this.style,
+    required this.enabled,
+    required this.shrinkWrap,
+  });
+
+  factory AppTextButtonTertiary.large({required String text, required VoidCallback onTap, bool enabled = true}) =>
+      AppTextButtonTertiary._(text: text, onTap: onTap, enabled: enabled, style: _largeStyle, shrinkWrap: false);
+
+  factory AppTextButtonTertiary.medium({required String text, required VoidCallback onTap, bool enabled = true}) =>
+      AppTextButtonTertiary._(text: text, onTap: onTap, enabled: enabled, style: _mediumStyle, shrinkWrap: false);
+
+  factory AppTextButtonTertiary.small({required String text, required VoidCallback onTap, bool enabled = true}) =>
+      AppTextButtonTertiary._(text: text, onTap: onTap, enabled: enabled, style: _mediumStyle, shrinkWrap: true);
+
+  final String text;
+  final VoidCallback onTap;
+  final bool enabled;
+  final bool shrinkWrap;
+
+  final AppButtonStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        padding: style.padding,
+        width: shrinkWrap ? null : double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: enabled ? context.ext.theme.accent : context.ext.theme.backgroundDisabled,
+        ),
+        child: AppText(
+          text,
+          style: style.textStyle.copyWith(
+            color: enabled ? context.ext.theme.backgroundHover : context.ext.theme.backgroundSubtle,
+            overflow: style.overflow,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}

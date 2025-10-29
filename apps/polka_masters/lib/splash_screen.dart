@@ -32,9 +32,9 @@ class SplashScreen extends StatelessWidget {
                   child: Text(
                     'polka',
                     style: TextStyle(
-                      fontSize: 60,
-                      letterSpacing: 0.5,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 72,
+                      letterSpacing: 0.75,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
