@@ -146,7 +146,6 @@ class _WelcomePageState extends State<WelcomePage> {
     if (showImage) {
       final fullContent =
           kMainContainerMaxWidth + kContainerImageGap + kWelcomeImageMaxWidth;
-      final minContent = kMainContainerMaxWidth + kContainerImageGap + 50;
       if (width < fullContent) {
         final denom = (kWelcomeImageMaxWidth - 50);
         final t = denom > 0
@@ -577,13 +576,13 @@ class _WelcomePageState extends State<WelcomePage> {
         border: Border.all(color: AppColors.backgroundDefault, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             offset: const Offset(0, 4),
             blurRadius: 4,
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             offset: const Offset(0, 16),
             blurRadius: 32,
             spreadRadius: -4,
@@ -745,13 +744,13 @@ class _WelcomePageState extends State<WelcomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             spreadRadius: -4,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 32,
             spreadRadius: -4,
             offset: const Offset(0, 16),
