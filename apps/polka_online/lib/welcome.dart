@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:polka_online/authorization.dart';
 import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
-import 'repositories/master_repository.dart';
+import 'dependencies.dart';
 
 // Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
@@ -13,6 +14,7 @@ const double kContainerImageGap =
 
 class WelcomePage extends StatefulWidget {
   final String? masterId;
+
   const WelcomePage({super.key, this.masterId});
 
   @override
@@ -37,8 +39,11 @@ class _WelcomePageState extends State<WelcomePage> {
       _isLoading = true;
       _error = null;
     });
-    final repository = MockMasterRepository();
+
+    // Используем настоящий репозиторий вместо мокового
+    final repository = Dependencies.instance.masterRepository;
     final result = await repository.getMasterInfo(int.parse(_masterId));
+
     result.when(
       ok: (data) {
         setState(() {
@@ -90,17 +95,15 @@ class _WelcomePageState extends State<WelcomePage> {
     try {
       await launchUrl(Uri.parse(url));
     } catch (e) {
-      // Handle error
+      // ignore
     }
   }
 
-  void _openBooking() async {
-    final webUrl = 'https://polka.app/masters/$_masterId';
-    try {
-      await launchUrl(Uri.parse(webUrl));
-    } catch (e) {
-      // Handle error
-    }
+  void _openBooking() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AuthorizationPage()),
+    );
   }
 
   @override
@@ -111,6 +114,7 @@ class _WelcomePageState extends State<WelcomePage> {
         body: const Center(child: CircularProgressIndicator()),
       );
     }
+
     if (_error != null || _masterInfo == null) {
       return Scaffold(
         backgroundColor: AppColors.backgroundDefault,
@@ -130,6 +134,11 @@ class _WelcomePageState extends State<WelcomePage> {
                   style: AppTextStyles.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _loadMasterInfo,
+                  child: const Text('Попробовать снова'),
+                ),
               ],
             ),
           ),
@@ -138,7 +147,7 @@ class _WelcomePageState extends State<WelcomePage> {
     }
 
     final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 750; // теперь десктоп/широкий экран от 750px
+    final isDesktop = width >= 750;
     final showImage = isDesktop && width >= 1120;
 
     // Рассчитываем ширину картинки
@@ -150,9 +159,10 @@ class _WelcomePageState extends State<WelcomePage> {
         final denom = (kWelcomeImageMaxWidth - 50);
         final t = denom > 0
             ? ((width - (kMainContainerMaxWidth + kContainerImageGap) - 50) /
-                  denom)
+                      denom)
+                  .clamp(0.0, 1.0)
             : 1.0;
-        imageWidth = 50 + (kWelcomeImageMaxWidth - 50) * t.clamp(0.0, 1.0);
+        imageWidth = 50 + (kWelcomeImageMaxWidth - 50) * t;
       }
     }
 
@@ -160,7 +170,7 @@ class _WelcomePageState extends State<WelcomePage> {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
-          // Верхняя панель с логотипом и кнопкой
+          // Верхняя панель
           Container(
             height: 88,
             color: AppColors.backgroundDefault,
@@ -227,6 +237,7 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
             ),
           ),
+
           Expanded(
             child: Container(
               color: isDesktop
@@ -343,7 +354,10 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
+  // ================================
   // Desktop layout
+  // ================================
+
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -424,31 +438,15 @@ class _WelcomePageState extends State<WelcomePage> {
                             const SizedBox(height: 32),
                             SizedBox(
                               width: 280,
-                              child: ElevatedButton(
-                                onPressed: _openBooking,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Записаться к $masterFirstNameDative',
-                                  style: AppTextStyles.bodyLarge.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
+                              child: AppTextButton.large(
+                                text: 'Записаться к $masterFirstNameDative',
+                                onTap: _openBooking,
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
-
                     const SizedBox(width: kContainerImageGap),
 
                     // Right column: master card
@@ -510,13 +508,10 @@ class _WelcomePageState extends State<WelcomePage> {
                       child: Text(
                         'Установи POLKA\nи найди своего\nмастера',
                         style: imageWidth >= kWelcomeImageMaxWidth
-                            ? AppTextStyles
-                                  .heading // полный размер — стиль heading
-                            : AppTextStyles
-                                  .headingLarge, // уменьшенный — прежний стиль
+                            ? AppTextStyles.heading
+                            : AppTextStyles.headingLarge,
                       ),
                     ),
-
                     Positioned(
                       bottom: 24,
                       left: 24,
@@ -592,10 +587,10 @@ class _WelcomePageState extends State<WelcomePage> {
       child: IntrinsicHeight(
         child: Padding(
           padding: const EdgeInsets.only(
-            left: 24.0,
-            top: 24.0,
-            bottom: 24.0,
-            right: 24.0,
+            left: 24,
+            top: 24,
+            bottom: 24,
+            right: 24,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -716,6 +711,10 @@ class _WelcomePageState extends State<WelcomePage> {
       ),
     );
   }
+
+  // ================================
+  // Mobile layout
+  // ================================
 
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
@@ -840,20 +839,9 @@ class _WelcomePageState extends State<WelcomePage> {
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _openBooking,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Записаться к $masterFirstNameDative',
-                  style: AppTextStyles.bodyLarge.copyWith(color: Colors.white),
-                ),
+              child: AppTextButton.large(
+                text: 'Записаться к $masterFirstNameDative',
+                onTap: _openBooking,
               ),
             ),
           ],
@@ -873,11 +861,7 @@ class _WelcomePageState extends State<WelcomePage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              value,
-              style: AppTextStyles.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
+            Text(value, style: AppTextStyles.bodyLarge),
             if (showStar) ...[
               const SizedBox(width: 4),
               AppIcons.star.icon(context, size: 16),
@@ -885,11 +869,7 @@ class _WelcomePageState extends State<WelcomePage> {
           ],
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: AppTextStyles.bodySmall,
-          textAlign: TextAlign.center,
-        ),
+        Text(label, style: AppTextStyles.bodySmall),
       ],
     );
   }

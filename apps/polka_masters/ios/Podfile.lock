@@ -1,0 +1,204 @@
+PODS:
+  - appmetrica_plugin (3.3.0):
+    - AppMetricaAnalytics (~> 5.12)
+    - Flutter
+  - AppMetricaAdSupport (5.12.0):
+    - AppMetricaCore (= 5.12.0)
+    - AppMetricaCoreExtension (= 5.12.0)
+  - AppMetricaAnalytics (5.12.0):
+    - AppMetricaAdSupport (= 5.12.0)
+    - AppMetricaCore (= 5.12.0)
+    - AppMetricaCrashes (= 5.12.0)
+    - AppMetricaScreenshot (= 5.12.0)
+    - AppMetricaWebKit (= 5.12.0)
+  - AppMetricaCore (5.12.0):
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaEncodingUtils (= 5.12.0)
+    - AppMetricaFMDB (= 5.12.0)
+    - AppMetricaHostState (= 5.12.0)
+    - AppMetricaIdentifiers (= 5.12.0)
+    - AppMetricaKeychain (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+    - AppMetricaNetwork (= 5.12.0)
+    - AppMetricaPlatform (= 5.12.0)
+    - AppMetricaProtobuf (= 5.12.0)
+    - AppMetricaProtobufUtils (= 5.12.0)
+    - AppMetricaStorageUtils (= 5.12.0)
+  - AppMetricaCoreExtension (5.12.0):
+    - AppMetricaCore (= 5.12.0)
+    - AppMetricaStorageUtils (= 5.12.0)
+  - AppMetricaCoreUtils (5.12.0):
+    - AppMetricaLog (= 5.12.0)
+  - AppMetricaCrashes (5.12.0):
+    - AppMetricaCore (= 5.12.0)
+    - AppMetricaCoreExtension (= 5.12.0)
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaEncodingUtils (= 5.12.0)
+    - AppMetricaHostState (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+    - AppMetricaPlatform (= 5.12.0)
+    - AppMetricaProtobufUtils (= 5.12.0)
+    - AppMetricaStorageUtils (= 5.12.0)
+    - KSCrash/Recording (< 2.2.0, >= 2.1.0)
+  - AppMetricaEncodingUtils (5.12.0):
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+    - AppMetricaPlatform (= 5.12.0)
+  - AppMetricaFMDB (5.12.0)
+  - AppMetricaHostState (5.12.0):
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+  - AppMetricaIdentifiers (5.12.0):
+    - AppMetricaKeychain (= 5.12.0)
+    - AppMetricaLogSwift (= 5.12.0)
+    - AppMetricaPlatform (= 5.12.0)
+    - AppMetricaStorageUtils (= 5.12.0)
+    - AppMetricaSynchronization (= 5.12.0)
+  - AppMetricaKeychain (5.12.0):
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+    - AppMetricaStorageUtils (= 5.12.0)
+  - AppMetricaLog (5.12.0)
+  - AppMetricaLogSwift (5.12.0):
+    - AppMetricaLog (= 5.12.0)
+  - AppMetricaNetwork (5.12.0):
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+    - AppMetricaPlatform (= 5.12.0)
+  - AppMetricaPlatform (5.12.0):
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+  - AppMetricaProtobuf (5.12.0)
+  - AppMetricaProtobufUtils (5.12.0):
+    - AppMetricaProtobuf (= 5.12.0)
+  - AppMetricaScreenshot (5.12.0):
+    - AppMetricaCore (= 5.12.0)
+    - AppMetricaCoreExtension (= 5.12.0)
+  - AppMetricaStorageUtils (5.12.0):
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+  - AppMetricaSynchronization (5.12.0):
+    - AppMetricaLogSwift (= 5.12.0)
+  - AppMetricaWebKit (5.12.0):
+    - AppMetricaCore (= 5.12.0)
+    - AppMetricaCoreUtils (= 5.12.0)
+    - AppMetricaLog (= 5.12.0)
+  - Flutter (1.0.0)
+  - flutter_secure_storage (6.0.0):
+    - Flutter
+  - flutter_udid (0.0.1):
+    - Flutter
+    - SAMKeychain
+  - image_picker_ios (0.0.1):
+    - Flutter
+  - KSCrash/Core (2.1.2)
+  - KSCrash/Recording (2.1.2):
+    - KSCrash/RecordingCore
+  - KSCrash/RecordingCore (2.1.2):
+    - KSCrash/Core
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - SAMKeychain (1.5.3)
+  - share_plus (0.0.1):
+    - Flutter
+  - sqflite_darwin (0.0.4):
+    - Flutter
+    - FlutterMacOS
+  - url_launcher_ios (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - appmetrica_plugin (from `.symlinks/plugins/appmetrica_plugin/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - flutter_udid (from `.symlinks/plugins/flutter_udid/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - share_plus (from `.symlinks/plugins/share_plus/ios`)
+  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+
+SPEC REPOS:
+  trunk:
+    - AppMetricaAdSupport
+    - AppMetricaAnalytics
+    - AppMetricaCore
+    - AppMetricaCoreExtension
+    - AppMetricaCoreUtils
+    - AppMetricaCrashes
+    - AppMetricaEncodingUtils
+    - AppMetricaFMDB
+    - AppMetricaHostState
+    - AppMetricaIdentifiers
+    - AppMetricaKeychain
+    - AppMetricaLog
+    - AppMetricaLogSwift
+    - AppMetricaNetwork
+    - AppMetricaPlatform
+    - AppMetricaProtobuf
+    - AppMetricaProtobufUtils
+    - AppMetricaScreenshot
+    - AppMetricaStorageUtils
+    - AppMetricaSynchronization
+    - AppMetricaWebKit
+    - KSCrash
+    - SAMKeychain
+
+EXTERNAL SOURCES:
+  appmetrica_plugin:
+    :path: ".symlinks/plugins/appmetrica_plugin/ios"
+  Flutter:
+    :path: Flutter
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  flutter_udid:
+    :path: ".symlinks/plugins/flutter_udid/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  share_plus:
+    :path: ".symlinks/plugins/share_plus/ios"
+  sqflite_darwin:
+    :path: ".symlinks/plugins/sqflite_darwin/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+
+SPEC CHECKSUMS:
+  appmetrica_plugin: 33259bb6707919ae773de457b88c35db0a8599d3
+  AppMetricaAdSupport: 296a22146b0f21aae0fecf8f1019e43ceddf1ab4
+  AppMetricaAnalytics: d71402c498e110112e66bf79de5d198aa54cf94c
+  AppMetricaCore: 26904cd96c9a195db6766637f84d2106a184c101
+  AppMetricaCoreExtension: 93362f3d8748893362eb24d41c75ea1de51335a1
+  AppMetricaCoreUtils: 5fee0ecea5cbf200751f912c75bd25ee57d63da8
+  AppMetricaCrashes: 8c460ec28710872361b9a7d01e23a71549e542a2
+  AppMetricaEncodingUtils: 0d3e03ed998dc8df28d7adcf307da80ece32197f
+  AppMetricaFMDB: 890223e4cb5dc973a7899eb92801eba534533c8c
+  AppMetricaHostState: 0c6778f8226f47d81747e71f7a1a08188db896ab
+  AppMetricaIdentifiers: 58d1a19802455f8a1a6af22bd35be0c07a44e92c
+  AppMetricaKeychain: 0f2fecc4d87dec449af5b103fc0166857e520ec6
+  AppMetricaLog: 8d834e710a41e6b5fef843ad3ef7b4cb51b95fa3
+  AppMetricaLogSwift: 32f93dd0e087cb1145f37299d99a383ff819b75b
+  AppMetricaNetwork: eb4c8d6f720b63be81830e34400f6c03def0f70c
+  AppMetricaPlatform: 1cd042d9c6a4456aafe09aa6aaa94c19306ad4c6
+  AppMetricaProtobuf: b290da32cf73d0cce2580959a59f78cc0c56b94c
+  AppMetricaProtobufUtils: 9342178604648ca2ec49005d20f7ae1021c06e01
+  AppMetricaScreenshot: 17d1512d093ebd53940e570a0307e0637409ea1f
+  AppMetricaStorageUtils: f0b3b5e05dd319c3199241f77da68e295f50b839
+  AppMetricaSynchronization: e991bc661a46e840af78dffb13c21de4607884f3
+  AppMetricaWebKit: 1a9c0f6020151a4e975846871ab585f9698a3264
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
+  flutter_udid: f7c3884e6ec2951efe4f9de082257fc77c4d15e9
+  image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
+  KSCrash: bd950ede6c40a50bfc9f246c38a7f3408705fa3c
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
+  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
+
+PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
+
+COCOAPODS: 1.16.2

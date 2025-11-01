@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 import 'welcome.dart';
+import 'dependencies.dart';
 
 void main() {
+  // true = использовать моковые данные, false = реальные с сервера
+  Dependencies.instance.init();
+
   runApp(const MyApp());
 }
 
@@ -45,18 +49,15 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         onGenerateRoute: (settings) {
-          // Парсинг URL: /masters/:id или /
           final uri = Uri.parse(settings.name ?? '/');
 
-          // Главная страница
           if (uri.pathSegments.isEmpty) {
             return MaterialPageRoute(
-              builder: (context) => const WelcomePage(),
+              builder: (context) => const WelcomePage(masterId: '5'),
               settings: settings,
             );
           }
 
-          // URL вида /masters/:id
           if (uri.pathSegments.length == 2 &&
               uri.pathSegments[0] == 'masters') {
             final masterId = uri.pathSegments[1];
@@ -66,7 +67,6 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // Fallback на главную
           return MaterialPageRoute(
             builder: (context) => const WelcomePage(),
             settings: settings,
