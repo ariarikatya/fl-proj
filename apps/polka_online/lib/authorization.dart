@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:polka_online/authorization.dart';
 import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
@@ -18,14 +17,15 @@ class AuthorizationPage extends StatefulWidget {
   const AuthorizationPage({super.key, this.masterId});
 
   @override
-  State<AuthorizationPage> createState() => _WelcomePageState();
+  State<AuthorizationPage> createState() => _AuthorizationPageState();
 }
 
-class _WelcomePageState extends State<AuthorizationPage> {
+class _AuthorizationPageState extends State<AuthorizationPage> {
   MasterInfo? _masterInfo;
   bool _isLoading = true;
   String? _error;
   late String _masterId;
+  final _phoneNotifier = ValueNotifier<String>('');
 
   @override
   void initState() {
@@ -34,13 +34,18 @@ class _WelcomePageState extends State<AuthorizationPage> {
     _loadMasterInfo();
   }
 
+  @override
+  void dispose() {
+    _phoneNotifier.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadMasterInfo() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
-    // Используем настоящий репозиторий вместо мокового
     final repository = Dependencies.instance.masterRepository;
     final result = await repository.getMasterInfo(int.parse(_masterId));
 
@@ -99,11 +104,20 @@ class _WelcomePageState extends State<AuthorizationPage> {
     }
   }
 
-  void _openBooking() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AuthorizationPage()),
-    );
+  void _getCode() {
+    if (_phoneNotifier.value.length == 10) {
+      // TODO: Здесь будет переход на экран с пин-кодом
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => PhoneVerificationCodePage(
+      //       phoneNumber: '7${_phoneNotifier.value}',
+      //       ...
+      //     ),
+      //   ),
+      // );
+      print('Номер телефона: 7${_phoneNotifier.value}');
+    }
   }
 
   @override
@@ -411,7 +425,7 @@ class _WelcomePageState extends State<AuthorizationPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column
+                    // Left column - форма авторизации
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -436,11 +450,21 @@ class _WelcomePageState extends State<AuthorizationPage> {
                               ),
                             ),
                             const SizedBox(height: 32),
+                            // Поле телефона
+                            AppPhoneTextField(notifier: _phoneNotifier),
+                            const SizedBox(height: 16),
+                            // Кнопка получить код
                             SizedBox(
                               width: 280,
-                              child: AppTextButton.large(
-                                text: 'Получить код',
-                                onTap: () {},
+                              child: ValueListenableBuilder(
+                                valueListenable: _phoneNotifier,
+                                builder: (context, value, child) {
+                                  return AppTextButton.large(
+                                    text: 'Получить код',
+                                    enabled: value.length == 10,
+                                    onTap: _getCode,
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -718,153 +742,24 @@ class _WelcomePageState extends State<AuthorizationPage> {
           ),
         ),
         const SizedBox(height: 32),
-        _buildMobileMasterCard(context),
-      ],
-    );
-  }
-
-  Widget _buildMobileMasterCard(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(maxWidth: 400),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundOnline2,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            spreadRadius: -4,
-            offset: const Offset(0, 4),
+        // Поле телефона
+        AppPhoneTextField(notifier: _phoneNotifier),
+        const SizedBox(height: 16),
+        // Кнопка получить код
+        SizedBox(
+          width: double.infinity,
+          child: ValueListenableBuilder(
+            valueListenable: _phoneNotifier,
+            builder: (context, value, child) {
+              return AppTextButton.large(
+                text: 'Получить код',
+                enabled: value.length == 10,
+                onTap: _getCode,
+              );
+            },
           ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.10),
-            blurRadius: 32,
-            spreadRadius: -4,
-            offset: const Offset(0, 16),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                SvgPicture.asset(
-                  'assets/images/pink_splash.svg',
-                  width: 112,
-                  height: 112,
-                  fit: BoxFit.contain,
-                ),
-                ClipOval(
-                  child: masterAvatarUrl.isNotEmpty
-                      ? Image.network(
-                          masterAvatarUrl,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Image.asset(
-                                'assets/images/master_photo.png',
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                              ),
-                        )
-                      : Image.asset(
-                          'assets/images/master_photo.png',
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              masterFullName,
-              style: AppTextStyles.headingMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              masterSpecialization,
-              style: AppTextStyles.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: _buildStatVertical(
-                    context,
-                    masterRating.toStringAsFixed(1),
-                    'Рейтинг',
-                    showStar: true,
-                  ),
-                ),
-                _buildDivider(),
-                Expanded(
-                  child: _buildStatVertical(
-                    context,
-                    getYearsText(masterExperience),
-                    'Опыта',
-                  ),
-                ),
-                _buildDivider(),
-                Expanded(
-                  child: _buildStatVertical(
-                    context,
-                    masterReviews.toString(),
-                    'Отзыва',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: AppTextButton.large(text: 'Получить код', onTap: () {}),
-            ),
-          ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatVertical(
-    BuildContext context,
-    String value,
-    String label, {
-    bool showStar = false,
-  }) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(value, style: AppTextStyles.bodyLarge),
-            if (showStar) ...[
-              const SizedBox(width: 4),
-              AppIcons.star.icon(context, size: 16),
-            ],
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(label, style: AppTextStyles.bodySmall),
       ],
-    );
-  }
-
-  Widget _buildDivider() {
-    return Container(
-      height: 40,
-      width: 1,
-      color: const Color.fromRGBO(128, 128, 128, 0.2),
     );
   }
 }
