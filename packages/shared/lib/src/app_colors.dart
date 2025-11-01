@@ -14,6 +14,8 @@ abstract class AppColors {
   static const backgroundSubtle = Color(0xFFFAFAFA);
   static const backgroundHover = Color(0xFFF5F5F5);
   static const backgroundDisabled = Color(0xFFE5E5E5);
+  static const backgroundOnline = Color(0xFFFFF9FC);
+  static const backgroundOnline2 = Color(0xFFFBF9F3);
 
   static const iconsDefault = Color(0xFF525252);
   static const iconsMuted = Color(0xFFA3A3A3);

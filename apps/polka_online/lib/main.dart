@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 import 'welcome.dart';
 
@@ -41,12 +40,38 @@ class MyApp extends StatelessWidget {
         title: 'Polka Online',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFFFB9CD), // Pink color from design
-          ),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFB9CD)),
           useMaterial3: true,
         ),
-        home: const WelcomePage(),
+        initialRoute: '/',
+        onGenerateRoute: (settings) {
+          // Парсинг URL: /masters/:id или /
+          final uri = Uri.parse(settings.name ?? '/');
+
+          // Главная страница
+          if (uri.pathSegments.isEmpty) {
+            return MaterialPageRoute(
+              builder: (context) => const WelcomePage(),
+              settings: settings,
+            );
+          }
+
+          // URL вида /masters/:id
+          if (uri.pathSegments.length == 2 &&
+              uri.pathSegments[0] == 'masters') {
+            final masterId = uri.pathSegments[1];
+            return MaterialPageRoute(
+              builder: (context) => WelcomePage(masterId: masterId),
+              settings: settings,
+            );
+          }
+
+          // Fallback на главную
+          return MaterialPageRoute(
+            builder: (context) => const WelcomePage(),
+            settings: settings,
+          );
+        },
       ),
     );
   }
