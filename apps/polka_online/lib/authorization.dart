@@ -4,12 +4,12 @@ import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
 import 'dependencies.dart';
+import 'phone_code.dart';
 
 // Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
-const double kContainerImageGap =
-    40; // max gap between main container and image
+const double kContainerImageGap = 40;
 
 class AuthorizationPage extends StatefulWidget {
   final String? masterId;
@@ -106,17 +106,13 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
 
   void _getCode() {
     if (_phoneNotifier.value.length == 10) {
-      // TODO: Здесь будет переход на экран с пин-кодом
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => PhoneVerificationCodePage(
-      //       phoneNumber: '7${_phoneNotifier.value}',
-      //       ...
-      //     ),
-      //   ),
-      // );
-      print('Номер телефона: 7${_phoneNotifier.value}');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              PhoneCodePage(phoneNumber: '7${_phoneNotifier.value}'),
+        ),
+      );
     }
   }
 
@@ -223,26 +219,9 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                             ),
                           )
                         else
-                          GestureDetector(
+                          AppTextButton.medium(
+                            text: 'Скачать POLKA',
                             onTap: () => _openStore(context),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                color: Colors.black,
-                              ),
-                              child: Text(
-                                'Скачать POLKA',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: Colors.white,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
                           ),
                       ],
                     ),
@@ -453,19 +432,16 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                             // Поле телефона
                             AppPhoneTextField(notifier: _phoneNotifier),
                             const SizedBox(height: 16),
-                            // Кнопка получить код
-                            SizedBox(
-                              width: 280,
-                              child: ValueListenableBuilder(
-                                valueListenable: _phoneNotifier,
-                                builder: (context, value, child) {
-                                  return AppTextButton.large(
-                                    text: 'Получить код',
-                                    enabled: value.length == 10,
-                                    onTap: _getCode,
-                                  );
-                                },
-                              ),
+                            // Кнопка получить код - теперь на всю ширину поля
+                            ValueListenableBuilder(
+                              valueListenable: _phoneNotifier,
+                              builder: (context, value, child) {
+                                return AppTextButton.large(
+                                  text: 'Получить код',
+                                  enabled: value.length == 10,
+                                  onTap: _getCode,
+                                );
+                              },
                             ),
                           ],
                         ),
