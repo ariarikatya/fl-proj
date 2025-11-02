@@ -219,9 +219,24 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                             ),
                           )
                         else
-                          AppTextButton.medium(
-                            text: 'Скачать POLKA',
+                          GestureDetector(
                             onTap: () => _openStore(context),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: Colors.black,
+                              ),
+                              child: Text(
+                                'Скачать POLKA',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                       ],
                     ),

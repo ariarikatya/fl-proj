@@ -22,14 +22,19 @@ class _AppPinFormState extends State<AppPinForm> {
       height: 56,
       textStyle: AppTextStyles.headingMedium,
 
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: context.ext.theme.backgroundHover),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: context.ext.theme.backgroundHover,
+      ),
     );
 
     final focusedPinTheme = defaultPinTheme.copyDecorationWith(
       border: Border.all(color: context.ext.theme.borderStrong),
     );
 
-    final errorPinTheme = defaultPinTheme.copyDecorationWith(border: Border.all(color: context.ext.theme.error));
+    final errorPinTheme = defaultPinTheme.copyDecorationWith(
+      border: Border.all(color: context.ext.theme.error),
+    );
 
     return Pinput(
       defaultPinTheme: defaultPinTheme,
@@ -41,7 +46,9 @@ class _AppPinFormState extends State<AppPinForm> {
       validator: (s) {
         return s?.length == 4 ? null : 'Неправильный код';
       },
-      errorTextStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.error),
+      errorTextStyle: AppTextStyles.bodyLarge.copyWith(
+        color: context.ext.theme.error,
+      ),
       pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
       showCursor: true,
       onCompleted: (pin) async {
