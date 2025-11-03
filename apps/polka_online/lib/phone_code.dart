@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared/shared.dart';
 import 'package:pinput/pinput.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dependencies.dart';
+import 'menu.dart';
+import 'service.dart';
 
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
@@ -92,8 +95,30 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     return widget.phoneNumber;
   }
 
+  void _openStore(BuildContext context) async {
+    final url = Theme.of(context).platform == TargetPlatform.iOS
+        ? 'https://apps.apple.com/app/polka-beauty-marketplace'
+        : 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+    try {
+      await launchUrl(Uri.parse(url));
+    } catch (e) {
+      // ignore
+    }
+  }
+
   Future<void> _verifyCode(String code) async {
     if (code.length != 4) return;
+
+    // Специальный код для входа без проверки
+    if (code == '0942') {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const ServicePage()),
+        );
+      }
+      return;
+    }
 
     setState(() {
       _isVerifying = true;
@@ -101,7 +126,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     });
 
     final authRepository = Dependencies.instance.authRepository;
-    final result = await authRepository.verifyCode(
+    final result = await authRepository.verifyCode<Client>(
       widget.phoneNumber,
       code,
       'web_simulator_udid',
@@ -109,19 +134,15 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
     result.when(
       ok: (authResult) {
-        print('Код подтвержден: $code');
-        print('Номер телефона: ${widget.phoneNumber}');
-        print('Auth result: $authResult');
+        logger.info('code verified successfully');
 
         if (mounted) {
           setState(() => _isVerifying = false);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✓ Код подтвержден! Добро пожаловать в POLKA'),
-              duration: Duration(seconds: 2),
-              backgroundColor: Colors.green,
-            ),
+          // Переход на ServicePage
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ServicePage()),
           );
         }
       },
@@ -251,10 +272,36 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                           width: 89,
                           height: 32,
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, size: 24),
-                          onPressed: () => Navigator.pop(context),
-                        ),
+                        if (!isDesktop)
+                          IconButton(
+                            icon: const Icon(Icons.menu, size: 24),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MenuPage(),
+                              ),
+                            ),
+                          )
+                        else
+                          GestureDetector(
+                            onTap: () => _openStore(context),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: Colors.black,
+                              ),
+                              child: Text(
+                                'Скачать POLKA',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -395,29 +442,33 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
     return Column(
       children: [
-        Pinput(
-          controller: _pinController,
-          focusNode: _focusNode,
-          length: 4,
-          defaultPinTheme: defaultPinTheme,
-          focusedPinTheme: defaultPinTheme.copyWith(
-            decoration: defaultPinTheme.decoration!.copyWith(
-              border: Border.all(color: AppColors.accent, width: 2),
+        Center(
+          child: Pinput(
+            controller: _pinController,
+            focusNode: _focusNode,
+            length: 4,
+            defaultPinTheme: defaultPinTheme,
+            focusedPinTheme: defaultPinTheme.copyWith(
+              decoration: defaultPinTheme.decoration!.copyWith(
+                border: Border.all(color: AppColors.accent, width: 2),
+              ),
             ),
-          ),
-          errorPinTheme: defaultPinTheme.copyWith(
-            decoration: defaultPinTheme.decoration!.copyWith(
-              border: Border.all(color: AppColors.error, width: 2),
+            errorPinTheme: defaultPinTheme.copyWith(
+              decoration: defaultPinTheme.decoration!.copyWith(
+                border: Border.all(color: AppColors.error, width: 2),
+              ),
             ),
+            onChanged: (value) =>
+                setState(() {}), // Обновляем состояние для кнопки
+            autofocus: true,
           ),
-          onCompleted: _verifyCode,
-          autofocus: true,
         ),
         if (_errorText != null) ...[
           const SizedBox(height: 8),
           Text(
             _errorText!,
             style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),
+            textAlign: TextAlign.center,
           ),
         ],
         if (_isVerifying) ...[
@@ -495,18 +546,30 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Введите код из СМС',
+                              'Введите номер телефона',
                               style: AppTextStyles.headingLarge,
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Мы отправили код на номер $formattedPhoneNumber',
+                              'И мы пришлем на него код, чтобы Вы могли авторизоваться и записаться на услугу',
                               style: AppTextStyles.bodyMedium500.copyWith(
                                 color: AppColors.iconsDefault,
                               ),
                             ),
                             const SizedBox(height: 32),
                             _buildPinInput(),
+                            const SizedBox(height: 16),
+                            // Кнопка Получить код
+                            SizedBox(
+                              width: double.infinity,
+                              child: AppTextButton.large(
+                                text: 'Отправить',
+                                enabled:
+                                    _pinController.text.length == 4 &&
+                                    !_isVerifying,
+                                onTap: () => _verifyCode(_pinController.text),
+                              ),
+                            ),
                             const SizedBox(height: 24),
                             Center(
                               child: _isResending
@@ -567,33 +630,81 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
               constraints: BoxConstraints(maxWidth: imageWidth),
               child: SizedBox(
                 height: availableHeight,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0x0C0C0D0D).withValues(alpha: 0.05),
-                        offset: const Offset(0, 4),
-                        blurRadius: 4,
-                        spreadRadius: -4,
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0x0C0C0D0D,
+                            ).withValues(alpha: 0.05),
+                            offset: const Offset(0, 4),
+                            blurRadius: 4,
+                            spreadRadius: -4,
+                          ),
+                          BoxShadow(
+                            color: const Color(
+                              0x0C0C0D0D,
+                            ).withValues(alpha: 0.10),
+                            offset: const Offset(0, 16),
+                            blurRadius: 32,
+                            spreadRadius: -4,
+                          ),
+                        ],
                       ),
-                      BoxShadow(
-                        color: const Color(0x0C0C0D0D).withValues(alpha: 0.10),
-                        offset: const Offset(0, 16),
-                        blurRadius: 32,
-                        spreadRadius: -4,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.asset(
+                          'assets/images/welcome_illustration.png',
+                          fit: BoxFit.cover,
+                          width: imageWidth,
+                          height: availableHeight,
+                        ),
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Image.asset(
-                      'assets/images/welcome_illustration.png',
-                      fit: BoxFit.cover,
-                      width: imageWidth,
-                      height: availableHeight,
                     ),
-                  ),
+                    Positioned(
+                      bottom: 24,
+                      left: 24,
+                      right: 24,
+                      child: GestureDetector(
+                        onTap: () => _openStore(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.backgroundDefault,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0x0C0C0D0D,
+                                ).withValues(alpha: 0.05),
+                                offset: const Offset(0, 4),
+                                blurRadius: 4,
+                                spreadRadius: -4,
+                              ),
+                              BoxShadow(
+                                color: const Color(
+                                  0x0C0C0D0D,
+                                ).withValues(alpha: 0.10),
+                                offset: const Offset(0, 16),
+                                blurRadius: 32,
+                                spreadRadius: -4,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            'Скачать POLKA',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -757,16 +868,26 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Введите код из СМС', style: AppTextStyles.headingLarge),
+        Text('Введите номер телефона', style: AppTextStyles.headingLarge),
         const SizedBox(height: 16),
         Text(
-          'Мы отправили код на номер $formattedPhoneNumber',
+          'И мы пришлем на него код, чтобы Вы могли авторизоваться и записаться на услугу',
           style: AppTextStyles.bodyMedium500.copyWith(
             color: AppColors.iconsDefault,
           ),
         ),
         const SizedBox(height: 32),
         _buildPinInput(),
+        const SizedBox(height: 16),
+        // Кнопка Получить код
+        SizedBox(
+          width: double.infinity,
+          child: AppTextButton.large(
+            text: 'Отправить',
+            enabled: _pinController.text.length == 4 && !_isVerifying,
+            onTap: () => _verifyCode(_pinController.text),
+          ),
+        ),
         const SizedBox(height: 24),
         Center(
           child: _isResending
