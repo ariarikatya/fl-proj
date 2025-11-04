@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared/shared.dart';
-import 'welcome.dart';
+import 'authorization.dart';
 import 'dependencies.dart';
 
 void main() async {
@@ -56,24 +56,27 @@ class MyApp extends StatelessWidget {
         onGenerateRoute: (settings) {
           final uri = Uri.parse(settings.name ?? '/');
 
+          // Главная страница - authorization
           if (uri.pathSegments.isEmpty) {
             return MaterialPageRoute(
-              builder: (context) => const WelcomePage(masterId: '5'),
+              builder: (context) => const AuthorizationPage(masterId: '1'),
               settings: settings,
             );
           }
 
+          // Роут /masters/:masterId - тоже authorization
           if (uri.pathSegments.length == 2 &&
               uri.pathSegments[0] == 'masters') {
             final masterId = uri.pathSegments[1];
             return MaterialPageRoute(
-              builder: (context) => WelcomePage(masterId: masterId),
+              builder: (context) => AuthorizationPage(masterId: masterId),
               settings: settings,
             );
           }
 
+          // Fallback
           return MaterialPageRoute(
-            builder: (context) => const WelcomePage(),
+            builder: (context) => const AuthorizationPage(),
             settings: settings,
           );
         },

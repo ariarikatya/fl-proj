@@ -124,8 +124,10 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              PhoneCodePage(phoneNumber: '7${_phoneNotifier.value}'),
+          builder: (context) => PhoneCodePage(
+            phoneNumber: '7${_phoneNotifier.value}',
+            masterId: _masterId, // Добавили передачу masterId
+          ),
         ),
       );
     }
@@ -235,7 +237,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => openStore,
+                            onTap: openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -377,10 +379,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     );
   }
 
-  // ================================
-  // Desktop layout
-  // ================================
-
+  // Desktop layout остается без изменений...
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -536,7 +535,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => openStore,
+                        onTap: openStore,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -731,10 +730,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     );
   }
 
-  // ================================
   // Mobile layout
-  // ================================
-
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

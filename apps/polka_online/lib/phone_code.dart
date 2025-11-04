@@ -6,7 +6,7 @@ import 'package:pinput/pinput.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dependencies.dart';
 import 'menu.dart';
-import 'service.dart';
+import 'welcome.dart';
 import 'package:flutter/foundation.dart';
 
 const double kWelcomeImageMaxWidth = 430;
@@ -15,8 +15,13 @@ const double kContainerImageGap = 40;
 
 class PhoneCodePage extends StatefulWidget {
   final String phoneNumber;
+  final String masterId; // Добавили masterId
 
-  const PhoneCodePage({super.key, required this.phoneNumber});
+  const PhoneCodePage({
+    super.key,
+    required this.phoneNumber,
+    required this.masterId,
+  });
 
   @override
   State<PhoneCodePage> createState() => _PhoneCodePageState();
@@ -156,6 +161,8 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     }
   }
 
+  // В методе _verifyCode изменяем навигацию на welcome.dart
+
   Future<void> _verifyCode(String code) async {
     if (code.length != 4) return;
 
@@ -164,7 +171,12 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const ServicePage()),
+          MaterialPageRoute(
+            builder: (context) => WelcomePage(
+              masterId: widget.masterId,
+              phoneNumber: widget.phoneNumber,
+            ),
+          ),
         );
       }
       return;
@@ -189,10 +201,15 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         if (mounted) {
           setState(() => _isVerifying = false);
 
-          // Переход на ServicePage
+          // Переход на WelcomePage с masterId и phoneNumber
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const ServicePage()),
+            MaterialPageRoute(
+              builder: (context) => WelcomePage(
+                masterId: widget.masterId,
+                phoneNumber: widget.phoneNumber,
+              ),
+            ),
           );
         }
       },

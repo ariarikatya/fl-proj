@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:polka_online/authorization.dart';
+import 'package:polka_online/service.dart';
 import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
@@ -15,8 +15,9 @@ const double kContainerImageGap =
 
 class WelcomePage extends StatefulWidget {
   final String? masterId;
+  final String? phoneNumber; // Добавили phoneNumber
 
-  const WelcomePage({super.key, this.masterId});
+  const WelcomePage({super.key, this.masterId, this.phoneNumber});
 
   @override
   State<WelcomePage> createState() => _WelcomePageState();
@@ -117,7 +118,10 @@ class _WelcomePageState extends State<WelcomePage> {
   void _openBooking() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const AuthorizationPage()),
+      MaterialPageRoute(
+        builder: (context) =>
+            ServicePage(masterId: _masterId, phoneNumber: widget.phoneNumber),
+      ),
     );
   }
 
