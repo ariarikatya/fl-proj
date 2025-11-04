@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart'; // <-- добавили
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared/shared.dart';
 import 'welcome.dart';
 import 'dependencies.dart';
@@ -7,10 +7,9 @@ import 'dependencies.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Инициализация локали для intl
   await initializeDateFormatting('ru_RU', null);
 
-  // true = использовать моковые данные, false = реальные с сервера
+  // true = моковые данные, false = реальные с сервера
   Dependencies.instance.init();
 
   runApp(const MyApp());

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
 import 'dependencies.dart';
 import 'slots.dart';
+import 'package:flutter/foundation.dart';
 
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
@@ -119,14 +120,28 @@ class _ServicePageState extends State<ServicePage> {
     }
   }
 
-  void _openStore(BuildContext context) async {
-    final url = Theme.of(context).platform == TargetPlatform.iOS
-        ? 'https://apps.apple.com/app/polka-beauty-marketplace'
-        : 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+  Future<void> openStore() async {
+    String url;
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      url = 'https://apps.apple.com/app/polka-beauty-marketplace';
+    } else if (defaultTargetPlatform == TargetPlatform.macOS) {
+      url = 'https://apps.apple.com/app/id6740820071';
+    } else {
+      // Для Android и любых других платформ используем Google Play
+      url =
+          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+    }
+
+    final uri = Uri.parse(url);
+
     try {
-      await launchUrl(Uri.parse(url));
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // В продакшене лучше использовать логгер вместо print
+        // Logger().warning('Не удалось открыть магазин: $url');
+      }
     } catch (e) {
-      // ignore
+      // Logger().error('Ошибка при открытии магазина: $e');
     }
   }
 
@@ -247,7 +262,7 @@ class _ServicePageState extends State<ServicePage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => _openStore(context),
+                            onTap: () => openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -579,7 +594,7 @@ class _ServicePageState extends State<ServicePage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => _openStore(context),
+                        onTap: () => openStore,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -628,7 +643,7 @@ class _ServicePageState extends State<ServicePage> {
     return Container(
       constraints: const BoxConstraints(maxWidth: 520),
       decoration: BoxDecoration(
-        color: AppColors.backgroundOnline2,
+        color: AppColors.backgroundDefault,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.backgroundDefault, width: 1),
         boxShadow: [
@@ -708,7 +723,7 @@ class _ServicePageState extends State<ServicePage> {
         const SizedBox(height: 20),
         Text(
           masterFullName,
-          style: AppTextStyles.headingMedium,
+          style: AppTextStyles.headingLarge,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
@@ -862,8 +877,8 @@ class _ServiceCard extends StatelessWidget {
                 children: [
                   Text(
                     service.title,
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.headingSmall.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -877,16 +892,21 @@ class _ServiceCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${service.duration.inMinutes} мин',
-                        style: AppTextStyles.bodyMedium.copyWith(
+                        style: AppTextStyles.bodyLarge500.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
                       const SizedBox(width: 16),
+                      // Вертикальный разделитель
+                      Container(
+                        width: 1,
+                        height: 22,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 16),
                       Text(
                         '₽${service.price}',
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: AppTextStyles.bodyLarge500.copyWith(),
                       ),
                     ],
                   ),
@@ -894,27 +914,18 @@ class _ServiceCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected ? AppColors.accent : Colors.transparent,
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.accent
-                      : AppColors.borderDefault,
-                  width: 2,
-                ),
-              ),
-              child: isSelected
-                  ? Icon(
-                      Icons.check,
-                      size: 16,
-                      color: AppColors.backgroundDefault,
-                    )
-                  : null,
-            ),
+            // Замена иконок выбора
+            isSelected
+                ? AppIcons.radioChecked.icon(
+                    context,
+                    size: 24,
+                    color: AppColors.accent,
+                  )
+                : AppIcons.radioUnchecked.icon(
+                    context,
+                    size: 24,
+                    color: AppColors.borderDefault,
+                  ),
           ],
         ),
       ),

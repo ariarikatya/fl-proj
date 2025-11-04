@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dependencies.dart';
 import 'menu.dart';
 import 'service.dart';
+import 'package:flutter/foundation.dart';
 
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
@@ -130,14 +131,28 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     return widget.phoneNumber;
   }
 
-  void _openStore(BuildContext context) async {
-    final url = Theme.of(context).platform == TargetPlatform.iOS
-        ? 'https://apps.apple.com/app/polka-beauty-marketplace'
-        : 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+  Future<void> openStore() async {
+    String url;
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      url = 'https://apps.apple.com/app/polka-beauty-marketplace';
+    } else if (defaultTargetPlatform == TargetPlatform.macOS) {
+      url = 'https://apps.apple.com/app/id6740820071';
+    } else {
+      // Для Android и любых других платформ используем Google Play
+      url =
+          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+    }
+
+    final uri = Uri.parse(url);
+
     try {
-      await launchUrl(Uri.parse(url));
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // В продакшене лучше использовать логгер вместо print
+        // Logger().warning('Не удалось открыть магазин: $url');
+      }
     } catch (e) {
-      // ignore
+      // Logger().error('Ошибка при открытии магазина: $e');
     }
   }
 
@@ -320,7 +335,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => _openStore(context),
+                            onTap: () => openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -746,7 +761,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => _openStore(context),
+                        onTap: () => openStore,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -795,7 +810,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     return Container(
       constraints: const BoxConstraints(maxWidth: 520),
       decoration: BoxDecoration(
-        color: AppColors.backgroundOnline2,
+        color: AppColors.backgroundDefault,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.backgroundDefault, width: 1),
         boxShadow: [
@@ -875,7 +890,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         const SizedBox(height: 20),
         Text(
           masterFullName,
-          style: AppTextStyles.headingMedium,
+          style: AppTextStyles.headingLarge,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           maxLines: 2,

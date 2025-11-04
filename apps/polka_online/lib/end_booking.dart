@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'menu.dart';
 import 'final.dart';
+import 'package:flutter/foundation.dart';
 
 // Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
@@ -30,8 +31,6 @@ class EndBookingPage extends StatefulWidget {
 }
 
 class _EndBookingPageState extends State<EndBookingPage> {
-  late ValueNotifier<String> _phoneNotifier;
-
   // Контроллеры для полей
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
@@ -46,7 +45,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
 
   @override
   void dispose() {
-    _phoneNotifier.dispose();
     _nameController.dispose();
     _commentController.dispose();
     super.dispose();
@@ -72,24 +70,37 @@ class _EndBookingPageState extends State<EndBookingPage> {
     return '$years лет';
   }
 
-  void _openStore(BuildContext context) async {
-    final url = Theme.of(context).platform == TargetPlatform.iOS
-        ? 'https://apps.apple.com/app/polka-beauty-marketplace'
-        : 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+  Future<void> openStore() async {
+    String url;
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      url = 'https://apps.apple.com/app/polka-beauty-marketplace';
+    } else if (defaultTargetPlatform == TargetPlatform.macOS) {
+      url = 'https://apps.apple.com/app/id6740820071';
+    } else {
+      // Для Android и любых других платформ используем Google Play
+      url =
+          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+    }
+
+    final uri = Uri.parse(url);
+
     try {
-      await launchUrl(Uri.parse(url));
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // В продакшене лучше использовать логгер вместо print
+        // Logger().warning('Не удалось открыть магазин: $url');
+      }
     } catch (e) {
-      // ignore
+      // Logger().error('Ошибка при открытии магазина: $e');
     }
   }
 
-  void _getCode() {
+  void _submitBooking() {
     final name = _nameController.text.trim();
     final comment = _commentController.text.trim();
-    final phone = _phoneNotifier.value.trim();
     final selectedTime = DateFormat('HH:mm').format(selectedSlot.datetime);
 
-    if (name.isNotEmpty && phone.length == 10) {
+    if (name.isNotEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -100,16 +111,14 @@ class _EndBookingPageState extends State<EndBookingPage> {
             selectedTime: selectedTime,
             name: name,
             comment: comment,
-            phoneNumber: '7$phone',
+            phoneNumber: widget.phoneNumber ?? '',
           ),
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Введите имя и корректный номер телефона'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Введите имя')));
     }
   }
 
@@ -178,7 +187,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => _openStore(context),
+                            onTap: () => openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -408,28 +417,17 @@ class _EndBookingPageState extends State<EndBookingPage> {
                               maxLines: 4,
                             ),
                             const SizedBox(height: 32),
-                            ValueListenableBuilder(
-                              valueListenable: _phoneNotifier,
-                              builder: (context, value, child) {
-                                final isButtonEnabled =
-                                    value.length == 10 &&
-                                    _nameController.text.trim().isNotEmpty;
-                                return AppTextButton.large(
-                                  text: 'Записаться к мастеру',
-                                  enabled: isButtonEnabled,
-                                  onTap: () {
-                                    if (isButtonEnabled) {
-                                      _getCode();
-                                    }
-                                  },
-                                );
-                              },
+                            AppTextButton.large(
+                              text: 'Записаться к мастеру',
+                              enabled: _nameController.text.trim().isNotEmpty,
+                              onTap: _submitBooking,
                             ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(width: kContainerImageGap),
+                    // Ограничиваем ширину карточки мастера как в SlotsPage
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -462,11 +460,12 @@ class _EndBookingPageState extends State<EndBookingPage> {
     );
   }
 
+  // Обновляем метод _buildDesktopMasterCard чтобы он соответствовал SlotsPage
   Widget _buildDesktopMasterCard(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 520),
+      // Убираем constraints здесь, так как они уже заданы в ConstrainedBox выше
       decoration: BoxDecoration(
-        color: AppColors.backgroundOnline2,
+        color: AppColors.backgroundDefault,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.backgroundDefault, width: 1),
         boxShadow: [
@@ -486,8 +485,14 @@ class _EndBookingPageState extends State<EndBookingPage> {
       ),
       child: IntrinsicHeight(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.only(
+            left: 24,
+            top: 24,
+            bottom: 24,
+            right: 24,
+          ),
           child: Row(
+            mainAxisSize: MainAxisSize.min, // Добавляем это
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Flexible(child: _buildMasterLeftColumn(context)),
@@ -534,7 +539,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
         const SizedBox(height: 20),
         Text(
           masterFullName,
-          style: AppTextStyles.headingMedium,
+          style: AppTextStyles.headingLarge,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
@@ -624,21 +629,10 @@ class _EndBookingPageState extends State<EndBookingPage> {
         const SizedBox(height: 32),
         SizedBox(
           width: double.infinity,
-          child: ValueListenableBuilder(
-            valueListenable: _phoneNotifier,
-            builder: (context, value, child) {
-              final isButtonEnabled =
-                  value.length == 10 && _nameController.text.trim().isNotEmpty;
-              return AppTextButton.large(
-                text: 'Записаться к мастеру',
-                enabled: isButtonEnabled,
-                onTap: () {
-                  if (isButtonEnabled) {
-                    _getCode();
-                  }
-                },
-              );
-            },
+          child: AppTextButton.large(
+            text: 'Записаться к мастеру',
+            enabled: _nameController.text.trim().isNotEmpty,
+            onTap: _submitBooking,
           ),
         ),
       ],

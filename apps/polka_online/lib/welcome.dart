@@ -5,6 +5,7 @@ import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
 import 'dependencies.dart';
+import 'package:flutter/foundation.dart';
 
 // Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
@@ -88,14 +89,28 @@ class _WelcomePageState extends State<WelcomePage> {
     }
   }
 
-  void _openStore(BuildContext context) async {
-    final url = Theme.of(context).platform == TargetPlatform.iOS
-        ? 'https://apps.apple.com/app/polka-beauty-marketplace'
-        : 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+  Future<void> openStore() async {
+    String url;
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      url = 'https://apps.apple.com/app/polka-beauty-marketplace';
+    } else if (defaultTargetPlatform == TargetPlatform.macOS) {
+      url = 'https://apps.apple.com/app/id6740820071';
+    } else {
+      // Для Android и любых других платформ используем Google Play
+      url =
+          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+    }
+
+    final uri = Uri.parse(url);
+
     try {
-      await launchUrl(Uri.parse(url));
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // В продакшене лучше использовать логгер вместо print
+        // Logger().warning('Не удалось открыть магазин: $url');
+      }
     } catch (e) {
-      // ignore
+      // Logger().error('Ошибка при открытии магазина: $e');
     }
   }
 
@@ -210,7 +225,7 @@ class _WelcomePageState extends State<WelcomePage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => _openStore(context),
+                            onTap: () => openStore(),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -517,7 +532,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => _openStore(context),
+                        onTap: () => openStore(),
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -566,7 +581,7 @@ class _WelcomePageState extends State<WelcomePage> {
     return Container(
       constraints: const BoxConstraints(maxWidth: 520),
       decoration: BoxDecoration(
-        color: AppColors.backgroundOnline2,
+        color: AppColors.backgroundDefault,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.backgroundDefault, width: 1),
         boxShadow: [
@@ -646,7 +661,7 @@ class _WelcomePageState extends State<WelcomePage> {
         const SizedBox(height: 20),
         Text(
           masterFullName,
-          style: AppTextStyles.headingMedium,
+          style: AppTextStyles.headingLarge,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
@@ -739,7 +754,7 @@ class _WelcomePageState extends State<WelcomePage> {
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
-        color: AppColors.backgroundOnline2,
+        color: AppColors.backgroundDefault,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(

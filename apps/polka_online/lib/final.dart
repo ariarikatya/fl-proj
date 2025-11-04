@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
 import 'dependencies.dart';
 import 'phone_code.dart';
+import 'package:flutter/foundation.dart';
 
 // Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
@@ -40,19 +41,12 @@ class _FinalPageState extends State<FinalPage> {
   bool _isLoading = true;
   String? _error;
   late String _masterId;
-  final _phoneNotifier = ValueNotifier<String>('');
 
   @override
   void initState() {
     super.initState();
     _masterId = widget.masterId;
     _loadMasterInfo();
-  }
-
-  @override
-  void dispose() {
-    _phoneNotifier.dispose();
-    super.dispose();
   }
 
   Future<void> _loadMasterInfo() async {
@@ -108,26 +102,33 @@ class _FinalPageState extends State<FinalPage> {
     }
   }
 
-  void _openStore(BuildContext context) async {
-    final url = Theme.of(context).platform == TargetPlatform.iOS
-        ? 'https://apps.apple.com/app/polka-beauty-marketplace'
-        : 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
-    try {
-      await launchUrl(Uri.parse(url));
-    } catch (e) {
-      // ignore
-    }
+  String _trimServiceName(String name) {
+    if (name.length <= 30) return name;
+    return '${name.substring(0, 30)}...';
   }
 
-  void _getCode() {
-    if (_phoneNotifier.value.length == 10) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              PhoneCodePage(phoneNumber: '7${_phoneNotifier.value}'),
-        ),
-      );
+  Future<void> openStore() async {
+    String url;
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      url = 'https://apps.apple.com/app/polka-beauty-marketplace';
+    } else if (defaultTargetPlatform == TargetPlatform.macOS) {
+      url = 'https://apps.apple.com/app/id6740820071';
+    } else {
+      // Для Android и любых других платформ используем Google Play
+      url =
+          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+    }
+
+    final uri = Uri.parse(url);
+
+    try {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // В продакшене лучше использовать логгер вместо print
+        // Logger().warning('Не удалось открыть магазин: $url');
+      }
+    } catch (e) {
+      // Logger().error('Ошибка при открытии магазина: $e');
     }
   }
 
@@ -172,7 +173,8 @@ class _FinalPageState extends State<FinalPage> {
     }
 
     final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 750;
+    // Изменен брейкпоинт с 850 на 950 (мобильная версия показывается на 100 пикселей позже)
+    final isDesktop = width >= 950;
     final showImage = isDesktop && width >= 1120;
 
     double imageWidth = kWelcomeImageMaxWidth;
@@ -234,7 +236,7 @@ class _FinalPageState extends State<FinalPage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => _openStore(context),
+                            onTap: openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -456,16 +458,11 @@ class _FinalPageState extends State<FinalPage> {
                               ),
                             ),
                             const SizedBox(height: 32),
-                            // Кнопка получить код - теперь на всю ширину поля
-                            ValueListenableBuilder(
-                              valueListenable: _phoneNotifier,
-                              builder: (context, value, child) {
-                                return AppTextButton.large(
-                                  text: 'Установить POLKA',
-                                  enabled: value.length == 10,
-                                  onTap: _getCode,
-                                );
-                              },
+                            // Кнопка всегда активна и открывает магазин
+                            AppTextButton.large(
+                              text: 'Установить POLKA',
+                              enabled: true,
+                              onTap: openStore,
                             ),
                           ],
                         ),
@@ -474,10 +471,7 @@ class _FinalPageState extends State<FinalPage> {
                     const SizedBox(width: kContainerImageGap),
 
                     // Right column: master card
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 520),
-                      child: _buildDesktopMasterCard(context),
-                    ),
+                    _buildMasterCard(context, true),
                   ],
                 ),
               ),
@@ -530,7 +524,7 @@ class _FinalPageState extends State<FinalPage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => _openStore(context),
+                        onTap: openStore,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -575,11 +569,11 @@ class _FinalPageState extends State<FinalPage> {
     );
   }
 
-  Widget _buildDesktopMasterCard(BuildContext context) {
+  Widget _buildMasterCard(BuildContext context, bool isDesktop) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 520),
+      constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
-        color: AppColors.backgroundOnline2,
+        color: AppColors.backgroundDefault,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.backgroundDefault, width: 1),
         boxShadow: [
@@ -597,30 +591,33 @@ class _FinalPageState extends State<FinalPage> {
           ),
         ],
       ),
-      child: IntrinsicHeight(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 24,
-            top: 24,
-            bottom: 24,
-            right: 24,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Flexible(child: _buildMasterLeftColumn(context)),
-              const SizedBox(width: 20),
-              // правый столбец теперь расширяемый, внутри есть spacer для выталкивания блока вниз
-              _buildMasterRightColumn(context),
-            ],
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Верхняя часть с аватаром и статистикой
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _buildMasterInfoColumn(context, isDesktop)),
+                const SizedBox(width: 20),
+                _buildStatsColumn(context),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Информация об услуге
+            _buildServiceInfo(context, isDesktop),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildMasterLeftColumn(BuildContext context) {
+  Widget _buildMasterInfoColumn(BuildContext context, bool isDesktop) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -660,7 +657,7 @@ class _FinalPageState extends State<FinalPage> {
         const SizedBox(height: 20),
         Text(
           masterFullName,
-          style: AppTextStyles.headingMedium,
+          style: AppTextStyles.headingLarge,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
@@ -673,81 +670,123 @@ class _FinalPageState extends State<FinalPage> {
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
         ),
-        const SizedBox(height: 20),
       ],
     );
   }
 
-  // Изменён: правый столбец — теперь возвращает Expanded с Spacer и нижним блоком
-  Widget _buildMasterRightColumn(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _buildStatItem(
-            context,
-            masterRating.toStringAsFixed(1),
-            'Рейтинг',
-            showStar: true,
-          ),
-          Container(height: 1, width: 100, color: AppColors.backgroundHover),
-          _buildStatItem(context, getYearsText(masterExperience), 'Опыта'),
-          Container(height: 1, width: 100, color: AppColors.backgroundHover),
-          _buildStatItem(context, masterReviews.toString(), 'Отзыва'),
-          // позволяем верхним элементам занять место и оттолкнуть нижний блок вниз
-          const SizedBox(height: 8),
-          const Spacer(),
+  Widget _buildStatsColumn(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildStatItem(
+          context,
+          masterRating.toStringAsFixed(1),
+          'Рейтинг',
+          showStar: true,
+        ),
+        Container(height: 1, width: 100, color: AppColors.backgroundHover),
+        _buildStatItem(context, getYearsText(masterExperience), 'Опыта'),
+        Container(height: 1, width: 100, color: AppColors.backgroundHover),
+        _buildStatItem(context, masterReviews.toString(), 'Отзыва'),
+      ],
+    );
+  }
 
-          // Нижний блок с услугой, временем/ценой и датой
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+  Widget _buildServiceInfo(BuildContext context, bool isDesktop) {
+    final serviceName = 'Стрижка + Окрашивание';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Услуга: слева "Услуга", справа название услуги
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Услуга',
+              style:
+                  (isDesktop
+                          ? AppTextStyles.bodyLarge
+                          : AppTextStyles.bodyMedium)
+                      .copyWith(color: AppColors.textSecondary),
+            ),
+            Expanded(
+              child: Text(
+                _trimServiceName(serviceName),
+                style: isDesktop
+                    ? AppTextStyles.bodyLarge
+                    : AppTextStyles.bodyMedium,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 7), // Уменьшенный отступ сверху
+        // Длительность и цена с разделителем-палочкой - под названием услуги, выровнены по левому краю
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 0,
+          ), // Начинаются там же, где начинается название услуги
+          child: Row(
             children: [
-              // Услуга: слева заголовок, справа название услуги
-              Row(
-                children: [
-                  Expanded(
-                    child: Text('Услуга', style: AppTextStyles.bodySmall),
-                  ),
-                  Flexible(
-                    child: Text(
-                      'Стрижка + Окрашивание',
-                      style: AppTextStyles.bodyMedium,
-                      textAlign: TextAlign.right,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+              Icon(Icons.access_time, size: 16, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(
+                '2 ч',
+                style: isDesktop
+                    ? AppTextStyles.bodyMedium500
+                    : AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
               ),
-              const SizedBox(height: 8),
-              // Иконка времени и цена
-              Row(
-                children: [
-                  Icon(Icons.access_time, size: 16),
-                  const SizedBox(width: 6),
-                  Text('2 ч | ₽ 4500', style: AppTextStyles.bodySmall),
-                ],
+              const SizedBox(width: 8),
+              Text(
+                '|',
+                style: isDesktop
+                    ? AppTextStyles.bodyMedium500
+                    : AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
               ),
-              const SizedBox(height: 24),
-              // Дата: слева "Дата", справа конкретная дата и время
-              Row(
-                children: [
-                  Expanded(child: Text('Дата', style: AppTextStyles.bodySmall)),
-                  Flexible(
-                    child: Text(
-                      '22 октября, 10:00',
-                      style: AppTextStyles.bodyMedium,
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              Text(
+                '₽ 4500',
+                style: isDesktop
+                    ? AppTextStyles.bodyMedium500
+                    : AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+
+        // Дата: слева "Дата", справа дата и время
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Дата',
+              style:
+                  (isDesktop
+                          ? AppTextStyles.bodyLarge
+                          : AppTextStyles.bodyMedium)
+                      .copyWith(color: AppColors.textSecondary),
+            ),
+            Text(
+              '22 октября, 10:00',
+              style: isDesktop
+                  ? AppTextStyles.bodyLarge
+                  : AppTextStyles.bodyMedium,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -797,28 +836,11 @@ class _FinalPageState extends State<FinalPage> {
         ),
         const SizedBox(height: 32),
 
-        // Кнопка получить код (верхняя)
-        SizedBox(
-          width: double.infinity,
-          child: ValueListenableBuilder(
-            valueListenable: _phoneNotifier,
-            builder: (context, value, child) {
-              return AppTextButton.large(
-                text: 'Установить POLKA',
-                enabled: value.length == 10,
-                onTap: _getCode,
-              );
-            },
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
         // Карточка мастера по центру
         Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: _buildDesktopMasterCard(context),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: _buildMasterCard(context, false),
           ),
         ),
 
@@ -829,7 +851,7 @@ class _FinalPageState extends State<FinalPage> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: GestureDetector(
-              onTap: () => _openStore(context),
+              onTap: openStore,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   vertical: 12,
