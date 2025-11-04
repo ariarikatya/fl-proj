@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared/shared.dart';
@@ -29,17 +30,51 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   MasterInfo? _masterInfo;
   bool _isLoading = true;
 
+  // Таймер для повторной отправки кода
+  Timer? _resendTimer;
+  int _resendCountdown = 0;
+
   @override
   void initState() {
     super.initState();
     _loadMasterInfo();
+    _startResendTimer(); // Запускаем таймер при открытии страницы
   }
 
   @override
   void dispose() {
     _pinController.dispose();
     _focusNode.dispose();
+    _resendTimer?.cancel();
     super.dispose();
+  }
+
+  void _startResendTimer() {
+    setState(() {
+      _resendCountdown = 30;
+    });
+
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      setState(() {
+        if (_resendCountdown > 0) {
+          _resendCountdown--;
+        } else {
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  String get _formattedCountdown {
+    final minutes = _resendCountdown ~/ 60;
+    final seconds = _resendCountdown % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   Future<void> _loadMasterInfo() async {
@@ -160,7 +195,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   }
 
   Future<void> _resendCode() async {
-    if (_isResending) return;
+    if (_isResending || _resendCountdown > 0) return;
 
     setState(() {
       _isResending = true;
@@ -178,6 +213,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
         _pinController.clear();
         _focusNode.requestFocus();
+        _startResendTimer(); // Перезапускаем таймер
 
         if (mounted) {
           setState(() => _isResending = false);
@@ -434,9 +470,9 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         color: AppColors.textPrimary,
       ),
       decoration: BoxDecoration(
-        color: AppColors.backgroundSubtle,
+        color: AppColors.backgroundOnlineMain,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderDefault),
+        border: Border.all(color: AppColors.backgroundOnlineMain),
       ),
     );
 
@@ -458,8 +494,13 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                 border: Border.all(color: AppColors.error, width: 2),
               ),
             ),
-            onChanged: (value) =>
-                setState(() {}), // Обновляем состояние для кнопки
+            onChanged: (value) => setState(() {}),
+            onCompleted: (value) {
+              // В мобильной версии автоматически отправляем код при заполнении
+              if (MediaQuery.of(context).size.width < 750) {
+                _verifyCode(value);
+              }
+            },
             autofocus: true,
           ),
         ),
@@ -476,6 +517,66 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
           const CircularProgressIndicator(),
         ],
       ],
+    );
+  }
+
+  Widget _buildResendButton() {
+    if (_isResending) {
+      return const SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+
+    if (_resendCountdown > 0) {
+      return Text(
+        'Отправить повторно через $_formattedCountdown',
+        style: AppTextStyles.bodyLarge.copyWith(
+          decoration: TextDecoration.underline,
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: _resendCode,
+      child: Text(
+        'Не пришел код?',
+        style: AppTextStyles.bodyLarge.copyWith(
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResendButtonMobile() {
+    if (_isResending) {
+      return const SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+
+    if (_resendCountdown > 0) {
+      return Text(
+        'Отправить повторно через $_formattedCountdown',
+        style: AppTextStyles.bodyLarge.copyWith(
+          decoration: TextDecoration.underline,
+        ),
+        textAlign: TextAlign.center,
+      );
+    }
+
+    return GestureDetector(
+      onTap: _resendCode,
+      child: Text(
+        'Отправить код',
+        style: AppTextStyles.bodyLarge.copyWith(
+          decoration: TextDecoration.underline,
+        ),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
@@ -532,7 +633,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column - форма кода
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -559,37 +659,18 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                             const SizedBox(height: 32),
                             _buildPinInput(),
                             const SizedBox(height: 16),
-                            // Кнопка Получить код
-                            SizedBox(
-                              width: double.infinity,
-                              child: AppTextButton.large(
-                                text: 'Отправить',
-                                enabled:
-                                    _pinController.text.length == 4 &&
-                                    !_isVerifying,
-                                onTap: () => _verifyCode(_pinController.text),
+                            // Показываем кнопку только если код заполнен и нет верификации
+                            if (_pinController.text.length == 4 &&
+                                !_isVerifying)
+                              SizedBox(
+                                width: double.infinity,
+                                child: AppTextButton.large(
+                                  text: 'Отправить',
+                                  onTap: () => _verifyCode(_pinController.text),
+                                ),
                               ),
-                            ),
                             const SizedBox(height: 24),
-                            Center(
-                              child: _isResending
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : GestureDetector(
-                                      onTap: _resendCode,
-                                      child: Text(
-                                        'Не пришел код?',
-                                        style: AppTextStyles.bodyLarge.copyWith(
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                                    ),
-                            ),
+                            Center(child: _buildResendButton()),
                             const SizedBox(height: 16),
                             Center(
                               child: Row(
@@ -611,8 +692,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                       ),
                     ),
                     const SizedBox(width: kContainerImageGap),
-
-                    // Right column: master card
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -622,8 +701,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
               ),
             ),
           ),
-
-          // Illustration
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
@@ -878,34 +955,8 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         ),
         const SizedBox(height: 32),
         _buildPinInput(),
-        const SizedBox(height: 16),
-        // Кнопка Получить код
-        SizedBox(
-          width: double.infinity,
-          child: AppTextButton.large(
-            text: 'Отправить',
-            enabled: _pinController.text.length == 4 && !_isVerifying,
-            onTap: () => _verifyCode(_pinController.text),
-          ),
-        ),
         const SizedBox(height: 24),
-        Center(
-          child: _isResending
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : GestureDetector(
-                  onTap: _resendCode,
-                  child: Text(
-                    'Не пришел код?',
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-        ),
+        Center(child: _buildResendButtonMobile()),
         const SizedBox(height: 16),
         Center(
           child: Row(

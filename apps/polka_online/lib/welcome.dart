@@ -381,10 +381,10 @@ class _WelcomePageState extends State<WelcomePage> {
               child: Container(
                 constraints: BoxConstraints(minHeight: availableHeight),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundSubtle,
+                  color: AppColors.backgroundOnlineMain,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppColors.backgroundDefault,
+                    color: AppColors.backgroundOnlineMain,
                     width: 1,
                   ),
                   boxShadow: [

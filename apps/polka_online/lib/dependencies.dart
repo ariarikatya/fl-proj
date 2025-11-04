@@ -87,7 +87,12 @@ class MockApiInterceptor extends Interceptor {
                   'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
               'refresh_token':
                   'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-              'account': null, // Без аккаунта (новый пользователь)
+              'account': {
+                'id': 1,
+                'first_name': 'Тест',
+                'last_name': 'Пользователь',
+                'phone_number': options.data['phone_number'],
+              },
             },
           ),
         );

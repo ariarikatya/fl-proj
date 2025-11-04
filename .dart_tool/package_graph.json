@@ -69,6 +69,8 @@
         "cupertino_icons",
         "flutter",
         "flutter_svg",
+        "intl",
+        "pinput",
         "shared",
         "url_launcher"
       ],

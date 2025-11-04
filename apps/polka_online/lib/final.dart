@@ -12,9 +12,24 @@ const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
 
 class FinalPage extends StatefulWidget {
-  final String? masterId;
+  final String masterId;
+  final Service? service;
+  final DateTime selectedDate;
+  final String selectedTime;
+  final String name;
+  final String comment;
+  final String phoneNumber;
 
-  const FinalPage({super.key, this.masterId});
+  const FinalPage({
+    super.key,
+    required this.masterId,
+    required this.service,
+    required this.selectedDate,
+    required this.selectedTime,
+    required this.name,
+    required this.comment,
+    required this.phoneNumber,
+  });
 
   @override
   State<FinalPage> createState() => _FinalPageState();
@@ -30,7 +45,7 @@ class _FinalPageState extends State<FinalPage> {
   @override
   void initState() {
     super.initState();
-    _masterId = widget.masterId ?? '1';
+    _masterId = widget.masterId;
     _loadMasterInfo();
   }
 
@@ -160,7 +175,6 @@ class _FinalPageState extends State<FinalPage> {
     final isDesktop = width >= 750;
     final showImage = isDesktop && width >= 1120;
 
-    // Рассчитываем ширину картинки
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
       final fullContent =
@@ -253,7 +267,6 @@ class _FinalPageState extends State<FinalPage> {
                   : AppColors.backgroundDefault,
               child: Stack(
                 children: [
-                  // Хлебные крошки
                   if (isDesktop)
                     Positioned(
                       top: 28,
@@ -332,7 +345,6 @@ class _FinalPageState extends State<FinalPage> {
                         ),
                       ),
                     ),
-
                   Padding(
                     padding: EdgeInsets.only(
                       left: 24.0,
@@ -389,10 +401,10 @@ class _FinalPageState extends State<FinalPage> {
               child: Container(
                 constraints: BoxConstraints(minHeight: availableHeight),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundSubtle,
+                  color: AppColors.backgroundOnlineMain,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppColors.backgroundDefault,
+                    color: AppColors.backgroundOnlineMain,
                     width: 1,
                   ),
                   boxShadow: [
@@ -599,6 +611,7 @@ class _FinalPageState extends State<FinalPage> {
             children: [
               Flexible(child: _buildMasterLeftColumn(context)),
               const SizedBox(width: 20),
+              // правый столбец теперь расширяемый, внутри есть spacer для выталкивания блока вниз
               _buildMasterRightColumn(context),
             ],
           ),
@@ -665,23 +678,76 @@ class _FinalPageState extends State<FinalPage> {
     );
   }
 
+  // Изменён: правый столбец — теперь возвращает Expanded с Spacer и нижним блоком
   Widget _buildMasterRightColumn(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildStatItem(
-          context,
-          masterRating.toStringAsFixed(1),
-          'Рейтинг',
-          showStar: true,
-        ),
-        Container(height: 1, width: 100, color: AppColors.backgroundHover),
-        _buildStatItem(context, getYearsText(masterExperience), 'Опыта'),
-        Container(height: 1, width: 100, color: AppColors.backgroundHover),
-        _buildStatItem(context, masterReviews.toString(), 'Отзыва'),
-      ],
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          _buildStatItem(
+            context,
+            masterRating.toStringAsFixed(1),
+            'Рейтинг',
+            showStar: true,
+          ),
+          Container(height: 1, width: 100, color: AppColors.backgroundHover),
+          _buildStatItem(context, getYearsText(masterExperience), 'Опыта'),
+          Container(height: 1, width: 100, color: AppColors.backgroundHover),
+          _buildStatItem(context, masterReviews.toString(), 'Отзыва'),
+          // позволяем верхним элементам занять место и оттолкнуть нижний блок вниз
+          const SizedBox(height: 8),
+          const Spacer(),
+
+          // Нижний блок с услугой, временем/ценой и датой
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Услуга: слева заголовок, справа название услуги
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('Услуга', style: AppTextStyles.bodySmall),
+                  ),
+                  Flexible(
+                    child: Text(
+                      'Стрижка + Окрашивание',
+                      style: AppTextStyles.bodyMedium,
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Иконка времени и цена
+              Row(
+                children: [
+                  Icon(Icons.access_time, size: 16),
+                  const SizedBox(width: 6),
+                  Text('2 ч | ₽ 4500', style: AppTextStyles.bodySmall),
+                ],
+              ),
+              const SizedBox(height: 24),
+              // Дата: слева "Дата", справа конкретная дата и время
+              Row(
+                children: [
+                  Expanded(child: Text('Дата', style: AppTextStyles.bodySmall)),
+                  Flexible(
+                    child: Text(
+                      '22 октября, 10:00',
+                      style: AppTextStyles.bodyMedium,
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -731,7 +797,7 @@ class _FinalPageState extends State<FinalPage> {
         ),
         const SizedBox(height: 32),
 
-        // Кнопка получить код
+        // Кнопка получить код (верхняя)
         SizedBox(
           width: double.infinity,
           child: ValueListenableBuilder(
@@ -743,6 +809,42 @@ class _FinalPageState extends State<FinalPage> {
                 onTap: _getCode,
               );
             },
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // Карточка мастера по центру
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: _buildDesktopMasterCard(context),
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // Кнопка Скачать POLKA внизу с отступом снизу 16
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: GestureDetector(
+              onTap: () => _openStore(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: Colors.black,
+                ),
+                child: Text(
+                  'Скачать POLKA',
+                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
+                ),
+              ),
+            ),
           ),
         ),
       ],

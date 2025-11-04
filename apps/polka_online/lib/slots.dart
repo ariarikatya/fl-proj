@@ -1,20 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:polka_online/end_booking.dart';
 import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 import 'menu.dart';
 import 'dependencies.dart';
-import 'phone_code.dart';
 
 // Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
 
+// ================================
+// Локальное расширение с intl (однозначное для этого файла)
+// ================================
+extension DateTimeIntl on DateTime {
+  static final _formatter = DateFormat('d MMMM, HH:mm', 'ru');
+  static final _formatterDateOnly = DateFormat('EEEE, d MMMM', 'ru');
+  static final _formatterTimeOnly = DateFormat('HH:mm', 'ru');
+
+  String formatFull() => _formatter.format(this);
+
+  /// Возвращает, например: "Понедельник, 4 ноября"
+  String formatDateOnly() {
+    final s = _formatterDateOnly.format(this);
+    // capitalized: сделаем первую букву заглавной
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
+  }
+
+  /// Время "HH:mm"
+  String toTimeString() => _formatterTimeOnly.format(this);
+}
+
+// ================================
+// SlotsPage
+// ================================
 class SlotsPage extends StatefulWidget {
   final String? masterId;
+  final Service? service;
+  final String? phoneNumber;
 
-  const SlotsPage({super.key, this.masterId});
+  const SlotsPage({super.key, this.masterId, this.service, this.phoneNumber});
 
   @override
   State<SlotsPage> createState() => _SlotsPageState();
@@ -22,16 +50,97 @@ class SlotsPage extends StatefulWidget {
 
 class _SlotsPageState extends State<SlotsPage> {
   MasterInfo? _masterInfo;
+  Service? _service;
   bool _isLoading = true;
   String? _error;
   late String _masterId;
   final _phoneNotifier = ValueNotifier<String>('');
 
+  // слоты/выбранный слот
+  AvailableSlot? _selectedSlot;
+  Map<DateTime, List<AvailableSlot>> _groupedSlots = {};
+
   @override
   void initState() {
     super.initState();
+    _service = widget.service;
     _masterId = widget.masterId ?? '1';
+
+    // --- моковые слоты: сегодня, завтра, послезавтра ---
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final dayAfter = today.add(const Duration(days: 2));
+
+    final List<AvailableSlot> mockSlots = [
+      // Сегодня
+      AvailableSlot(
+        id: 1,
+        date: today,
+        startTime: const Duration(hours: 10, minutes: 0),
+      ),
+      AvailableSlot(
+        id: 2,
+        date: today,
+        startTime: const Duration(hours: 12, minutes: 0),
+      ),
+      AvailableSlot(
+        id: 3,
+        date: today,
+        startTime: const Duration(hours: 14, minutes: 30),
+      ),
+
+      // Завтра
+      AvailableSlot(
+        id: 4,
+        date: tomorrow,
+        startTime: const Duration(hours: 11, minutes: 0),
+      ),
+      AvailableSlot(
+        id: 5,
+        date: tomorrow,
+        startTime: const Duration(hours: 13, minutes: 0),
+      ),
+      AvailableSlot(
+        id: 6,
+        date: tomorrow,
+        startTime: const Duration(hours: 15, minutes: 0),
+      ),
+
+      // Послезавтра
+      AvailableSlot(
+        id: 7,
+        date: dayAfter,
+        startTime: const Duration(hours: 9, minutes: 30),
+      ),
+      AvailableSlot(
+        id: 8,
+        date: dayAfter,
+        startTime: const Duration(hours: 12, minutes: 30),
+      ),
+      AvailableSlot(
+        id: 9,
+        date: dayAfter,
+        startTime: const Duration(hours: 16, minutes: 0),
+      ),
+    ];
+
+    _groupSlots(mockSlots);
+
+    // Загружаем данные мастера (как раньше)
     _loadMasterInfo();
+  }
+
+  void _groupSlots(List<AvailableSlot> slots) {
+    final map = <DateTime, List<AvailableSlot>>{};
+    slots.sort((a, b) => a.datetime.compareTo(b.datetime));
+    for (var slot in slots) {
+      map[slot.date] ??= [];
+      map[slot.date]!.add(slot);
+    }
+    setState(() {
+      _groupedSlots = map;
+    });
   }
 
   @override
@@ -47,24 +156,33 @@ class _SlotsPageState extends State<SlotsPage> {
     });
 
     final repository = Dependencies.instance.masterRepository;
-    final result = await repository.getMasterInfo(int.parse(_masterId));
-
-    result.when(
-      ok: (data) {
-        setState(() {
-          _masterInfo = data;
-          _isLoading = false;
-        });
-      },
-      err: (error, stackTrace) {
-        setState(() {
-          _error = error.toString();
-          _isLoading = false;
-        });
-      },
-    );
+    try {
+      final result = await repository.getMasterInfo(int.parse(_masterId));
+      result.when(
+        ok: (data) {
+          setState(() {
+            _masterInfo = data;
+            _isLoading = false;
+          });
+        },
+        err: (error, stackTrace) {
+          setState(() {
+            _error = error.toString();
+            _isLoading = false;
+          });
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
+  // ================================
+  // Геттеры для мастера
+  // ================================
   String get masterFirstName => _masterInfo?.master.firstName ?? '';
   String get masterFullName => _masterInfo?.master.fullName ?? '';
   String get masterSpecialization => _masterInfo?.master.profession ?? '';
@@ -104,18 +222,79 @@ class _SlotsPageState extends State<SlotsPage> {
     }
   }
 
-  void _getCode() {
-    if (_phoneNotifier.value.length == 10) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              PhoneCodePage(phoneNumber: '7${_phoneNotifier.value}'),
-        ),
-      );
+  // ================================
+  // Виджет выбора слотов
+  // ================================
+  Widget _buildSlotsPicker() {
+    if (_groupedSlots.isEmpty) {
+      return const SizedBox.shrink();
     }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _groupedSlots.entries.map((entry) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateTimeIntl(entry.key).formatDateOnly(),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: entry.value.map((slot) {
+                    final isSelected = _selectedSlot == slot;
+                    // Используем геттер datetime из AvailableSlot
+                    final displayTime = slot.datetime;
+
+                    return GestureDetector(
+                      onTap: () => setState(() => _selectedSlot = slot),
+                      child: Container(
+                        width: 75,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? const Color(0xFFFFE6F3)
+                              : const Color(0xFFFAFAFA),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFFFF85C5)
+                                : Colors.transparent,
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            DateTimeIntl(displayTime).toTimeString(),
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
   }
 
+  // ================================
+  // Build
+  // ================================
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -365,7 +544,6 @@ class _SlotsPageState extends State<SlotsPage> {
   // ================================
   // Desktop layout
   // ================================
-
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -389,10 +567,10 @@ class _SlotsPageState extends State<SlotsPage> {
               child: Container(
                 constraints: BoxConstraints(minHeight: availableHeight),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundSubtle,
+                  color: AppColors.backgroundOnlineMain,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppColors.backgroundDefault,
+                    color: AppColors.backgroundOnlineMain,
                     width: 1,
                   ),
                   boxShadow: [
@@ -419,7 +597,7 @@ class _SlotsPageState extends State<SlotsPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column - форма авторизации
+                    // Left column - форма выбора
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -443,16 +621,31 @@ class _SlotsPageState extends State<SlotsPage> {
                                 color: AppColors.iconsDefault,
                               ),
                             ),
-                            const SizedBox(height: 32),
-                            // Кнопка получить код - теперь на всю ширину поля
-                            ValueListenableBuilder(
-                              valueListenable: _phoneNotifier,
-                              builder: (context, value, child) {
-                                return AppTextButton.large(
-                                  text: 'Выбрать ',
-                                  enabled: value.length == 10,
-                                  onTap: _getCode,
-                                );
+                            const SizedBox(height: 16),
+
+                            // Список слотов
+                            Flexible(child: _buildSlotsPicker()),
+
+                            const SizedBox(height: 16),
+                            AppTextButton.large(
+                              text: _selectedSlot != null
+                                  ? 'Выбрать ${DateTimeIntl(_selectedSlot!.datetime).formatFull()}'
+                                  : 'Выберите слот',
+                              enabled: _selectedSlot != null,
+                              onTap: () {
+                                if (_selectedSlot != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EndBookingPage(
+                                        masterInfo: _masterInfo!,
+                                        selectedSlot: _selectedSlot!,
+                                        service: _service,
+                                        phoneNumber: widget.phoneNumber,
+                                      ),
+                                    ),
+                                  );
+                                }
                               },
                             ),
                           ],
@@ -716,7 +909,6 @@ class _SlotsPageState extends State<SlotsPage> {
   // ================================
   // Mobile layout
   // ================================
-
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -729,19 +921,29 @@ class _SlotsPageState extends State<SlotsPage> {
             color: AppColors.iconsDefault,
           ),
         ),
-        const SizedBox(height: 32),
-
-        // Кнопка получить код
+        const SizedBox(height: 16),
+        _buildSlotsPicker(),
+        const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
-          child: ValueListenableBuilder(
-            valueListenable: _phoneNotifier,
-            builder: (context, value, child) {
-              return AppTextButton.large(
-                text: 'Выбрать ',
-                enabled: value.length == 10,
-                onTap: _getCode,
-              );
+          child: AppTextButton.large(
+            text: _selectedSlot != null
+                ? 'Выбрать ${DateTimeIntl(_selectedSlot!.datetime).formatFull()}'
+                : 'Выберите слот',
+            enabled: _selectedSlot != null,
+            onTap: () {
+              if (_selectedSlot != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EndBookingPage(
+                      masterInfo: _masterInfo!,
+                      selectedSlot: _selectedSlot!,
+                      service: _service,
+                    ),
+                  ),
+                );
+              }
             },
           ),
         ),

@@ -31,11 +31,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  pinput: ^5.0.2 # замените на ту версию, которая у вас в ошибке выше
   flutter:
     sdk: flutter
   shared:
     path: ../../packages/shared
   flutter_svg: ^2.2.1
+  intl: ^0.20.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

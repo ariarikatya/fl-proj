@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 import 'menu.dart';
-import 'dependencies.dart';
-import 'phone_code.dart';
+import 'final.dart';
 
 // Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
@@ -12,85 +12,64 @@ const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
 
 class EndBookingPage extends StatefulWidget {
-  final String? masterId;
+  final MasterInfo masterInfo;
+  final AvailableSlot selectedSlot;
+  final Service? service;
+  final String? phoneNumber; // номер с предыдущего экрана
 
-  const EndBookingPage({super.key, this.masterId});
+  const EndBookingPage({
+    super.key,
+    required this.masterInfo,
+    required this.selectedSlot,
+    this.service,
+    this.phoneNumber,
+  });
 
   @override
   State<EndBookingPage> createState() => _EndBookingPageState();
 }
 
 class _EndBookingPageState extends State<EndBookingPage> {
-  MasterInfo? _masterInfo;
-  bool _isLoading = true;
-  String? _error;
-  late String _masterId;
-  final _phoneNotifier = ValueNotifier<String>('');
+  late ValueNotifier<String> _phoneNotifier;
+
+  // Контроллеры для полей
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _masterId = widget.masterId ?? '1';
-    _loadMasterInfo();
+    _nameController.addListener(() {
+      setState(() {}); // кнопка обновляется при вводе имени
+    });
   }
 
   @override
   void dispose() {
     _phoneNotifier.dispose();
+    _nameController.dispose();
+    _commentController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadMasterInfo() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  MasterInfo get masterInfo => widget.masterInfo;
+  AvailableSlot get selectedSlot => widget.selectedSlot;
+  Service? get service => widget.service;
 
-    final repository = Dependencies.instance.masterRepository;
-    final result = await repository.getMasterInfo(int.parse(_masterId));
-
-    result.when(
-      ok: (data) {
-        setState(() {
-          _masterInfo = data;
-          _isLoading = false;
-        });
-      },
-      err: (error, stackTrace) {
-        setState(() {
-          _error = error.toString();
-          _isLoading = false;
-        });
-      },
-    );
-  }
-
-  String get masterFirstName => _masterInfo?.master.firstName ?? '';
-  String get masterFullName => _masterInfo?.master.fullName ?? '';
-  String get masterSpecialization => _masterInfo?.master.profession ?? '';
-  double get masterRating => _masterInfo?.master.rating ?? 0.0;
-  String get masterExperience => _masterInfo?.master.experience ?? '';
-  int get masterReviews => _masterInfo?.master.reviewsCount ?? 0;
-  String get masterAvatarUrl => _masterInfo?.master.avatarUrl ?? '';
-
-  String get masterFirstNameDative {
-    final name = masterFirstName;
-    if (name.endsWith('я')) {
-      return '${name.substring(0, name.length - 1)}е';
-    }
-    return name;
-  }
+  String get masterFirstName => masterInfo.master.firstName;
+  String get masterFullName => masterInfo.master.fullName;
+  String get masterSpecialization => masterInfo.master.profession;
+  double get masterRating => masterInfo.master.rating;
+  String get masterExperience => masterInfo.master.experience;
+  int get masterReviews => masterInfo.master.reviewsCount;
+  String get masterAvatarUrl => masterInfo.master.avatarUrl;
 
   String getYearsText(String experience) {
     final years = int.tryParse(experience.split(' ').first) ?? 0;
-    if (years % 10 == 1 && years % 100 != 11) {
-      return '$years год';
-    } else if ([2, 3, 4].contains(years % 10) &&
-        ![12, 13, 14].contains(years % 100)) {
+    if (years % 10 == 1 && years % 100 != 11) return '$years год';
+    if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100))
       return '$years года';
-    } else {
-      return '$years лет';
-    }
+    return '$years лет';
   }
 
   void _openStore(BuildContext context) async {
@@ -105,12 +84,30 @@ class _EndBookingPageState extends State<EndBookingPage> {
   }
 
   void _getCode() {
-    if (_phoneNotifier.value.length == 10) {
+    final name = _nameController.text.trim();
+    final comment = _commentController.text.trim();
+    final phone = _phoneNotifier.value.trim();
+    final selectedTime = DateFormat('HH:mm').format(selectedSlot.datetime);
+
+    if (name.isNotEmpty && phone.length == 10) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              PhoneCodePage(phoneNumber: '7${_phoneNotifier.value}'),
+          builder: (context) => FinalPage(
+            masterId: masterInfo.master.id.toString(),
+            service: service,
+            selectedDate: selectedSlot.date,
+            selectedTime: selectedTime,
+            name: name,
+            comment: comment,
+            phoneNumber: '7$phone',
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Введите имя и корректный номер телефона'),
         ),
       );
     }
@@ -118,49 +115,10 @@ class _EndBookingPageState extends State<EndBookingPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        backgroundColor: AppColors.backgroundDefault,
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (_error != null || _masterInfo == null) {
-      return Scaffold(
-        backgroundColor: AppColors.backgroundDefault,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Ошибка загрузки данных',
-                  style: AppTextStyles.headingMedium,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _error ?? 'Неизвестная ошибка',
-                  style: AppTextStyles.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _loadMasterInfo,
-                  child: const Text('Попробовать снова'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     final width = MediaQuery.of(context).size.width;
     final isDesktop = width >= 750;
     final showImage = isDesktop && width >= 1120;
 
-    // Рассчитываем ширину картинки
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
       final fullContent =
@@ -253,7 +211,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
                   : AppColors.backgroundDefault,
               child: Stack(
                 children: [
-                  // Хлебные крошки
                   if (isDesktop)
                     Positioned(
                       top: 28,
@@ -287,7 +244,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
+                                      const Icon(
                                         Icons.chevron_right,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
@@ -300,7 +257,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
+                                      const Icon(
                                         Icons.chevron_right,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
@@ -313,7 +270,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
+                                      const Icon(
                                         Icons.chevron_right,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
@@ -362,10 +319,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
     );
   }
 
-  // ================================
-  // Desktop layout
-  // ================================
-
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -389,21 +342,21 @@ class _EndBookingPageState extends State<EndBookingPage> {
               child: Container(
                 constraints: BoxConstraints(minHeight: availableHeight),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundSubtle,
+                  color: AppColors.backgroundOnlineMain,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppColors.backgroundDefault,
+                    color: AppColors.backgroundOnlineMain,
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0x0C0C0D0D).withValues(alpha: 0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       offset: const Offset(0, 4),
                       blurRadius: 4,
                       spreadRadius: -4,
                     ),
                     BoxShadow(
-                      color: const Color(0x0C0C0D0D).withValues(alpha: 0.10),
+                      color: Colors.black.withValues(alpha: 0.10),
                       offset: const Offset(0, 16),
                       blurRadius: 32,
                       spreadRadius: -4,
@@ -419,7 +372,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column - форма авторизации
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -443,15 +395,33 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                 color: AppColors.iconsDefault,
                               ),
                             ),
+                            const SizedBox(height: 24),
+                            AppTextFormField(
+                              controller: _nameController,
+                              labelText: 'Ваше имя и фамилия',
+                            ),
+                            const SizedBox(height: 16),
+                            AppTextFormField(
+                              controller: _commentController,
+                              labelText:
+                                  'Комментарий, например, аллергия на коллаген',
+                              maxLines: 4,
+                            ),
                             const SizedBox(height: 32),
-                            // Кнопка получить код - теперь на всю ширину поля
                             ValueListenableBuilder(
                               valueListenable: _phoneNotifier,
                               builder: (context, value, child) {
+                                final isButtonEnabled =
+                                    value.length == 10 &&
+                                    _nameController.text.trim().isNotEmpty;
                                 return AppTextButton.large(
-                                  text: 'Записаться к $masterFirstNameDative',
-                                  enabled: value.length == 10,
-                                  onTap: _getCode,
+                                  text: 'Записаться к мастеру',
+                                  enabled: isButtonEnabled,
+                                  onTap: () {
+                                    if (isButtonEnabled) {
+                                      _getCode();
+                                    }
+                                  },
                                 );
                               },
                             ),
@@ -460,8 +430,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
                       ),
                     ),
                     const SizedBox(width: kContainerImageGap),
-
-                    // Right column: master card
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -471,89 +439,20 @@ class _EndBookingPageState extends State<EndBookingPage> {
               ),
             ),
           ),
-
-          // Illustration
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
               constraints: BoxConstraints(maxWidth: imageWidth),
               child: SizedBox(
                 height: availableHeight,
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(
-                              0x0C0C0D0D,
-                            ).withValues(alpha: 0.05),
-                            offset: const Offset(0, 4),
-                            blurRadius: 4,
-                            spreadRadius: -4,
-                          ),
-                          BoxShadow(
-                            color: const Color(
-                              0x0C0C0D0D,
-                            ).withValues(alpha: 0.10),
-                            offset: const Offset(0, 16),
-                            blurRadius: 32,
-                            spreadRadius: -4,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: Image.asset(
-                          'assets/images/welcome_illustration.png',
-                          fit: BoxFit.cover,
-                          width: imageWidth,
-                          height: availableHeight,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 24,
-                      left: 24,
-                      right: 24,
-                      child: GestureDetector(
-                        onTap: () => _openStore(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: AppColors.backgroundDefault,
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(
-                                  0x0C0C0D0D,
-                                ).withValues(alpha: 0.05),
-                                offset: const Offset(0, 4),
-                                blurRadius: 4,
-                                spreadRadius: -4,
-                              ),
-                              BoxShadow(
-                                color: const Color(
-                                  0x0C0C0D0D,
-                                ).withValues(alpha: 0.10),
-                                offset: const Offset(0, 16),
-                                blurRadius: 32,
-                                spreadRadius: -4,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            'Скачать POLKA',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textPrimary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.asset(
+                    'assets/images/welcome_illustration.png',
+                    fit: BoxFit.cover,
+                    width: imageWidth,
+                    height: availableHeight,
+                  ),
                 ),
               ),
             ),
@@ -587,14 +486,8 @@ class _EndBookingPageState extends State<EndBookingPage> {
       ),
       child: IntrinsicHeight(
         child: Padding(
-          padding: const EdgeInsets.only(
-            left: 24,
-            top: 24,
-            bottom: 24,
-            right: 24,
-          ),
+          padding: const EdgeInsets.all(24),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Flexible(child: _buildMasterLeftColumn(context)),
@@ -628,12 +521,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                        'assets/images/master_photo.png',
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
                     )
                   : Image.asset(
                       'assets/images/master_photo.png',
@@ -657,8 +544,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
           masterSpecialization,
           style: AppTextStyles.bodyMedium,
           textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 2,
         ),
         const SizedBox(height: 20),
       ],
@@ -713,10 +598,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
     );
   }
 
-  // ================================
-  // Mobile layout
-  // ================================
-
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -729,18 +610,33 @@ class _EndBookingPageState extends State<EndBookingPage> {
             color: AppColors.iconsDefault,
           ),
         ),
+        const SizedBox(height: 24),
+        AppTextFormField(
+          controller: _nameController,
+          labelText: 'Ваше имя и фамилия',
+        ),
+        const SizedBox(height: 16),
+        AppTextFormField(
+          controller: _commentController,
+          labelText: 'Комментарий, например, аллергия на коллаген',
+          maxLines: 4,
+        ),
         const SizedBox(height: 32),
-
-        // Кнопка получить код
         SizedBox(
           width: double.infinity,
           child: ValueListenableBuilder(
             valueListenable: _phoneNotifier,
             builder: (context, value, child) {
+              final isButtonEnabled =
+                  value.length == 10 && _nameController.text.trim().isNotEmpty;
               return AppTextButton.large(
-                text: 'Записаться к $masterFirstNameDative',
-                enabled: value.length == 10,
-                onTap: _getCode,
+                text: 'Записаться к мастеру',
+                enabled: isButtonEnabled,
+                onTap: () {
+                  if (isButtonEnabled) {
+                    _getCode();
+                  }
+                },
               );
             },
           ),

@@ -4,17 +4,17 @@ import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
 import 'dependencies.dart';
-import 'phone_code.dart';
+import 'slots.dart';
 
-// Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
 
 class ServicePage extends StatefulWidget {
   final String? masterId;
+  final String? phoneNumber;
 
-  const ServicePage({super.key, this.masterId});
+  const ServicePage({super.key, this.masterId, this.phoneNumber});
 
   @override
   State<ServicePage> createState() => _ServicePageState();
@@ -25,19 +25,13 @@ class _ServicePageState extends State<ServicePage> {
   bool _isLoading = true;
   String? _error;
   late String _masterId;
-  final _phoneNotifier = ValueNotifier<String>('');
+  Service? _selectedService;
 
   @override
   void initState() {
     super.initState();
     _masterId = widget.masterId ?? '1';
     _loadMasterInfo();
-  }
-
-  @override
-  void dispose() {
-    _phoneNotifier.dispose();
-    super.dispose();
   }
 
   Future<void> _loadMasterInfo() async {
@@ -51,8 +45,40 @@ class _ServicePageState extends State<ServicePage> {
 
     result.when(
       ok: (data) {
+        final mockServices = [
+          Service(
+            id: 1,
+            category: ServiceCategories.nailService,
+            title: 'Маникюр классический',
+            duration: const Duration(minutes: 60),
+            description: '',
+            location: ServiceLocation.studio,
+            resultPhotos: [],
+            price: 1200,
+          ),
+          Service(
+            id: 2,
+            category: ServiceCategories.nailService,
+            title: 'Педикюр Spa',
+            duration: const Duration(minutes: 90),
+            description: '',
+            location: ServiceLocation.studio,
+            resultPhotos: [],
+            price: 2000,
+          ),
+          Service(
+            id: 3,
+            category: ServiceCategories.other,
+            title: 'Массаж спины',
+            duration: const Duration(minutes: 45),
+            description: '',
+            location: ServiceLocation.studio,
+            resultPhotos: [],
+            price: 1500,
+          ),
+        ];
+        _masterInfo = data.copyWith(services: () => mockServices);
         setState(() {
-          _masterInfo = data;
           _isLoading = false;
         });
       },
@@ -104,13 +130,16 @@ class _ServicePageState extends State<ServicePage> {
     }
   }
 
-  void _getCode() {
-    if (_phoneNotifier.value.length == 10) {
+  void _selectTime() {
+    if (_selectedService != null) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              PhoneCodePage(phoneNumber: '7${_phoneNotifier.value}'),
+          builder: (context) => SlotsPage(
+            service: _selectedService!,
+            masterId: _masterInfo!.master.id.toString(),
+            phoneNumber: widget.phoneNumber,
+          ),
         ),
       );
     }
@@ -160,7 +189,6 @@ class _ServicePageState extends State<ServicePage> {
     final isDesktop = width >= 750;
     final showImage = isDesktop && width >= 1120;
 
-    // Рассчитываем ширину картинки
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
       final fullContent =
@@ -180,7 +208,6 @@ class _ServicePageState extends State<ServicePage> {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
-          // Верхняя панель
           Container(
             height: 88,
             color: AppColors.backgroundDefault,
@@ -253,7 +280,6 @@ class _ServicePageState extends State<ServicePage> {
                   : AppColors.backgroundDefault,
               child: Stack(
                 children: [
-                  // Хлебные крошки
                   if (isDesktop)
                     Positioned(
                       top: 28,
@@ -362,10 +388,6 @@ class _ServicePageState extends State<ServicePage> {
     );
   }
 
-  // ================================
-  // Desktop layout
-  // ================================
-
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -389,10 +411,10 @@ class _ServicePageState extends State<ServicePage> {
               child: Container(
                 constraints: BoxConstraints(minHeight: availableHeight),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundSubtle,
+                  color: AppColors.backgroundOnlineMain,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppColors.backgroundDefault,
+                    color: AppColors.backgroundOnlineMain,
                     width: 1,
                   ),
                   boxShadow: [
@@ -419,7 +441,6 @@ class _ServicePageState extends State<ServicePage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column - форма авторизации
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -438,30 +459,71 @@ class _ServicePageState extends State<ServicePage> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Здесь представлены все услуги мастера, нажмите на услугу записаться и выбрать время',
+                              'Здесь представлены все услуги мастера, выберите услугу и нажмите "Выбрать время"',
                               style: AppTextStyles.bodyMedium500.copyWith(
                                 color: AppColors.iconsDefault,
                               ),
                             ),
                             const SizedBox(height: 32),
-                            // Кнопка получить код - теперь на всю ширину поля
-                            ValueListenableBuilder(
-                              valueListenable: _phoneNotifier,
-                              builder: (context, value, child) {
-                                return AppTextButton.large(
-                                  text: 'Выбрать время',
-                                  enabled: value.length == 10,
-                                  onTap: _getCode,
-                                );
-                              },
+                            ...(_masterInfo?.services.isNotEmpty ?? false
+                                    ? _masterInfo!.services
+                                    : [
+                                        Service(
+                                          id: 1,
+                                          category:
+                                              ServiceCategories.nailService,
+                                          title: 'Маникюр классический',
+                                          duration: const Duration(minutes: 60),
+                                          description: '',
+                                          location: ServiceLocation.studio,
+                                          resultPhotos: [],
+                                          price: 1200,
+                                        ),
+                                        Service(
+                                          id: 2,
+                                          category:
+                                              ServiceCategories.nailService,
+                                          title: 'Педикюр Spa',
+                                          duration: const Duration(minutes: 90),
+                                          description: '',
+                                          location: ServiceLocation.studio,
+                                          resultPhotos: [],
+                                          price: 2000,
+                                        ),
+                                        Service(
+                                          id: 3,
+                                          category: ServiceCategories.other,
+                                          title: 'Массаж спины',
+                                          duration: const Duration(minutes: 45),
+                                          description: '',
+                                          location: ServiceLocation.studio,
+                                          resultPhotos: [],
+                                          price: 1500,
+                                        ),
+                                      ])
+                                .map(
+                                  (service) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: _ServiceCard(
+                                      service: service,
+                                      isSelected: _selectedService == service,
+                                      onTap: () => setState(
+                                        () => _selectedService = service,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            const SizedBox(height: 24),
+                            AppTextButton.large(
+                              text: 'Выбрать время',
+                              enabled: _selectedService != null,
+                              onTap: _selectTime,
                             ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(width: kContainerImageGap),
-
-                    // Right column: master card
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -472,7 +534,6 @@ class _ServicePageState extends State<ServicePage> {
             ),
           ),
 
-          // Illustration
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
@@ -713,10 +774,6 @@ class _ServicePageState extends State<ServicePage> {
     );
   }
 
-  // ================================
-  // Mobile layout
-  // ================================
-
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -724,28 +781,143 @@ class _ServicePageState extends State<ServicePage> {
         Text('Выберите услугу', style: AppTextStyles.headingLarge),
         const SizedBox(height: 16),
         Text(
-          'Здесь представлены все услуги мастера, нажмите на услугу записаться и выбрать время',
+          'Здесь представлены все услуги мастера, выберите услугу и нажмите "Выбрать время"',
           style: AppTextStyles.bodyMedium500.copyWith(
             color: AppColors.iconsDefault,
           ),
         ),
         const SizedBox(height: 32),
 
-        // Кнопка получить код
+        if (_masterInfo?.services.isNotEmpty ?? false)
+          ..._masterInfo!.services
+              .map(
+                (service) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _ServiceCard(
+                    service: service,
+                    isSelected: _selectedService == service,
+                    onTap: () => setState(() => _selectedService = service),
+                  ),
+                ),
+              )
+              .toList()
+        else
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.backgroundHover,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Text(
+              'У мастера пока нет доступных услуг',
+              style: AppTextStyles.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+        const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
-          child: ValueListenableBuilder(
-            valueListenable: _phoneNotifier,
-            builder: (context, value, child) {
-              return AppTextButton.large(
-                text: 'Выбрать время',
-                enabled: value.length == 10,
-                onTap: _getCode,
-              );
-            },
+          child: AppTextButton.large(
+            text: 'Выбрать время',
+            enabled: _selectedService != null,
+            onTap: _selectTime,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ServiceCard extends StatelessWidget {
+  const _ServiceCard({
+    required this.service,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final Service service;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.accentLight : AppColors.backgroundHover,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? AppColors.accent : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    service.title,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      AppIcons.clock.icon(
+                        context,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${service.duration.inMinutes} мин',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        '₽${service.price}',
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? AppColors.accent : Colors.transparent,
+                border: Border.all(
+                  color: isSelected
+                      ? AppColors.accent
+                      : AppColors.borderDefault,
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? Icon(
+                      Icons.check,
+                      size: 16,
+                      color: AppColors.backgroundDefault,
+                    )
+                  : null,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
