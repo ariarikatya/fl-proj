@@ -368,6 +368,16 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
             ),
           ),
+
+          // Кнопка для мобильной версии внизу экрана (как в EndBookingPage)
+          if (!isDesktop)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: AppTextButton.large(
+                text: 'Записаться к мастеру',
+                onTap: _openBooking,
+              ),
+            ),
         ],
       ),
     );
@@ -455,12 +465,9 @@ class _WelcomePageState extends State<WelcomePage> {
                               ),
                             ),
                             const SizedBox(height: 32),
-                            SizedBox(
-                              width: 280,
-                              child: AppTextButton.large(
-                                text: 'Записаться к $masterFirstNameDative',
-                                onTap: _openBooking,
-                              ),
+                            AppTextButton.large(
+                              text: 'Записаться к мастеру',
+                              onTap: _openBooking,
                             ),
                           ],
                         ),
@@ -855,14 +862,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: AppTextButton.large(
-                text: 'Записаться к $masterFirstNameDative',
-                onTap: _openBooking,
-              ),
-            ),
+            // Кнопка удалена из карточки для мобильной версии
           ],
         ),
       ),

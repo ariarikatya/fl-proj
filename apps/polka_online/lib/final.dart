@@ -799,6 +799,10 @@ class _FinalPageState extends State<FinalPage> {
         widget.service?.duration.toDurationStringShort() ?? '';
     final servicePrice = widget.service?.price ?? 0;
 
+    // Определяем левый отступ для выравнивания duration/price под названием услуги
+    const double serviceTextLeftPadding =
+        60.0; // можно подкорректировать по дизайну
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -829,9 +833,10 @@ class _FinalPageState extends State<FinalPage> {
           ],
         ),
         const SizedBox(height: 7),
-        // Длительность и цена с разделителем
+
+        // Длительность и цена, выравненные под названием услуги
         Padding(
-          padding: const EdgeInsets.only(left: 0),
+          padding: const EdgeInsets.only(left: serviceTextLeftPadding),
           child: Row(
             children: [
               Icon(Icons.access_time, size: 16, color: AppColors.textSecondary),
