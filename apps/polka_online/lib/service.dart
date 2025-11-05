@@ -11,9 +11,8 @@ import 'welcome.dart';
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
-const double kDesktopServiceMasterGap =
-    64; // Максимальный отступ между услугами и карточкой мастера
-const double kDesktopServiceMasterGapMin = 40; // Минимальный отступ
+const double kDesktopServiceMasterGap = 64;
+const double kDesktopServiceMasterGapMin = 40;
 
 class ServicePage extends StatefulWidget {
   final String? masterId;
@@ -132,7 +131,6 @@ class _ServicePageState extends State<ServicePage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      // Для Android и любых других платформ используем Google Play
       url =
           'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
@@ -141,7 +139,6 @@ class _ServicePageState extends State<ServicePage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // В продакшене лучше использовать логгер вместо print
         // Logger().warning('Не удалось открыть магазин: $url');
       }
     } catch (e) {
@@ -149,16 +146,13 @@ class _ServicePageState extends State<ServicePage> {
     }
   }
 
-  // В service.dart нужно обновить метод _selectTime:
-
   void _selectTime() {
     if (_selectedService != null) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => SlotsPage(
-            service:
-                _selectedService!, // Передаём полный объект Service (обязательный параметр)
+            service: _selectedService!,
             masterId: _masterInfo!.master.id.toString(),
             phoneNumber: widget.phoneNumber,
           ),
@@ -167,7 +161,6 @@ class _ServicePageState extends State<ServicePage> {
     }
   }
 
-  // Добавьте метод для навигации назад
   void _goBack() {
     Navigator.pushReplacement(
       context,
@@ -238,7 +231,7 @@ class _ServicePageState extends State<ServicePage> {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
-          // Верхний бар с логотипом
+          // бар с логотипом
           Container(
             height: 88,
             color: AppColors.backgroundDefault,
@@ -268,7 +261,7 @@ class _ServicePageState extends State<ServicePage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: const Icon(Icons.menu, size: 24),
+                            icon: AppIcons.filter.icon(context, size: 24),
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -304,7 +297,7 @@ class _ServicePageState extends State<ServicePage> {
             ),
           ),
 
-          // Прогресс-бар для мобильной версии
+          // бар для мобилки
           if (!isDesktop) _buildMobileProgressBar(),
 
           Expanded(
@@ -347,8 +340,8 @@ class _ServicePageState extends State<ServicePage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -358,8 +351,8 @@ class _ServicePageState extends State<ServicePage> {
                                         style: AppTextStyles.bodyLarge,
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -371,8 +364,8 @@ class _ServicePageState extends State<ServicePage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -423,7 +416,7 @@ class _ServicePageState extends State<ServicePage> {
     );
   }
 
-  // Виджет прогресс-бара для мобильной версии
+  // Виджет бара для мобилки
   Widget _buildMobileProgressBar() {
     return Container(
       height: 48,
@@ -431,9 +424,8 @@ class _ServicePageState extends State<ServicePage> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         children: [
-          // Стрелка назад с обработчиком нажатия
           GestureDetector(
-            onTap: _goBack, // Добавлен обработчик нажатия
+            onTap: _goBack,
             child: AppIcons.chevronBack.icon(
               context,
               size: 24,
@@ -441,7 +433,6 @@ class _ServicePageState extends State<ServicePage> {
             ),
           ),
           const SizedBox(width: 27),
-          // Прогресс-бар
           Container(
             width: 40,
             height: 8,
@@ -464,7 +455,6 @@ class _ServicePageState extends State<ServicePage> {
     final height = MediaQuery.of(context).size.height;
     final availableHeight = height - 88 - 88 - 70;
 
-    // Вычисляем адаптивный отступ между услугами и карточкой мастера
     final double serviceMasterGap = _calculateServiceMasterGap(screenWidth);
 
     return Center(
@@ -694,11 +684,8 @@ class _ServicePageState extends State<ServicePage> {
     );
   }
 
-  // Функция для вычисления адаптивного отступа между услугами и карточкой мастера
   double _calculateServiceMasterGap(double screenWidth) {
-    // Минимальная ширина, при которой используем максимальный отступ
     const double minWidthForMaxGap = 1400;
-    // Ширина, при которой начинаем уменьшать отступ
     const double startReducingWidth = 1200;
 
     if (screenWidth >= minWidthForMaxGap) {
@@ -706,7 +693,6 @@ class _ServicePageState extends State<ServicePage> {
     } else if (screenWidth <= startReducingWidth) {
       return kDesktopServiceMasterGapMin;
     } else {
-      // Линейная интерполяция между минимальным и максимальным отступом
       final double t =
           (screenWidth - startReducingWidth) /
           (minWidthForMaxGap - startReducingWidth);
@@ -884,19 +870,16 @@ class _ServicePageState extends State<ServicePage> {
                 const SizedBox(height: 32),
 
                 if (_masterInfo?.services.isNotEmpty ?? false)
-                  ..._masterInfo!.services
-                      .map(
-                        (service) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _ServiceCard(
-                            service: service,
-                            isSelected: _selectedService == service,
-                            onTap: () =>
-                                setState(() => _selectedService = service),
-                          ),
-                        ),
-                      )
-                      .toList()
+                  ..._masterInfo!.services.map(
+                    (service) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _ServiceCard(
+                        service: service,
+                        isSelected: _selectedService == service,
+                        onTap: () => setState(() => _selectedService = service),
+                      ),
+                    ),
+                  )
                 else
                   Container(
                     padding: const EdgeInsets.all(24),
@@ -912,13 +895,11 @@ class _ServicePageState extends State<ServicePage> {
                   ),
 
                 const SizedBox(height: 24),
-                // Пустой контейнер для отступа перед кнопкой в скролле
                 const SizedBox(height: 80),
               ],
             ),
           ),
         ),
-        // Фиксированная кнопка внизу экрана
         Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
           child: SizedBox(
@@ -988,7 +969,6 @@ class _ServiceCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // Заменен вертикальный разделитель на текст "|"
                       Text(
                         '|',
                         style: AppTextStyles.bodyLarge500.copyWith(
@@ -1008,7 +988,6 @@ class _ServiceCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            // Замена иконок выбора
             isSelected
                 ? AppIcons.radioChecked.icon(
                     context,

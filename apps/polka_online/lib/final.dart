@@ -7,7 +7,6 @@ import 'menu.dart';
 import 'dependencies.dart';
 import 'package:flutter/foundation.dart';
 
-// Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
@@ -49,12 +48,11 @@ class _FinalPageState extends State<FinalPage> {
     _loadMasterInfo();
   }
 
-  // Добавьте метод для навигации назад
   void _goBack() {
     Navigator.pop(context);
   }
 
-  // Добавьте метод для прогресс-бара в мобильной версии
+  // бар в мобилки
   Widget _buildMobileProgressBar() {
     return Container(
       height: 48,
@@ -62,7 +60,6 @@ class _FinalPageState extends State<FinalPage> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         children: [
-          // Стрелка назад с обработчиком нажатия
           GestureDetector(
             onTap: _goBack,
             child: AppIcons.chevronBack.icon(
@@ -72,7 +69,6 @@ class _FinalPageState extends State<FinalPage> {
             ),
           ),
           const SizedBox(width: 27),
-          // Прогресс-бар (три пройденных шага)
           Container(
             width: 40,
             height: 8,
@@ -144,7 +140,6 @@ class _FinalPageState extends State<FinalPage> {
     return '${name.substring(0, 30)}...';
   }
 
-  // Добавляем метод для форматирования даты и времени
   String _formatDateTime() {
     final dateFormat = DateFormat('d MMMM, HH:mm', 'ru');
     final dateTime = DateTime(
@@ -155,7 +150,6 @@ class _FinalPageState extends State<FinalPage> {
       int.parse(widget.selectedTime.split(':')[1]),
     );
     final formatted = dateFormat.format(dateTime);
-    // Делаем первую букву заглавной
     return formatted[0].toUpperCase() + formatted.substring(1);
   }
 
@@ -167,7 +161,6 @@ class _FinalPageState extends State<FinalPage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      // Для Android и любых других платформ используем Google Play
       url =
           'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
@@ -176,7 +169,6 @@ class _FinalPageState extends State<FinalPage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // В продакшене лучше использовать логгер вместо print
         // Logger().warning('Не удалось открыть магазин: $url');
       }
     } catch (e) {
@@ -184,25 +176,6 @@ class _FinalPageState extends State<FinalPage> {
     }
   }
 
-  // Метод для создания кнопки скачивания
-  Widget _buildDownloadButton() {
-    return GestureDetector(
-      onTap: openStore,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: Colors.black,
-        ),
-        child: Text(
-          'Скачать POLKA',
-          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  // Новый метод для создания растянутой кнопки на мобильной версии
   Widget _buildMobileDownloadButton() {
     return SizedBox(
       width: double.infinity,
@@ -255,7 +228,6 @@ class _FinalPageState extends State<FinalPage> {
     }
 
     final width = MediaQuery.of(context).size.width;
-    // Изменен брейкпоинт с 850 на 950 (мобильная версия показывается на 100 пикселей позже)
     final isDesktop = width >= 950;
     final showImage = isDesktop && width >= 1120;
 
@@ -308,7 +280,7 @@ class _FinalPageState extends State<FinalPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: const Icon(Icons.menu, size: 24),
+                            icon: AppIcons.filter.icon(context, size: 24),
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -344,7 +316,7 @@ class _FinalPageState extends State<FinalPage> {
             ),
           ),
 
-          // Добавлен прогресс-бар для мобильной версии
+          // бар для мобилки
           if (!isDesktop) _buildMobileProgressBar(),
 
           Expanded(
@@ -387,8 +359,8 @@ class _FinalPageState extends State<FinalPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -400,8 +372,8 @@ class _FinalPageState extends State<FinalPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -413,8 +385,8 @@ class _FinalPageState extends State<FinalPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -457,7 +429,6 @@ class _FinalPageState extends State<FinalPage> {
             ),
           ),
 
-          // Добавляем кнопку внизу экрана для мобильной версии
           if (!isDesktop)
             SafeArea(
               top: false,
@@ -467,7 +438,7 @@ class _FinalPageState extends State<FinalPage> {
                   right: 24.0,
                   bottom: 16.0,
                 ),
-                child: _buildMobileDownloadButton(), // Используем новую кнопку
+                child: _buildMobileDownloadButton(),
               ),
             ),
         ],
@@ -475,10 +446,7 @@ class _FinalPageState extends State<FinalPage> {
     );
   }
 
-  // ================================
-  // Desktop layout
-  // ================================
-
+  // Desktop
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -532,7 +500,7 @@ class _FinalPageState extends State<FinalPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column - форма авторизации
+                    // Left column
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -557,7 +525,6 @@ class _FinalPageState extends State<FinalPage> {
                               ),
                             ),
                             const SizedBox(height: 32),
-                            // Кнопка всегда активна и открывает магазин
                             AppTextButton.large(
                               text: 'Установить POLKA',
                               enabled: true,
@@ -569,7 +536,7 @@ class _FinalPageState extends State<FinalPage> {
                     ),
                     const SizedBox(width: kContainerImageGap),
 
-                    // Right column: master card
+                    // карточка мастера
                     _buildMasterCard(context, true),
                   ],
                 ),
@@ -577,7 +544,7 @@ class _FinalPageState extends State<FinalPage> {
             ),
           ),
 
-          // Illustration
+          // картинка
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
@@ -696,7 +663,6 @@ class _FinalPageState extends State<FinalPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Верхняя часть с аватаром и статистикой
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -708,7 +674,6 @@ class _FinalPageState extends State<FinalPage> {
 
             const SizedBox(height: 24),
 
-            // Информация об услуге
             _buildServiceInfo(context, isDesktop),
           ],
         ),
@@ -793,21 +758,17 @@ class _FinalPageState extends State<FinalPage> {
   }
 
   Widget _buildServiceInfo(BuildContext context, bool isDesktop) {
-    // Используем реальные данные из service
     final serviceName = widget.service?.title ?? 'Услуга не указана';
     final serviceDuration =
         widget.service?.duration.toDurationStringShort() ?? '';
     final servicePrice = widget.service?.price ?? 0;
 
-    // Определяем левый отступ для выравнивания duration/price под названием услуги
-    const double serviceTextLeftPadding =
-        60.0; // можно подкорректировать по дизайну
+    const double serviceTextLeftPadding = 60.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Услуга: слева "Услуга", справа название услуги
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -834,12 +795,15 @@ class _FinalPageState extends State<FinalPage> {
         ),
         const SizedBox(height: 7),
 
-        // Длительность и цена, выравненные под названием услуги
         Padding(
           padding: const EdgeInsets.only(left: serviceTextLeftPadding),
           child: Row(
             children: [
-              Icon(Icons.access_time, size: 16, color: AppColors.textSecondary),
+              AppIcons.clock.icon(
+                context,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
               const SizedBox(width: 6),
               Text(
                 serviceDuration,
@@ -872,7 +836,6 @@ class _FinalPageState extends State<FinalPage> {
         ),
         const SizedBox(height: 12),
 
-        // Дата: слева "Дата", справа дата и время
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -885,7 +848,7 @@ class _FinalPageState extends State<FinalPage> {
                       .copyWith(color: AppColors.textSecondary),
             ),
             Text(
-              _formatDateTime(), // Используем форматированную дату и время
+              _formatDateTime(),
               style: isDesktop
                   ? AppTextStyles.bodyLarge
                   : AppTextStyles.bodyMedium,
@@ -924,10 +887,7 @@ class _FinalPageState extends State<FinalPage> {
     );
   }
 
-  // ================================
-  // Mobile layout
-  // ================================
-
+  // Mobile
   Widget _buildMobileLayout(BuildContext context) {
     return SingleChildScrollView(
       child: SafeArea(
@@ -945,7 +905,6 @@ class _FinalPageState extends State<FinalPage> {
             ),
             const SizedBox(height: 32),
 
-            // Карточка мастера по центру
             Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 400),
@@ -953,7 +912,6 @@ class _FinalPageState extends State<FinalPage> {
               ),
             ),
 
-            // Добавляем отступ снизу для компенсации фиксированной кнопки
             const SizedBox(height: 80),
           ],
         ),

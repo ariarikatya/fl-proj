@@ -8,9 +8,9 @@ abstract class MasterRepository {
 class MockMasterRepository implements MasterRepository {
   @override
   Future<Result<MasterInfo>> getMasterInfo(int masterId) async {
-    // Имитируем задержку сети
+    // задержка сети
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // Возвращаем тестовые данные
     final master = Master(
       id: masterId,

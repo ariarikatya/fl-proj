@@ -214,7 +214,6 @@ class _SlotsPageState extends State<SlotsPage> {
     } catch (e) {}
   }
 
-  // Добавьте метод для навигации назад
   void _goBack() {
     Navigator.pop(context);
   }
@@ -285,7 +284,7 @@ class _SlotsPageState extends State<SlotsPage> {
     );
   }
 
-  // Добавляем метод для прогресс-бара в мобильной версии
+  // бар в мобилки
   Widget _buildMobileProgressBar() {
     return Container(
       height: 48,
@@ -293,9 +292,8 @@ class _SlotsPageState extends State<SlotsPage> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         children: [
-          // Стрелка назад с обработчиком нажатия
           GestureDetector(
-            onTap: _goBack, // Добавлен обработчик нажатия
+            onTap: _goBack,
             child: AppIcons.chevronBack.icon(
               context,
               size: 24,
@@ -303,7 +301,6 @@ class _SlotsPageState extends State<SlotsPage> {
             ),
           ),
           const SizedBox(width: 27),
-          // Первый шаг (пройден)
           Container(
             width: 40,
             height: 8,
@@ -380,7 +377,7 @@ class _SlotsPageState extends State<SlotsPage> {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
-          // Верхний бар с логотипом
+          // бар с лого
           Container(
             height: 88,
             color: AppColors.backgroundDefault,
@@ -410,7 +407,7 @@ class _SlotsPageState extends State<SlotsPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: const Icon(Icons.menu, size: 24),
+                            icon: AppIcons.filter.icon(context, size: 24),
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -446,7 +443,7 @@ class _SlotsPageState extends State<SlotsPage> {
             ),
           ),
 
-          // Прогресс-бар для мобильной версии
+          // бар для мобилки
           if (!isDesktop) _buildMobileProgressBar(),
 
           Expanded(
@@ -489,8 +486,8 @@ class _SlotsPageState extends State<SlotsPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -502,8 +499,8 @@ class _SlotsPageState extends State<SlotsPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -513,8 +510,8 @@ class _SlotsPageState extends State<SlotsPage> {
                                         style: AppTextStyles.bodyLarge,
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -922,9 +919,7 @@ class _SlotsPageState extends State<SlotsPage> {
     );
   }
 
-  // ================================
-  // Mobile layout
-  // ================================
+  // Mobile
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       children: [
@@ -943,13 +938,11 @@ class _SlotsPageState extends State<SlotsPage> {
                 ),
                 const SizedBox(height: 16),
                 _buildSlotsPicker(),
-                // Отступ для кнопки
                 const SizedBox(height: 80),
               ],
             ),
           ),
         ),
-        // Фиксированная кнопка внизу экрана
         Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
           child: SizedBox(

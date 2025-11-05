@@ -14,14 +14,14 @@ const double kContainerImageGap = 40;
 class EndBookingPage extends StatefulWidget {
   final MasterInfo masterInfo;
   final AvailableSlot selectedSlot;
-  final Service service; // Теперь обязательный параметр
+  final Service service;
   final String? phoneNumber;
 
   const EndBookingPage({
     super.key,
     required this.masterInfo,
     required this.selectedSlot,
-    required this.service, // Обязательный
+    required this.service,
     this.phoneNumber,
   });
 
@@ -48,12 +48,11 @@ class _EndBookingPageState extends State<EndBookingPage> {
     super.dispose();
   }
 
-  // Добавьте метод для навигации назад
   void _goBack() {
     Navigator.pop(context);
   }
 
-  // Добавьте метод для прогресс-бара в мобильной версии
+  // бар в мобилке
   Widget _buildMobileProgressBar() {
     return Container(
       height: 48,
@@ -61,7 +60,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         children: [
-          // Стрелка назад с обработчиком нажатия
           GestureDetector(
             onTap: _goBack,
             child: AppIcons.chevronBack.icon(
@@ -71,7 +69,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
             ),
           ),
           const SizedBox(width: 27),
-          // Прогресс-бар (два пройденных шага)
           Container(
             width: 40,
             height: 8,
@@ -99,9 +96,12 @@ class _EndBookingPageState extends State<EndBookingPage> {
 
   String getYearsText(String experience) {
     final years = int.tryParse(experience.split(' ').first) ?? 0;
-    if (years % 10 == 1 && years % 100 != 11) return '$years год';
-    if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100))
+    if (years % 10 == 1 && years % 100 != 11) {
+      return '$years год';
+    }
+    if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
       return '$years года';
+    }
     return '$years лет';
   }
 
@@ -120,8 +120,12 @@ class _EndBookingPageState extends State<EndBookingPage> {
     final uri = Uri.parse(url);
 
     try {
-      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {}
-    } catch (e) {}
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // ignore: empty_catches
+      }
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   void _submitBooking() {
@@ -135,7 +139,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
         MaterialPageRoute(
           builder: (context) => FinalPage(
             masterId: masterInfo.master.id.toString(),
-            service: service, // Передаём полный объект Service
+            service: service,
             selectedDate: selectedSlot.date,
             selectedTime: selectedTime,
             name: name,
@@ -205,7 +209,11 @@ class _EndBookingPageState extends State<EndBookingPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: const Icon(Icons.menu, size: 24),
+                            icon: AppIcons.filter.icon(
+                              context,
+                              size: 24,
+                              color: AppColors.textPrimary,
+                            ),
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -215,8 +223,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                           )
                         else
                           GestureDetector(
-                            onTap:
-                                openStore, // Исправлено: убраны лишние скобки
+                            onTap: openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -242,7 +249,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
             ),
           ),
 
-          // Добавлен прогресс-бар для мобильной версии
+          // бар для мобилки
           if (!isDesktop) _buildMobileProgressBar(),
 
           Expanded(
@@ -285,8 +292,8 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      const Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -298,8 +305,8 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      const Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -311,8 +318,8 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      const Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -356,7 +363,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
             ),
           ),
 
-          // Кнопка для мобильной версии внизу экрана
           if (!isDesktop)
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -643,7 +649,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
     );
   }
 
-  // Изменено: убрана кнопка из мобильного контента
   Widget _buildMobileContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,10 +672,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
           labelText: 'Комментарий, например, аллергия на коллаген',
           maxLines: 4,
         ),
-        // Кнопка убрана отсюда и перенесена вниз экрана
       ],
     );
   }
-
-  // Удален метод _buildMobileLayout, так как он больше не нужен
 }

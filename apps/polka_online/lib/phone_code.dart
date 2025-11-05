@@ -629,23 +629,21 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         spacing: 4,
         runSpacing: 4,
         children: [
-          // Иконка и слово "Нужна" всегда вместе
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               AppIcons.support.icon(context, size: 16),
               const SizedBox(width: 4),
               Text(
-                'Нужна',
+                'Нужна помощь? ',
                 style: AppTextStyles.bodyLarge.copyWith(
                   decoration: TextDecoration.underline,
                 ),
               ),
             ],
           ),
-          // Остальная часть текста
           Text(
-            'помощь? (Чат поддержки)',
+            '(Чат поддержки)',
             style: AppTextStyles.bodyLarge.copyWith(
               decoration: TextDecoration.underline,
             ),

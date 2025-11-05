@@ -7,11 +7,9 @@ import 'menu.dart';
 import 'dependencies.dart';
 import 'package:flutter/foundation.dart';
 
-// Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
-const double kContainerImageGap =
-    40; // max gap between main container and image
+const double kContainerImageGap = 40;
 
 class TurnedOffPage extends StatefulWidget {
   final String? masterId;
@@ -97,7 +95,6 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      // Для Android и любых других платформ используем Google Play
       url =
           'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
@@ -106,7 +103,6 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // В продакшене лучше использовать логгер вместо print
         // Logger().warning('Не удалось открыть магазин: $url');
       }
     } catch (e) {
@@ -165,7 +161,6 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
     final isDesktop = width >= 750;
     final showImage = isDesktop && width >= 1120;
 
-    // Рассчитываем ширину картинки
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
       final fullContent =
@@ -215,7 +210,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: const Icon(Icons.menu, size: 24),
+                            icon: AppIcons.filter.icon(context, size: 24),
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -292,8 +287,8 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
                                         style: AppTextStyles.bodyLarge,
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -305,8 +300,8 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -318,8 +313,8 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -369,10 +364,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
     );
   }
 
-  // ================================
-  // Desktop layout
-  // ================================
-
+  // Desktop
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -464,7 +456,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
                     ),
                     const SizedBox(width: kContainerImageGap),
 
-                    // Right column: master card
+                    // карточка мастера
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -475,7 +467,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
             ),
           ),
 
-          // Illustration
+          // картинка
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
@@ -727,10 +719,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
     );
   }
 
-  // ================================
-  // Mobile layout
-  // ================================
-
+  // Mobile
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

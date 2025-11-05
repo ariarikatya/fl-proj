@@ -7,15 +7,13 @@ import 'menu.dart';
 import 'dependencies.dart';
 import 'package:flutter/foundation.dart';
 
-// Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
-const double kContainerImageGap =
-    40; // max gap between main container and image
+const double kContainerImageGap = 40;
 
 class WelcomePage extends StatefulWidget {
   final String? masterId;
-  final String? phoneNumber; // Добавили phoneNumber
+  final String? phoneNumber;
 
   const WelcomePage({super.key, this.masterId, this.phoneNumber});
 
@@ -98,7 +96,6 @@ class _WelcomePageState extends State<WelcomePage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      // Для Android и любых других платформ используем Google Play
       url =
           'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
@@ -107,7 +104,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // В продакшене лучше использовать логгер вместо print
         // Logger().warning('Не удалось открыть магазин: $url');
       }
     } catch (e) {
@@ -169,7 +165,6 @@ class _WelcomePageState extends State<WelcomePage> {
     final isDesktop = width >= 750;
     final showImage = isDesktop && width >= 1120;
 
-    // Рассчитываем ширину картинки
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
       final fullContent =
@@ -219,7 +214,10 @@ class _WelcomePageState extends State<WelcomePage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: const Icon(Icons.menu, size: 24),
+                            icon: AppIcons.filter.icon(
+                              context,
+                              size: 24,
+                            ), // ЗАМЕНА: Icons.menu → AppIcons.filter
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -296,11 +294,11 @@ class _WelcomePageState extends State<WelcomePage> {
                                         style: AppTextStyles.bodyLarge,
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ),
+                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
                                       const SizedBox(width: 4),
                                       Text(
                                         'Выбор услуги',
@@ -309,11 +307,11 @@ class _WelcomePageState extends State<WelcomePage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ),
+                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
                                       const SizedBox(width: 4),
                                       Text(
                                         'Выбор времени',
@@ -322,11 +320,11 @@ class _WelcomePageState extends State<WelcomePage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ),
+                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
                                       const SizedBox(width: 4),
                                       Text(
                                         'Персональные данные',
@@ -369,7 +367,6 @@ class _WelcomePageState extends State<WelcomePage> {
             ),
           ),
 
-          // Кнопка для мобильной версии внизу экрана (как в EndBookingPage)
           if (!isDesktop)
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -383,10 +380,7 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
-  // ================================
-  // Desktop layout
-  // ================================
-
+  // Desktop
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -475,7 +469,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     ),
                     const SizedBox(width: kContainerImageGap),
 
-                    // Right column: master card
+                    // карта мастера
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -486,7 +480,7 @@ class _WelcomePageState extends State<WelcomePage> {
             ),
           ),
 
-          // Illustration
+          // картинка
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
@@ -738,10 +732,7 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
-  // ================================
-  // Mobile layout
-  // ================================
-
+  // Mobile
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -755,7 +746,6 @@ class _WelcomePageState extends State<WelcomePage> {
           ),
         ),
         const SizedBox(height: 32),
-        // Оборачиваем карточку мастера в Center для центрирования
         Center(child: _buildMobileMasterCard(context)),
       ],
     );
@@ -862,7 +852,6 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
               ],
             ),
-            // Кнопка удалена из карточки для мобильной версии
           ],
         ),
       ),

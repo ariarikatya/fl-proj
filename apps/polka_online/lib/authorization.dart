@@ -7,7 +7,6 @@ import 'dependencies.dart';
 import 'phone_code.dart';
 import 'package:flutter/foundation.dart';
 
-// Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
@@ -102,7 +101,6 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      // Для Android и любых других платформ используем Google Play
       url =
           'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
@@ -111,7 +109,6 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // В продакшене лучше использовать логгер вместо print
         // Logger().warning('Не удалось открыть магазин: $url');
       }
     } catch (e) {
@@ -126,7 +123,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
         MaterialPageRoute(
           builder: (context) => PhoneCodePage(
             phoneNumber: '7${_phoneNotifier.value}',
-            masterId: _masterId, // Добавили передачу masterId
+            masterId: _masterId,
           ),
         ),
       );
@@ -227,7 +224,10 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: const Icon(Icons.menu, size: 24),
+                            icon: AppIcons.filter.icon(
+                              context,
+                              size: 24,
+                            ), // ЗАМЕНА: Icons.menu → AppIcons.filter
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -302,11 +302,11 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                                         style: AppTextStyles.bodyLarge,
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ),
+                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
                                       const SizedBox(width: 4),
                                       Text(
                                         'Выбор услуги',
@@ -315,11 +315,11 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ),
+                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
                                       const SizedBox(width: 4),
                                       Text(
                                         'Выбор времени',
@@ -328,11 +328,11 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ),
+                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
                                       const SizedBox(width: 4),
                                       Text(
                                         'Персональные данные',
@@ -379,7 +379,6 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     );
   }
 
-  // Desktop layout остается без изменений...
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -433,7 +432,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column - форма авторизации
+                    // Left column
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -458,10 +457,8 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                               ),
                             ),
                             const SizedBox(height: 32),
-                            // Поле телефона
                             AppPhoneTextField(notifier: _phoneNotifier),
                             const SizedBox(height: 16),
-                            // Кнопка получить код - теперь на всю ширину поля
                             ValueListenableBuilder(
                               valueListenable: _phoneNotifier,
                               builder: (context, value, child) {
@@ -478,7 +475,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                     ),
                     const SizedBox(width: kContainerImageGap),
 
-                    // Right column: master card
+                    // карта мастера
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -489,7 +486,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
             ),
           ),
 
-          // Illustration
+          // картинка
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
@@ -730,7 +727,6 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     );
   }
 
-  // Mobile layout
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -744,10 +740,8 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
           ),
         ),
         const SizedBox(height: 32),
-        // Поле телефона
         AppPhoneTextField(notifier: _phoneNotifier),
         const SizedBox(height: 16),
-        // Кнопка получить код
         SizedBox(
           width: double.infinity,
           child: ValueListenableBuilder(
