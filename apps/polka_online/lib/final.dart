@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
 import 'dependencies.dart';
-import 'phone_code.dart';
 import 'package:flutter/foundation.dart';
 
 // Максимальная ширина для welcome-иллюстрации во всех вьюх
@@ -47,6 +47,43 @@ class _FinalPageState extends State<FinalPage> {
     super.initState();
     _masterId = widget.masterId;
     _loadMasterInfo();
+  }
+
+  // Добавьте метод для навигации назад
+  void _goBack() {
+    Navigator.pop(context);
+  }
+
+  // Добавьте метод для прогресс-бара в мобильной версии
+  Widget _buildMobileProgressBar() {
+    return Container(
+      height: 48,
+      color: AppColors.backgroundDefault,
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Row(
+        children: [
+          // Стрелка назад с обработчиком нажатия
+          GestureDetector(
+            onTap: _goBack,
+            child: AppIcons.chevronBack.icon(
+              context,
+              size: 24,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(width: 27),
+          // Прогресс-бар (три пройденных шага)
+          Container(
+            width: 40,
+            height: 8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(1000),
+              color: AppColors.accentLight,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _loadMasterInfo() async {
@@ -107,6 +144,21 @@ class _FinalPageState extends State<FinalPage> {
     return '${name.substring(0, 30)}...';
   }
 
+  // Добавляем метод для форматирования даты и времени
+  String _formatDateTime() {
+    final dateFormat = DateFormat('d MMMM, HH:mm', 'ru');
+    final dateTime = DateTime(
+      widget.selectedDate.year,
+      widget.selectedDate.month,
+      widget.selectedDate.day,
+      int.parse(widget.selectedTime.split(':')[0]),
+      int.parse(widget.selectedTime.split(':')[1]),
+    );
+    final formatted = dateFormat.format(dateTime);
+    // Делаем первую букву заглавной
+    return formatted[0].toUpperCase() + formatted.substring(1);
+  }
+
   Future<void> openStore() async {
     String url;
 
@@ -130,6 +182,36 @@ class _FinalPageState extends State<FinalPage> {
     } catch (e) {
       // Logger().error('Ошибка при открытии магазина: $e');
     }
+  }
+
+  // Метод для создания кнопки скачивания
+  Widget _buildDownloadButton() {
+    return GestureDetector(
+      onTap: openStore,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: Colors.black,
+        ),
+        child: Text(
+          'Скачать POLKA',
+          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  // Новый метод для создания растянутой кнопки на мобильной версии
+  Widget _buildMobileDownloadButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: AppTextButton.large(
+        text: 'Скачать POLKA',
+        enabled: true,
+        onTap: openStore,
+      ),
+    );
   }
 
   @override
@@ -262,6 +344,9 @@ class _FinalPageState extends State<FinalPage> {
             ),
           ),
 
+          // Добавлен прогресс-бар для мобильной версии
+          if (!isDesktop) _buildMobileProgressBar(),
+
           Expanded(
             child: Container(
               color: isDesktop
@@ -354,23 +439,37 @@ class _FinalPageState extends State<FinalPage> {
                       top: isDesktop ? 88.0 : 16.0,
                       bottom: 24.0,
                     ),
-                    child: SingleChildScrollView(
-                      child: SafeArea(
-                        top: false,
-                        child: isDesktop
-                            ? _buildDesktopLayout(
+                    child: isDesktop
+                        ? SingleChildScrollView(
+                            child: SafeArea(
+                              top: false,
+                              child: _buildDesktopLayout(
                                 context,
                                 showImage,
                                 imageWidth,
-                              )
-                            : _buildMobileLayout(context),
-                      ),
-                    ),
+                              ),
+                            ),
+                          )
+                        : _buildMobileLayout(context),
                   ),
                 ],
               ),
             ),
           ),
+
+          // Добавляем кнопку внизу экрана для мобильной версии
+          if (!isDesktop)
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 24.0,
+                  right: 24.0,
+                  bottom: 16.0,
+                ),
+                child: _buildMobileDownloadButton(), // Используем новую кнопку
+              ),
+            ),
         ],
       ),
     );
@@ -694,7 +793,11 @@ class _FinalPageState extends State<FinalPage> {
   }
 
   Widget _buildServiceInfo(BuildContext context, bool isDesktop) {
-    final serviceName = 'Стрижка + Окрашивание';
+    // Используем реальные данные из service
+    final serviceName = widget.service?.title ?? 'Услуга не указана';
+    final serviceDuration =
+        widget.service?.duration.toDurationStringShort() ?? '';
+    final servicePrice = widget.service?.price ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -725,18 +828,16 @@ class _FinalPageState extends State<FinalPage> {
             ),
           ],
         ),
-        const SizedBox(height: 7), // Уменьшенный отступ сверху
-        // Длительность и цена с разделителем-палочкой - под названием услуги, выровнены по левому краю
+        const SizedBox(height: 7),
+        // Длительность и цена с разделителем
         Padding(
-          padding: const EdgeInsets.only(
-            left: 0,
-          ), // Начинаются там же, где начинается название услуги
+          padding: const EdgeInsets.only(left: 0),
           child: Row(
             children: [
               Icon(Icons.access_time, size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 6),
               Text(
-                '2 ч',
+                serviceDuration,
                 style: isDesktop
                     ? AppTextStyles.bodyMedium500
                     : AppTextStyles.bodySmall.copyWith(
@@ -754,7 +855,7 @@ class _FinalPageState extends State<FinalPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                '₽ 4500',
+                '₽ $servicePrice',
                 style: isDesktop
                     ? AppTextStyles.bodyMedium500
                     : AppTextStyles.bodySmall.copyWith(
@@ -779,7 +880,7 @@ class _FinalPageState extends State<FinalPage> {
                       .copyWith(color: AppColors.textSecondary),
             ),
             Text(
-              '22 октября, 10:00',
+              _formatDateTime(), // Используем форматированную дату и время
               style: isDesktop
                   ? AppTextStyles.bodyLarge
                   : AppTextStyles.bodyMedium,
@@ -823,53 +924,35 @@ class _FinalPageState extends State<FinalPage> {
   // ================================
 
   Widget _buildMobileLayout(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Отлично! Вы записаны', style: AppTextStyles.headingLarge),
-        const SizedBox(height: 16),
-        Text(
-          'А еще проще записаться через наше приложение, установите POLKA',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
-          ),
-        ),
-        const SizedBox(height: 32),
-
-        // Карточка мастера по центру
-        Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: _buildMasterCard(context, false),
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // Кнопка Скачать POLKA внизу с отступом снизу 16
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: GestureDetector(
-              onTap: openStore,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 20,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  color: Colors.black,
-                ),
-                child: Text(
-                  'Скачать POLKA',
-                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
-                ),
+    return SingleChildScrollView(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Отлично! Вы записаны', style: AppTextStyles.headingLarge),
+            const SizedBox(height: 16),
+            Text(
+              'А еще проще записаться через наше приложение, установите POLKA',
+              style: AppTextStyles.bodyMedium500.copyWith(
+                color: AppColors.iconsDefault,
               ),
             ),
-          ),
+            const SizedBox(height: 32),
+
+            // Карточка мастера по центру
+            Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: _buildMasterCard(context, false),
+              ),
+            ),
+
+            // Добавляем отступ снизу для компенсации фиксированной кнопки
+            const SizedBox(height: 80),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

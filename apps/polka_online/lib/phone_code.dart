@@ -15,7 +15,7 @@ const double kContainerImageGap = 40;
 
 class PhoneCodePage extends StatefulWidget {
   final String phoneNumber;
-  final String masterId; // Добавили masterId
+  final String masterId;
 
   const PhoneCodePage({
     super.key,
@@ -36,7 +36,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   MasterInfo? _masterInfo;
   bool _isLoading = true;
 
-  // Таймер для повторной отправки кода
   Timer? _resendTimer;
   int _resendCountdown = 0;
 
@@ -44,7 +43,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   void initState() {
     super.initState();
     _loadMasterInfo();
-    _startResendTimer(); // Запускаем таймер при открытии страницы
+    _startResendTimer();
   }
 
   @override
@@ -144,7 +143,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      // Для Android и любых других платформ используем Google Play
       url =
           'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
@@ -153,20 +151,16 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // В продакшене лучше использовать логгер вместо print
-        // Logger().warning('Не удалось открыть магазин: $url');
+        // Логирование ошибки
       }
     } catch (e) {
-      // Logger().error('Ошибка при открытии магазина: $e');
+      // Логирование ошибки
     }
   }
-
-  // В методе _verifyCode изменяем навигацию на welcome.dart
 
   Future<void> _verifyCode(String code) async {
     if (code.length != 4) return;
 
-    // Специальный код для входа без проверки
     if (code == '0942') {
       if (mounted) {
         Navigator.pushReplacement(
@@ -201,7 +195,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         if (mounted) {
           setState(() => _isVerifying = false);
 
-          // Переход на WelcomePage с masterId и phoneNumber
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -245,7 +238,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
         _pinController.clear();
         _focusNode.requestFocus();
-        _startResendTimer(); // Перезапускаем таймер
+        _startResendTimer();
 
         if (mounted) {
           setState(() => _isResending = false);
@@ -312,7 +305,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
-          // Верхняя панель
           Container(
             height: 88,
             color: AppColors.backgroundDefault,
@@ -352,7 +344,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => openStore,
+                            onTap: openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -385,7 +377,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                   : AppColors.backgroundDefault,
               child: Stack(
                 children: [
-                  // Хлебные крошки
                   if (isDesktop)
                     Positioned(
                       top: 28,
@@ -532,7 +523,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
             errorPinTheme: errorPinTheme,
             onChanged: (value) => setState(() {}),
             onCompleted: (value) {
-              // В мобильной версии автоматически отправляем код при заполнении
               if (MediaQuery.of(context).size.width < 750) {
                 _verifyCode(value);
               }
@@ -566,20 +556,28 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     }
 
     if (_resendCountdown > 0) {
-      return Text(
-        'Отправить повторно через $_formattedCountdown',
-        style: AppTextStyles.bodyLarge.copyWith(
-          decoration: TextDecoration.underline,
+      return SizedBox(
+        width: double.infinity,
+        child: Text(
+          'Отправить повторно через $_formattedCountdown',
+          style: AppTextStyles.bodyLarge.copyWith(
+            decoration: TextDecoration.underline,
+          ),
+          textAlign: TextAlign.center,
         ),
       );
     }
 
-    return GestureDetector(
-      onTap: _resendCode,
-      child: Text(
-        'Не пришел код?',
-        style: AppTextStyles.bodyLarge.copyWith(
-          decoration: TextDecoration.underline,
+    return SizedBox(
+      width: double.infinity,
+      child: GestureDetector(
+        onTap: _resendCode,
+        child: Text(
+          'Не пришел код?',
+          style: AppTextStyles.bodyLarge.copyWith(
+            decoration: TextDecoration.underline,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -595,23 +593,64 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     }
 
     if (_resendCountdown > 0) {
-      return Text(
-        'Отправить повторно через $_formattedCountdown',
-        style: AppTextStyles.bodyLarge.copyWith(
-          decoration: TextDecoration.underline,
+      return SizedBox(
+        width: double.infinity,
+        child: Text(
+          'Отправить повторно через $_formattedCountdown',
+          style: AppTextStyles.bodyLarge.copyWith(
+            decoration: TextDecoration.underline,
+          ),
+          textAlign: TextAlign.center,
         ),
-        textAlign: TextAlign.center,
       );
     }
 
-    return GestureDetector(
-      onTap: _resendCode,
-      child: Text(
-        'Отправить код',
-        style: AppTextStyles.bodyLarge.copyWith(
-          decoration: TextDecoration.underline,
+    return SizedBox(
+      width: double.infinity,
+      child: GestureDetector(
+        onTap: _resendCode,
+        child: Text(
+          'Отправить код',
+          style: AppTextStyles.bodyLarge.copyWith(
+            decoration: TextDecoration.underline,
+          ),
+          textAlign: TextAlign.center,
         ),
-        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildSupportButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 4,
+        runSpacing: 4,
+        children: [
+          // Иконка и слово "Нужна" всегда вместе
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppIcons.support.icon(context, size: 16),
+              const SizedBox(width: 4),
+              Text(
+                'Нужна',
+                style: AppTextStyles.bodyLarge.copyWith(
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ],
+          ),
+          // Остальная часть текста
+          Text(
+            'помощь? (Чат поддержки)',
+            style: AppTextStyles.bodyLarge.copyWith(
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -695,7 +734,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                             const SizedBox(height: 32),
                             _buildPinInput(),
                             const SizedBox(height: 16),
-                            // Показываем кнопку только если код заполнен и нет верификации
                             if (_pinController.text.length == 4 &&
                                 !_isVerifying)
                               SizedBox(
@@ -706,23 +744,9 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                                 ),
                               ),
                             const SizedBox(height: 24),
-                            Center(child: _buildResendButton()),
+                            _buildResendButton(),
                             const SizedBox(height: 16),
-                            Center(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  AppIcons.support.icon(context, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Нужна помощь? (Чат поддержки)',
-                                    style: AppTextStyles.bodyLarge.copyWith(
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            _buildSupportButton(context),
                           ],
                         ),
                       ),
@@ -782,7 +806,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => openStore,
+                        onTap: openStore,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -992,23 +1016,9 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         const SizedBox(height: 32),
         _buildPinInput(),
         const SizedBox(height: 24),
-        Center(child: _buildResendButtonMobile()),
+        _buildResendButtonMobile(),
         const SizedBox(height: 16),
-        Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppIcons.support.icon(context, size: 16),
-              const SizedBox(width: 4),
-              Text(
-                'Нужна помощь? (Чат поддержки)',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ],
-          ),
-        ),
+        _buildSupportButton(context),
       ],
     );
   }

@@ -8,14 +8,10 @@ import 'menu.dart';
 import 'dependencies.dart';
 import 'package:flutter/foundation.dart';
 
-// Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
 
-// ================================
-// Локальное расширение с intl (однозначное для этого файла)
-// ================================
 extension DateTimeIntl on DateTime {
   static final _formatter = DateFormat('d MMMM, HH:mm', 'ru');
   static final _formatterDateOnly = DateFormat('EEEE, d MMMM', 'ru');
@@ -23,27 +19,26 @@ extension DateTimeIntl on DateTime {
 
   String formatFull() => _formatter.format(this);
 
-  /// Возвращает, например: "Понедельник, 4 ноября"
   String formatDateOnly() {
     final s = _formatterDateOnly.format(this);
-    // capitalized: сделаем первую букву заглавной
     if (s.isEmpty) return s;
     return s[0].toUpperCase() + s.substring(1);
   }
 
-  /// Время "HH:mm"
   String toTimeString() => _formatterTimeOnly.format(this);
 }
 
-// ================================
-// SlotsPage
-// ================================
 class SlotsPage extends StatefulWidget {
   final String? masterId;
-  final Service? service;
+  final Service service;
   final String? phoneNumber;
 
-  const SlotsPage({super.key, this.masterId, this.service, this.phoneNumber});
+  const SlotsPage({
+    super.key,
+    this.masterId,
+    required this.service,
+    this.phoneNumber,
+  });
 
   @override
   State<SlotsPage> createState() => _SlotsPageState();
@@ -51,30 +46,27 @@ class SlotsPage extends StatefulWidget {
 
 class _SlotsPageState extends State<SlotsPage> {
   MasterInfo? _masterInfo;
-  Service? _service;
   bool _isLoading = true;
   String? _error;
   late String _masterId;
   final _phoneNotifier = ValueNotifier<String>('');
 
-  // слоты/выбранный слот
   AvailableSlot? _selectedSlot;
   Map<DateTime, List<AvailableSlot>> _groupedSlots = {};
+
+  Service get service => widget.service;
 
   @override
   void initState() {
     super.initState();
-    _service = widget.service;
     _masterId = widget.masterId ?? '1';
 
-    // --- моковые слоты: сегодня, завтра, послезавтра ---
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
     final dayAfter = today.add(const Duration(days: 2));
 
     final List<AvailableSlot> mockSlots = [
-      // Сегодня
       AvailableSlot(
         id: 1,
         date: today,
@@ -90,8 +82,6 @@ class _SlotsPageState extends State<SlotsPage> {
         date: today,
         startTime: const Duration(hours: 14, minutes: 30),
       ),
-
-      // Завтра
       AvailableSlot(
         id: 4,
         date: tomorrow,
@@ -107,8 +97,6 @@ class _SlotsPageState extends State<SlotsPage> {
         date: tomorrow,
         startTime: const Duration(hours: 15, minutes: 0),
       ),
-
-      // Послезавтра
       AvailableSlot(
         id: 7,
         date: dayAfter,
@@ -127,8 +115,6 @@ class _SlotsPageState extends State<SlotsPage> {
     ];
 
     _groupSlots(mockSlots);
-
-    // Загружаем данные мастера (как раньше)
     _loadMasterInfo();
   }
 
@@ -181,9 +167,6 @@ class _SlotsPageState extends State<SlotsPage> {
     }
   }
 
-  // ================================
-  // Геттеры для мастера
-  // ================================
   String get masterFirstName => _masterInfo?.master.firstName ?? '';
   String get masterFullName => _masterInfo?.master.fullName ?? '';
   String get masterSpecialization => _masterInfo?.master.profession ?? '';
@@ -220,7 +203,6 @@ class _SlotsPageState extends State<SlotsPage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      // Для Android и любых других платформ используем Google Play
       url =
           'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
@@ -228,18 +210,15 @@ class _SlotsPageState extends State<SlotsPage> {
     final uri = Uri.parse(url);
 
     try {
-      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // В продакшене лучше использовать логгер вместо print
-        // Logger().warning('Не удалось открыть магазин: $url');
-      }
-    } catch (e) {
-      // Logger().error('Ошибка при открытии магазина: $e');
-    }
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {}
+    } catch (e) {}
   }
 
-  // ================================
-  // Виджет выбора слотов
-  // ================================
+  // Добавьте метод для навигации назад
+  void _goBack() {
+    Navigator.pop(context);
+  }
+
   Widget _buildSlotsPicker() {
     if (_groupedSlots.isEmpty) {
       return const SizedBox.shrink();
@@ -267,7 +246,6 @@ class _SlotsPageState extends State<SlotsPage> {
                   runSpacing: 8,
                   children: entry.value.map((slot) {
                     final isSelected = _selectedSlot == slot;
-                    // Используем геттер datetime из AvailableSlot
                     final displayTime = slot.datetime;
 
                     return GestureDetector(
@@ -307,9 +285,38 @@ class _SlotsPageState extends State<SlotsPage> {
     );
   }
 
-  // ================================
-  // Build
-  // ================================
+  // Добавляем метод для прогресс-бара в мобильной версии
+  Widget _buildMobileProgressBar() {
+    return Container(
+      height: 48,
+      color: AppColors.backgroundDefault,
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Row(
+        children: [
+          // Стрелка назад с обработчиком нажатия
+          GestureDetector(
+            onTap: _goBack, // Добавлен обработчик нажатия
+            child: AppIcons.chevronBack.icon(
+              context,
+              size: 24,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(width: 27),
+          // Первый шаг (пройден)
+          Container(
+            width: 40,
+            height: 8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(1000),
+              color: AppColors.accentLight,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -351,10 +358,9 @@ class _SlotsPageState extends State<SlotsPage> {
     }
 
     final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 750;
+    final isDesktop = width >= 790;
     final showImage = isDesktop && width >= 1120;
 
-    // Рассчитываем ширину картинки
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
       final fullContent =
@@ -374,7 +380,7 @@ class _SlotsPageState extends State<SlotsPage> {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
-          // Верхняя панель
+          // Верхний бар с логотипом
           Container(
             height: 88,
             color: AppColors.backgroundDefault,
@@ -414,7 +420,7 @@ class _SlotsPageState extends State<SlotsPage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => openStore,
+                            onTap: openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -440,6 +446,9 @@ class _SlotsPageState extends State<SlotsPage> {
             ),
           ),
 
+          // Прогресс-бар для мобильной версии
+          if (!isDesktop) _buildMobileProgressBar(),
+
           Expanded(
             child: Container(
               color: isDesktop
@@ -447,7 +456,6 @@ class _SlotsPageState extends State<SlotsPage> {
                   : AppColors.backgroundDefault,
               child: Stack(
                 children: [
-                  // Хлебные крошки
                   if (isDesktop)
                     Positioned(
                       top: 28,
@@ -532,20 +540,20 @@ class _SlotsPageState extends State<SlotsPage> {
                       left: 24.0,
                       right: 24.0,
                       top: isDesktop ? 88.0 : 16.0,
-                      bottom: 24.0,
+                      bottom: isDesktop ? 24.0 : 0.0,
                     ),
-                    child: SingleChildScrollView(
-                      child: SafeArea(
-                        top: false,
-                        child: isDesktop
-                            ? _buildDesktopLayout(
+                    child: isDesktop
+                        ? SingleChildScrollView(
+                            child: SafeArea(
+                              top: false,
+                              child: _buildDesktopLayout(
                                 context,
                                 showImage,
                                 imageWidth,
-                              )
-                            : _buildMobileLayout(context),
-                      ),
-                    ),
+                              ),
+                            ),
+                          )
+                        : _buildMobileLayout(context),
                   ),
                 ],
               ),
@@ -556,9 +564,6 @@ class _SlotsPageState extends State<SlotsPage> {
     );
   }
 
-  // ================================
-  // Desktop layout
-  // ================================
   Widget _buildDesktopLayout(
     BuildContext context,
     bool showImage,
@@ -612,7 +617,6 @@ class _SlotsPageState extends State<SlotsPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left column - форма выбора
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -638,7 +642,6 @@ class _SlotsPageState extends State<SlotsPage> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Список слотов
                             Flexible(child: _buildSlotsPicker()),
 
                             const SizedBox(height: 16),
@@ -655,7 +658,7 @@ class _SlotsPageState extends State<SlotsPage> {
                                       builder: (context) => EndBookingPage(
                                         masterInfo: _masterInfo!,
                                         selectedSlot: _selectedSlot!,
-                                        service: _service,
+                                        service: service,
                                         phoneNumber: widget.phoneNumber,
                                       ),
                                     ),
@@ -669,7 +672,6 @@ class _SlotsPageState extends State<SlotsPage> {
                     ),
                     const SizedBox(width: kContainerImageGap),
 
-                    // Right column: master card
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -680,7 +682,6 @@ class _SlotsPageState extends State<SlotsPage> {
             ),
           ),
 
-          // Illustration
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
@@ -726,7 +727,7 @@ class _SlotsPageState extends State<SlotsPage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => openStore,
+                        onTap: openStore,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -926,40 +927,52 @@ class _SlotsPageState extends State<SlotsPage> {
   // ================================
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Выберите время', style: AppTextStyles.headingLarge),
-        const SizedBox(height: 16),
-        Text(
-          'Жмите на удобный для вас слот у мастера',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Выберите время', style: AppTextStyles.headingLarge),
+                const SizedBox(height: 16),
+                Text(
+                  'Жмите на удобный для вас слот у мастера',
+                  style: AppTextStyles.bodyMedium500.copyWith(
+                    color: AppColors.iconsDefault,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildSlotsPicker(),
+                // Отступ для кнопки
+                const SizedBox(height: 80),
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 16),
-        _buildSlotsPicker(),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: AppTextButton.large(
-            text: _selectedSlot != null
-                ? 'Выбрать ${DateTimeIntl(_selectedSlot!.datetime).formatFull()}'
-                : 'Выберите слот',
-            enabled: _selectedSlot != null,
-            onTap: () {
-              if (_selectedSlot != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EndBookingPage(
-                      masterInfo: _masterInfo!,
-                      selectedSlot: _selectedSlot!,
-                      service: _service,
+        // Фиксированная кнопка внизу экрана
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: AppTextButton.large(
+              text: _selectedSlot != null ? 'Далее' : 'Далее',
+              enabled: _selectedSlot != null,
+              onTap: () {
+                if (_selectedSlot != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EndBookingPage(
+                        masterInfo: _masterInfo!,
+                        selectedSlot: _selectedSlot!,
+                        service: service,
+                        phoneNumber: widget.phoneNumber,
+                      ),
                     ),
-                  ),
-                );
-              }
-            },
+                  );
+                }
+              },
+            ),
           ),
         ),
       ],

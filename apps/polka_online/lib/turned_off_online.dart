@@ -1,108 +1,92 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:polka_online/authorization.dart';
 import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:intl/intl.dart';
 import 'menu.dart';
-import 'final.dart';
+import 'dependencies.dart';
 import 'package:flutter/foundation.dart';
 
+// Максимальная ширина для welcome-иллюстрации во всех вьюх
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
-const double kContainerImageGap = 40;
+const double kContainerImageGap =
+    40; // max gap between main container and image
 
-class EndBookingPage extends StatefulWidget {
-  final MasterInfo masterInfo;
-  final AvailableSlot selectedSlot;
-  final Service service; // Теперь обязательный параметр
-  final String? phoneNumber;
+class TurnedOffPage extends StatefulWidget {
+  final String? masterId;
 
-  const EndBookingPage({
-    super.key,
-    required this.masterInfo,
-    required this.selectedSlot,
-    required this.service, // Обязательный
-    this.phoneNumber,
-  });
+  const TurnedOffPage({super.key, this.masterId});
 
   @override
-  State<EndBookingPage> createState() => _EndBookingPageState();
+  State<TurnedOffPage> createState() => _TurnedOffPageState();
 }
 
-class _EndBookingPageState extends State<EndBookingPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _commentController = TextEditingController();
+class _TurnedOffPageState extends State<TurnedOffPage> {
+  MasterInfo? _masterInfo;
+  bool _isLoading = true;
+  String? _error;
+  late String _masterId;
 
   @override
   void initState() {
     super.initState();
-    _nameController.addListener(() {
-      setState(() {});
+    _masterId = widget.masterId ?? '1';
+    _loadMasterInfo();
+  }
+
+  Future<void> _loadMasterInfo() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
     });
-  }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _commentController.dispose();
-    super.dispose();
-  }
+    // Используем настоящий репозиторий вместо мокового
+    final repository = Dependencies.instance.masterRepository;
+    final result = await repository.getMasterInfo(int.parse(_masterId));
 
-  // Добавьте метод для навигации назад
-  void _goBack() {
-    Navigator.pop(context);
-  }
-
-  // Добавьте метод для прогресс-бара в мобильной версии
-  Widget _buildMobileProgressBar() {
-    return Container(
-      height: 48,
-      color: AppColors.backgroundDefault,
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Row(
-        children: [
-          // Стрелка назад с обработчиком нажатия
-          GestureDetector(
-            onTap: _goBack,
-            child: AppIcons.chevronBack.icon(
-              context,
-              size: 24,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(width: 27),
-          // Прогресс-бар (два пройденных шага)
-          Container(
-            width: 40,
-            height: 8,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(1000),
-              color: AppColors.accentLight,
-            ),
-          ),
-        ],
-      ),
+    result.when(
+      ok: (data) {
+        setState(() {
+          _masterInfo = data;
+          _isLoading = false;
+        });
+      },
+      err: (error, stackTrace) {
+        setState(() {
+          _error = error.toString();
+          _isLoading = false;
+        });
+      },
     );
   }
 
-  MasterInfo get masterInfo => widget.masterInfo;
-  AvailableSlot get selectedSlot => widget.selectedSlot;
-  Service get service => widget.service;
+  String get masterFirstName => _masterInfo?.master.firstName ?? '';
+  String get masterFullName => _masterInfo?.master.fullName ?? '';
+  String get masterSpecialization => _masterInfo?.master.profession ?? '';
+  double get masterRating => _masterInfo?.master.rating ?? 0.0;
+  String get masterExperience => _masterInfo?.master.experience ?? '';
+  int get masterReviews => _masterInfo?.master.reviewsCount ?? 0;
+  String get masterAvatarUrl => _masterInfo?.master.avatarUrl ?? '';
 
-  String get masterFirstName => masterInfo.master.firstName;
-  String get masterFullName => masterInfo.master.fullName;
-  String get masterSpecialization => masterInfo.master.profession;
-  double get masterRating => masterInfo.master.rating;
-  String get masterExperience => masterInfo.master.experience;
-  int get masterReviews => masterInfo.master.reviewsCount;
-  String get masterAvatarUrl => masterInfo.master.avatarUrl;
+  String get masterFirstNameDative {
+    final name = masterFirstName;
+    if (name.endsWith('я')) {
+      return '${name.substring(0, name.length - 1)}е';
+    }
+    return name;
+  }
 
   String getYearsText(String experience) {
     final years = int.tryParse(experience.split(' ').first) ?? 0;
-    if (years % 10 == 1 && years % 100 != 11) return '$years год';
-    if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100))
+    if (years % 10 == 1 && years % 100 != 11) {
+      return '$years год';
+    } else if ([2, 3, 4].contains(years % 10) &&
+        ![12, 13, 14].contains(years % 100)) {
       return '$years года';
-    return '$years лет';
+    } else {
+      return '$years лет';
+    }
   }
 
   Future<void> openStore() async {
@@ -113,6 +97,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
+      // Для Android и любых других платформ используем Google Play
       url =
           'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
@@ -120,43 +105,67 @@ class _EndBookingPageState extends State<EndBookingPage> {
     final uri = Uri.parse(url);
 
     try {
-      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {}
-    } catch (e) {}
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // В продакшене лучше использовать логгер вместо print
+        // Logger().warning('Не удалось открыть магазин: $url');
+      }
+    } catch (e) {
+      // Logger().error('Ошибка при открытии магазина: $e');
+    }
   }
 
-  void _submitBooking() {
-    final name = _nameController.text.trim();
-    final comment = _commentController.text.trim();
-    final selectedTime = DateFormat('HH:mm').format(selectedSlot.datetime);
-
-    if (name.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => FinalPage(
-            masterId: masterInfo.master.id.toString(),
-            service: service, // Передаём полный объект Service
-            selectedDate: selectedSlot.date,
-            selectedTime: selectedTime,
-            name: name,
-            comment: comment,
-            phoneNumber: widget.phoneNumber ?? '',
-          ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Введите имя')));
-    }
+  void _openBooking() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AuthorizationPage()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.backgroundDefault,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null || _masterInfo == null) {
+      return Scaffold(
+        backgroundColor: AppColors.backgroundDefault,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Ошибка загрузки данных',
+                  style: AppTextStyles.headingMedium,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _error ?? 'Неизвестная ошибка',
+                  style: AppTextStyles.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _loadMasterInfo,
+                  child: const Text('Попробовать снова'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final width = MediaQuery.of(context).size.width;
     final isDesktop = width >= 750;
     final showImage = isDesktop && width >= 1120;
 
+    // Рассчитываем ширину картинки
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
       final fullContent =
@@ -176,6 +185,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
+          // Верхняя панель
           Container(
             height: 88,
             color: AppColors.backgroundDefault,
@@ -215,8 +225,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                           )
                         else
                           GestureDetector(
-                            onTap:
-                                openStore, // Исправлено: убраны лишние скобки
+                            onTap: () => openStore(),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -230,7 +239,9 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                 'Скачать POLKA',
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   color: Colors.white,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ),
@@ -242,9 +253,6 @@ class _EndBookingPageState extends State<EndBookingPage> {
             ),
           ),
 
-          // Добавлен прогресс-бар для мобильной версии
-          if (!isDesktop) _buildMobileProgressBar(),
-
           Expanded(
             child: Container(
               color: isDesktop
@@ -252,6 +260,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                   : AppColors.backgroundDefault,
               child: Stack(
                 children: [
+                  // Хлебные крошки
                   if (isDesktop)
                     Positioned(
                       top: 28,
@@ -280,12 +289,10 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                     children: [
                                       Text(
                                         'Авторизация',
-                                        style: AppTextStyles.bodyLarge.copyWith(
-                                          color: AppColors.textPlaceholder,
-                                        ),
+                                        style: AppTextStyles.bodyLarge,
                                       ),
                                       const SizedBox(width: 4),
-                                      const Icon(
+                                      Icon(
                                         Icons.chevron_right,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
@@ -298,7 +305,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      const Icon(
+                                      Icon(
                                         Icons.chevron_right,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
@@ -311,7 +318,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      const Icon(
+                                      Icon(
                                         Icons.chevron_right,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
@@ -319,7 +326,9 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                       const SizedBox(width: 4),
                                       Text(
                                         'Персональные данные',
-                                        style: AppTextStyles.bodyLarge,
+                                        style: AppTextStyles.bodyLarge.copyWith(
+                                          color: AppColors.textPlaceholder,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -347,7 +356,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                                 showImage,
                                 imageWidth,
                               )
-                            : _buildMobileContent(context),
+                            : _buildMobileLayout(context),
                       ),
                     ),
                   ),
@@ -355,21 +364,14 @@ class _EndBookingPageState extends State<EndBookingPage> {
               ),
             ),
           ),
-
-          // Кнопка для мобильной версии внизу экрана
-          if (!isDesktop)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: AppTextButton.large(
-                text: 'Записаться к мастеру',
-                enabled: _nameController.text.trim().isNotEmpty,
-                onTap: _submitBooking,
-              ),
-            ),
         ],
       ),
     );
   }
+
+  // ================================
+  // Desktop layout
+  // ================================
 
   Widget _buildDesktopLayout(
     BuildContext context,
@@ -402,13 +404,13 @@ class _EndBookingPageState extends State<EndBookingPage> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: const Color(0x0C0C0D0D).withValues(alpha: 0.05),
                       offset: const Offset(0, 4),
                       blurRadius: 4,
                       spreadRadius: -4,
                     ),
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.10),
+                      color: const Color(0x0C0C0D0D).withValues(alpha: 0.10),
                       offset: const Offset(0, 16),
                       blurRadius: 32,
                       spreadRadius: -4,
@@ -424,6 +426,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Left column
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
@@ -437,39 +440,31 @@ class _EndBookingPageState extends State<EndBookingPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Давайте познакомимся!',
+                              'Мастер выключил онлайн-запись',
                               style: AppTextStyles.headingLarge,
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Оставьте Ваше имя и комментарий, чтобы мы могли добавить Вас в расписание к мастеру',
+                              'Однако вы можете найти других мастеров в нашем приложении',
                               style: AppTextStyles.bodyMedium500.copyWith(
                                 color: AppColors.iconsDefault,
                               ),
                             ),
-                            const SizedBox(height: 24),
-                            AppTextFormField(
-                              controller: _nameController,
-                              labelText: 'Ваше имя и фамилия',
-                            ),
-                            const SizedBox(height: 16),
-                            AppTextFormField(
-                              controller: _commentController,
-                              labelText:
-                                  'Комментарий, например, аллергия на коллаген',
-                              maxLines: 4,
-                            ),
                             const SizedBox(height: 32),
-                            AppTextButton.large(
-                              text: 'Записаться к мастеру',
-                              enabled: _nameController.text.trim().isNotEmpty,
-                              onTap: _submitBooking,
+                            SizedBox(
+                              width: 280,
+                              child: AppTextButton.large(
+                                text: 'Скачать POLKA',
+                                onTap: _openBooking,
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(width: kContainerImageGap),
+
+                    // Right column: master card
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -479,20 +474,100 @@ class _EndBookingPageState extends State<EndBookingPage> {
               ),
             ),
           ),
+
+          // Illustration
           if (showImage) ...[
             const SizedBox(width: kContainerImageGap),
             ConstrainedBox(
               constraints: BoxConstraints(maxWidth: imageWidth),
               child: SizedBox(
                 height: availableHeight,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Image.asset(
-                    'assets/images/welcome_illustration.png',
-                    fit: BoxFit.cover,
-                    width: imageWidth,
-                    height: availableHeight,
-                  ),
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0x0C0C0D0D,
+                            ).withValues(alpha: 0.05),
+                            offset: const Offset(0, 4),
+                            blurRadius: 4,
+                            spreadRadius: -4,
+                          ),
+                          BoxShadow(
+                            color: const Color(
+                              0x0C0C0D0D,
+                            ).withValues(alpha: 0.10),
+                            offset: const Offset(0, 16),
+                            blurRadius: 32,
+                            spreadRadius: -4,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.asset(
+                          'assets/images/welcome_illustration.png',
+                          fit: BoxFit.cover,
+                          width: imageWidth,
+                          height: availableHeight,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 40,
+                      left: 24,
+                      right: 24,
+                      child: Text(
+                        'Установи POLKA\nи найди своего\nмастера',
+                        style: imageWidth >= kWelcomeImageMaxWidth
+                            ? AppTextStyles.heading
+                            : AppTextStyles.headingLarge,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 24,
+                      left: 24,
+                      right: 24,
+                      child: GestureDetector(
+                        onTap: () => openStore(),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.backgroundDefault,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0x0C0C0D0D,
+                                ).withValues(alpha: 0.05),
+                                offset: const Offset(0, 4),
+                                blurRadius: 4,
+                                spreadRadius: -4,
+                              ),
+                              BoxShadow(
+                                color: const Color(
+                                  0x0C0C0D0D,
+                                ).withValues(alpha: 0.10),
+                                offset: const Offset(0, 16),
+                                blurRadius: 32,
+                                spreadRadius: -4,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            'Скачать POLKA',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -504,6 +579,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
 
   Widget _buildDesktopMasterCard(BuildContext context) {
     return Container(
+      constraints: const BoxConstraints(maxWidth: 520),
       decoration: BoxDecoration(
         color: AppColors.backgroundDefault,
         borderRadius: BorderRadius.circular(16),
@@ -566,6 +642,12 @@ class _EndBookingPageState extends State<EndBookingPage> {
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Image.asset(
+                        'assets/images/master_photo.png',
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
                     )
                   : Image.asset(
                       'assets/images/master_photo.png',
@@ -589,6 +671,8 @@ class _EndBookingPageState extends State<EndBookingPage> {
           masterSpecialization,
           style: AppTextStyles.bodyMedium,
           textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
         ),
         const SizedBox(height: 20),
       ],
@@ -643,34 +727,176 @@ class _EndBookingPageState extends State<EndBookingPage> {
     );
   }
 
-  // Изменено: убрана кнопка из мобильного контента
-  Widget _buildMobileContent(BuildContext context) {
+  // ================================
+  // Mobile layout
+  // ================================
+
+  Widget _buildMobileLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Давайте познакомимся!', style: AppTextStyles.headingLarge),
+        Text(
+          'Мастер выключил онлайн-запись',
+          style: AppTextStyles.headingLarge,
+        ),
         const SizedBox(height: 16),
         Text(
-          'Оставьте Ваше имя и комментарий, чтобы мы могли добавить Вас в расписание к мастеру',
+          'Однако вы можете найти других мастеров в нашем приложении',
           style: AppTextStyles.bodyMedium500.copyWith(
             color: AppColors.iconsDefault,
           ),
         ),
-        const SizedBox(height: 24),
-        AppTextFormField(
-          controller: _nameController,
-          labelText: 'Ваше имя и фамилия',
-        ),
-        const SizedBox(height: 16),
-        AppTextFormField(
-          controller: _commentController,
-          labelText: 'Комментарий, например, аллергия на коллаген',
-          maxLines: 4,
-        ),
-        // Кнопка убрана отсюда и перенесена вниз экрана
+        const SizedBox(height: 32),
+        _buildMobileMasterCard(context),
       ],
     );
   }
 
-  // Удален метод _buildMobileLayout, так как он больше не нужен
+  Widget _buildMobileMasterCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 400),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundDefault,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            spreadRadius: -4,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 32,
+            spreadRadius: -4,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                SvgPicture.asset(
+                  'assets/images/pink_splash.svg',
+                  width: 112,
+                  height: 112,
+                  fit: BoxFit.contain,
+                ),
+                ClipOval(
+                  child: masterAvatarUrl.isNotEmpty
+                      ? Image.network(
+                          masterAvatarUrl,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Image.asset(
+                                'assets/images/master_photo.png',
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              ),
+                        )
+                      : Image.asset(
+                          'assets/images/master_photo.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              masterFullName,
+              style: AppTextStyles.headingMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              masterSpecialization,
+              style: AppTextStyles.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: _buildStatVertical(
+                    context,
+                    masterRating.toStringAsFixed(1),
+                    'Рейтинг',
+                    showStar: true,
+                  ),
+                ),
+                _buildDivider(),
+                Expanded(
+                  child: _buildStatVertical(
+                    context,
+                    getYearsText(masterExperience),
+                    'Опыта',
+                  ),
+                ),
+                _buildDivider(),
+                Expanded(
+                  child: _buildStatVertical(
+                    context,
+                    masterReviews.toString(),
+                    'Отзыва',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: AppTextButton.large(
+                text: 'Скачать POLKA',
+                onTap: _openBooking,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatVertical(
+    BuildContext context,
+    String value,
+    String label, {
+    bool showStar = false,
+  }) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(value, style: AppTextStyles.bodyLarge),
+            if (showStar) ...[
+              const SizedBox(width: 4),
+              AppIcons.star.icon(context, size: 16),
+            ],
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(label, style: AppTextStyles.bodySmall),
+      ],
+    );
+  }
+
+  Widget _buildDivider() {
+    return Container(
+      height: 40,
+      width: 1,
+      color: const Color.fromRGBO(128, 128, 128, 0.2),
+    );
+  }
 }

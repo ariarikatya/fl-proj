@@ -748,14 +748,14 @@ class _WelcomePageState extends State<WelcomePage> {
           ),
         ),
         const SizedBox(height: 32),
-        _buildMobileMasterCard(context),
+        // Оборачиваем карточку мастера в Center для центрирования
+        Center(child: _buildMobileMasterCard(context)),
       ],
     );
   }
 
   Widget _buildMobileMasterCard(BuildContext context) {
     return Container(
-      width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
         color: AppColors.backgroundDefault,

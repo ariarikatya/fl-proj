@@ -6,10 +6,14 @@ import 'menu.dart';
 import 'dependencies.dart';
 import 'slots.dart';
 import 'package:flutter/foundation.dart';
+import 'welcome.dart';
 
 const double kWelcomeImageMaxWidth = 430;
 const double kMainContainerMaxWidth = 938;
 const double kContainerImageGap = 40;
+const double kDesktopServiceMasterGap =
+    64; // Максимальный отступ между услугами и карточкой мастера
+const double kDesktopServiceMasterGapMin = 40; // Минимальный отступ
 
 class ServicePage extends StatefulWidget {
   final String? masterId;
@@ -145,19 +149,30 @@ class _ServicePageState extends State<ServicePage> {
     }
   }
 
+  // В service.dart нужно обновить метод _selectTime:
+
   void _selectTime() {
     if (_selectedService != null) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => SlotsPage(
-            service: _selectedService!,
+            service:
+                _selectedService!, // Передаём полный объект Service (обязательный параметр)
             masterId: _masterInfo!.master.id.toString(),
             phoneNumber: widget.phoneNumber,
           ),
         ),
       );
     }
+  }
+
+  // Добавьте метод для навигации назад
+  void _goBack() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const WelcomePage()),
+    );
   }
 
   @override
@@ -201,7 +216,7 @@ class _ServicePageState extends State<ServicePage> {
     }
 
     final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 750;
+    final isDesktop = width >= 790;
     final showImage = isDesktop && width >= 1120;
 
     double imageWidth = kWelcomeImageMaxWidth;
@@ -223,6 +238,7 @@ class _ServicePageState extends State<ServicePage> {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
+          // Верхний бар с логотипом
           Container(
             height: 88,
             color: AppColors.backgroundDefault,
@@ -262,7 +278,7 @@ class _ServicePageState extends State<ServicePage> {
                           )
                         else
                           GestureDetector(
-                            onTap: () => openStore,
+                            onTap: openStore,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -287,6 +303,9 @@ class _ServicePageState extends State<ServicePage> {
               ),
             ),
           ),
+
+          // Прогресс-бар для мобильной версии
+          if (!isDesktop) _buildMobileProgressBar(),
 
           Expanded(
             child: Container(
@@ -379,23 +398,56 @@ class _ServicePageState extends State<ServicePage> {
                       left: 24.0,
                       right: 24.0,
                       top: isDesktop ? 88.0 : 16.0,
-                      bottom: 24.0,
+                      bottom: isDesktop ? 24.0 : 0.0,
                     ),
-                    child: SingleChildScrollView(
-                      child: SafeArea(
-                        top: false,
-                        child: isDesktop
-                            ? _buildDesktopLayout(
+                    child: isDesktop
+                        ? SingleChildScrollView(
+                            child: SafeArea(
+                              top: false,
+                              child: _buildDesktopLayout(
                                 context,
                                 showImage,
                                 imageWidth,
-                              )
-                            : _buildMobileLayout(context),
-                      ),
-                    ),
+                                width,
+                              ),
+                            ),
+                          )
+                        : _buildMobileLayout(context),
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Виджет прогресс-бара для мобильной версии
+  Widget _buildMobileProgressBar() {
+    return Container(
+      height: 48,
+      color: AppColors.backgroundDefault,
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Row(
+        children: [
+          // Стрелка назад с обработчиком нажатия
+          GestureDetector(
+            onTap: _goBack, // Добавлен обработчик нажатия
+            child: AppIcons.chevronBack.icon(
+              context,
+              size: 24,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(width: 27),
+          // Прогресс-бар
+          Container(
+            width: 40,
+            height: 8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(1000),
+              color: AppColors.accentLight,
             ),
           ),
         ],
@@ -407,10 +459,13 @@ class _ServicePageState extends State<ServicePage> {
     BuildContext context,
     bool showImage,
     double imageWidth,
+    double screenWidth,
   ) {
     final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
     final availableHeight = height - 88 - 88 - 70;
+
+    // Вычисляем адаптивный отступ между услугами и карточкой мастера
+    final double serviceMasterGap = _calculateServiceMasterGap(screenWidth);
 
     return Center(
       child: Row(
@@ -459,9 +514,9 @@ class _ServicePageState extends State<ServicePage> {
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
-                          minWidth: width >= 1400
+                          minWidth: screenWidth >= 1400
                               ? 420
-                              : (width >= 1200 ? 400 : 360),
+                              : (screenWidth >= 1200 ? 400 : 360),
                           maxWidth: 640,
                         ),
                         child: Column(
@@ -474,7 +529,7 @@ class _ServicePageState extends State<ServicePage> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Здесь представлены все услуги мастера, выберите услугу и нажмите "Выбрать время"',
+                              'Здесь представлены все услуги мастера, выберите услугу и нажмите "Далее"',
                               style: AppTextStyles.bodyMedium500.copyWith(
                                 color: AppColors.iconsDefault,
                               ),
@@ -530,7 +585,7 @@ class _ServicePageState extends State<ServicePage> {
                                 ),
                             const SizedBox(height: 24),
                             AppTextButton.large(
-                              text: 'Выбрать время',
+                              text: 'Далее',
                               enabled: _selectedService != null,
                               onTap: _selectTime,
                             ),
@@ -538,7 +593,7 @@ class _ServicePageState extends State<ServicePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: kContainerImageGap),
+                    SizedBox(width: serviceMasterGap),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: _buildDesktopMasterCard(context),
@@ -594,7 +649,7 @@ class _ServicePageState extends State<ServicePage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => openStore,
+                        onTap: openStore,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -637,6 +692,27 @@ class _ServicePageState extends State<ServicePage> {
         ],
       ),
     );
+  }
+
+  // Функция для вычисления адаптивного отступа между услугами и карточкой мастера
+  double _calculateServiceMasterGap(double screenWidth) {
+    // Минимальная ширина, при которой используем максимальный отступ
+    const double minWidthForMaxGap = 1400;
+    // Ширина, при которой начинаем уменьшать отступ
+    const double startReducingWidth = 1200;
+
+    if (screenWidth >= minWidthForMaxGap) {
+      return kDesktopServiceMasterGap;
+    } else if (screenWidth <= startReducingWidth) {
+      return kDesktopServiceMasterGapMin;
+    } else {
+      // Линейная интерполяция между минимальным и максимальным отступом
+      final double t =
+          (screenWidth - startReducingWidth) /
+          (minWidthForMaxGap - startReducingWidth);
+      return kDesktopServiceMasterGapMin +
+          (kDesktopServiceMasterGap - kDesktopServiceMasterGapMin) * t;
+    }
   }
 
   Widget _buildDesktopMasterCard(BuildContext context) {
@@ -791,52 +867,67 @@ class _ServicePageState extends State<ServicePage> {
 
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Выберите услугу', style: AppTextStyles.headingLarge),
-        const SizedBox(height: 16),
-        Text(
-          'Здесь представлены все услуги мастера, выберите услугу и нажмите "Выбрать время"',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
-          ),
-        ),
-        const SizedBox(height: 32),
-
-        if (_masterInfo?.services.isNotEmpty ?? false)
-          ..._masterInfo!.services
-              .map(
-                (service) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _ServiceCard(
-                    service: service,
-                    isSelected: _selectedService == service,
-                    onTap: () => setState(() => _selectedService = service),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Выберите услугу', style: AppTextStyles.headingLarge),
+                const SizedBox(height: 16),
+                Text(
+                  'Здесь представлены все услуги мастера, выберите услугу и нажмите "Далее"',
+                  style: AppTextStyles.bodyMedium500.copyWith(
+                    color: AppColors.iconsDefault,
                   ),
                 ),
-              )
-              .toList()
-        else
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.backgroundHover,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Text(
-              'У мастера пока нет доступных услуг',
-              style: AppTextStyles.bodyMedium,
-              textAlign: TextAlign.center,
+                const SizedBox(height: 32),
+
+                if (_masterInfo?.services.isNotEmpty ?? false)
+                  ..._masterInfo!.services
+                      .map(
+                        (service) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _ServiceCard(
+                            service: service,
+                            isSelected: _selectedService == service,
+                            onTap: () =>
+                                setState(() => _selectedService = service),
+                          ),
+                        ),
+                      )
+                      .toList()
+                else
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundHover,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      'У мастера пока нет доступных услуг',
+                      style: AppTextStyles.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                const SizedBox(height: 24),
+                // Пустой контейнер для отступа перед кнопкой в скролле
+                const SizedBox(height: 80),
+              ],
             ),
           ),
-
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: AppTextButton.large(
-            text: 'Выбрать время',
-            enabled: _selectedService != null,
-            onTap: _selectTime,
+        ),
+        // Фиксированная кнопка внизу экрана
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: AppTextButton.large(
+              text: 'Далее',
+              enabled: _selectedService != null,
+              onTap: _selectTime,
+            ),
           ),
         ),
       ],
@@ -860,10 +951,10 @@ class _ServiceCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.accentLight : AppColors.backgroundHover,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.accent : Colors.transparent,
             width: 2,
@@ -881,7 +972,7 @@ class _ServiceCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       AppIcons.clock.icon(
@@ -897,16 +988,19 @@ class _ServiceCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // Вертикальный разделитель
-                      Container(
-                        width: 1,
-                        height: 22,
-                        color: AppColors.textSecondary,
+                      // Заменен вертикальный разделитель на текст "|"
+                      Text(
+                        '|',
+                        style: AppTextStyles.bodyLarge500.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Text(
                         '₽${service.price}',
-                        style: AppTextStyles.bodyLarge500.copyWith(),
+                        style: AppTextStyles.bodyLarge500.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
