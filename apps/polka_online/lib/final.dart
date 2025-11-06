@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:shared/shared.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'menu.dart';
 import 'dependencies.dart';
-import 'package:flutter/foundation.dart';
-
-const double kWelcomeImageMaxWidth = 430;
-const double kMainContainerMaxWidth = 938;
-const double kContainerImageGap = 40;
+import 'widgets/widgets.dart';
+import 'widgets/page_layout_helpers.dart';
+import 'widgets/app_utils.dart';
 
 class FinalPage extends StatefulWidget {
   final String masterId;
@@ -45,41 +41,10 @@ class _FinalPageState extends State<FinalPage> {
   void initState() {
     super.initState();
     _masterId = widget.masterId;
-    _loadMasterInfo();
-  }
-
-  void _goBack() {
-    Navigator.pop(context);
-  }
-
-  // бар в мобилки
-  Widget _buildMobileProgressBar() {
-    return Container(
-      height: 48,
-      color: AppColors.backgroundDefault,
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: _goBack,
-            child: AppIcons.chevronBack.icon(
-              context,
-              size: 24,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(width: 27),
-          Container(
-            width: 40,
-            height: 8,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(1000),
-              color: AppColors.accentLight,
-            ),
-          ),
-        ],
-      ),
+    logger.debug(
+      'Initializing FinalPage - masterId: $_masterId, service: ${widget.service?.title}, date: ${widget.selectedDate}, time: ${widget.selectedTime}, name: ${widget.name}, phoneNumber: ${widget.phoneNumber}',
     );
+    _loadMasterInfo();
   }
 
   Future<void> _loadMasterInfo() async {
@@ -97,47 +62,20 @@ class _FinalPageState extends State<FinalPage> {
           _masterInfo = data;
           _isLoading = false;
         });
+        logger.debug(
+          'Master info loaded successfully for FinalPage - master: ${data.master.fullName}',
+        );
       },
       err: (error, stackTrace) {
+        logger.error(
+          'Error loading master info for FinalPage masterId $_masterId: $error',
+        );
         setState(() {
           _error = error.toString();
           _isLoading = false;
         });
       },
     );
-  }
-
-  String get masterFirstName => _masterInfo?.master.firstName ?? '';
-  String get masterFullName => _masterInfo?.master.fullName ?? '';
-  String get masterSpecialization => _masterInfo?.master.profession ?? '';
-  double get masterRating => _masterInfo?.master.rating ?? 0.0;
-  String get masterExperience => _masterInfo?.master.experience ?? '';
-  int get masterReviews => _masterInfo?.master.reviewsCount ?? 0;
-  String get masterAvatarUrl => _masterInfo?.master.avatarUrl ?? '';
-
-  String get masterFirstNameDative {
-    final name = masterFirstName;
-    if (name.endsWith('я')) {
-      return '${name.substring(0, name.length - 1)}е';
-    }
-    return name;
-  }
-
-  String getYearsText(String experience) {
-    final years = int.tryParse(experience.split(' ').first) ?? 0;
-    if (years % 10 == 1 && years % 100 != 11) {
-      return '$years год';
-    } else if ([2, 3, 4].contains(years % 10) &&
-        ![12, 13, 14].contains(years % 100)) {
-      return '$years года';
-    } else {
-      return '$years лет';
-    }
-  }
-
-  String _trimServiceName(String name) {
-    if (name.length <= 30) return name;
-    return '${name.substring(0, 30)}...';
   }
 
   String _formatDateTime() {
@@ -153,489 +91,155 @@ class _FinalPageState extends State<FinalPage> {
     return formatted[0].toUpperCase() + formatted.substring(1);
   }
 
-  Future<void> openStore() async {
-    String url;
-
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      url = 'https://apps.apple.com/app/polka-beauty-marketplace';
-    } else if (defaultTargetPlatform == TargetPlatform.macOS) {
-      url = 'https://apps.apple.com/app/id6740820071';
-    } else {
-      url =
-          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
-    }
-
-    final uri = Uri.parse(url);
-
-    try {
-      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // Logger().warning('Не удалось открыть магазин: $url');
-      }
-    } catch (e) {
-      // Logger().error('Ошибка при открытии магазина: $e');
-    }
-  }
-
-  Widget _buildMobileDownloadButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: AppTextButton.large(
-        text: 'Скачать POLKA',
-        enabled: true,
-        onTap: openStore,
-      ),
-    );
+  void _goBack() {
+    logger.debug('Navigating back from FinalPage');
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        backgroundColor: AppColors.backgroundDefault,
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
+    if (_isLoading) return const LoadingWidget();
     if (_error != null || _masterInfo == null) {
-      return Scaffold(
-        backgroundColor: AppColors.backgroundDefault,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Ошибка загрузки данных',
-                  style: AppTextStyles.headingMedium,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _error ?? 'Неизвестная ошибка',
-                  style: AppTextStyles.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _loadMasterInfo,
-                  child: const Text('Попробовать снова'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+      logger.error('Error displaying FinalPage: $_error');
+      return ErrorStateWidget(error: _error, onRetry: _loadMasterInfo);
     }
 
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     final isDesktop = width >= 950;
-    final showImage = isDesktop && width >= 1120;
+    final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
+    final imageWidth = LayoutHelper.calculateImageWidth(
+      screenWidth: width,
+      showImage: showImage,
+    );
 
-    double imageWidth = kWelcomeImageMaxWidth;
-    if (showImage) {
-      final fullContent =
-          kMainContainerMaxWidth + kContainerImageGap + kWelcomeImageMaxWidth;
-      if (width < fullContent) {
-        final denom = (kWelcomeImageMaxWidth - 50);
-        final t = denom > 0
-            ? ((width - (kMainContainerMaxWidth + kContainerImageGap) - 50) /
-                      denom)
-                  .clamp(0.0, 1.0)
-            : 1.0;
-        imageWidth = 50 + (kWelcomeImageMaxWidth - 50) * t;
-      }
-    }
+    logger.debug(
+      'Building FinalPage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
+    );
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundDefault,
-      body: Column(
-        children: [
-          // Верхняя панель
-          Container(
-            height: 88,
-            color: AppColors.backgroundDefault,
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 16.0,
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: showImage
-                          ? kMainContainerMaxWidth +
-                                kContainerImageGap +
-                                kWelcomeImageMaxWidth
-                          : kMainContainerMaxWidth,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/images/polka_logo.svg',
-                          width: 89,
-                          height: 32,
-                        ),
-                        if (!isDesktop)
-                          IconButton(
-                            icon: AppIcons.menu.icon(context, size: 24),
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MenuPage(),
-                              ),
-                            ),
-                          )
-                        else
-                          GestureDetector(
-                            onTap: openStore,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                color: Colors.black,
-                              ),
-                              child: Text(
-                                'Скачать POLKA',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // бар для мобилки
-          if (!isDesktop) _buildMobileProgressBar(),
-
-          Expanded(
-            child: Container(
-              color: isDesktop
-                  ? AppColors.backgroundOnline
-                  : AppColors.backgroundDefault,
-              child: Stack(
-                children: [
-                  if (isDesktop)
-                    Positioned(
-                      top: 28,
-                      left: 0,
-                      right: 0,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final contentWidth = showImage
-                                ? kMainContainerMaxWidth +
-                                      kContainerImageGap +
-                                      kWelcomeImageMaxWidth
-                                : kMainContainerMaxWidth;
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: contentWidth.clamp(
-                                      0.0,
-                                      constraints.maxWidth,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Авторизация',
-                                        style: AppTextStyles.bodyLarge.copyWith(
-                                          color: AppColors.textPlaceholder,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      AppIcons.chevronForward.icon(
-                                        context,
-                                        size: 16,
-                                        color: AppColors.textPlaceholder,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Выбор услуги',
-                                        style: AppTextStyles.bodyLarge.copyWith(
-                                          color: AppColors.textPlaceholder,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      AppIcons.chevronForward.icon(
-                                        context,
-                                        size: 16,
-                                        color: AppColors.textPlaceholder,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Выбор времени',
-                                        style: AppTextStyles.bodyLarge.copyWith(
-                                          color: AppColors.textPlaceholder,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      AppIcons.chevronForward.icon(
-                                        context,
-                                        size: 16,
-                                        color: AppColors.textPlaceholder,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Персональные данные',
-                                        style: AppTextStyles.bodyLarge,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: 24.0,
-                      right: 24.0,
-                      top: isDesktop ? 88.0 : 16.0,
-                      bottom: 24.0,
-                    ),
-                    child: isDesktop
-                        ? SingleChildScrollView(
-                            child: SafeArea(
-                              top: false,
-                              child: _buildDesktopLayout(
-                                context,
-                                showImage,
-                                imageWidth,
-                              ),
-                            ),
-                          )
-                        : _buildMobileLayout(context),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          if (!isDesktop)
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 24.0,
-                  right: 24.0,
-                  bottom: 16.0,
-                ),
-                child: _buildMobileDownloadButton(),
-              ),
-            ),
-        ],
+    return PageScaffold(
+      isDesktop: isDesktop,
+      showImage: showImage,
+      onMenuTap: () {
+        logger.debug('Opening menu page from FinalPage');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MenuPage()),
+        );
+      },
+      onDownloadTap: () {
+        logger.debug('Opening store from FinalPage header');
+        StoreUtils.openStore();
+      },
+      breadcrumbStep: 3,
+      onBackTap: _goBack,
+      mobileBottomButton: AppTextButton.large(
+        text: 'Скачать POLKA',
+        enabled: true,
+        onTap: () {
+          logger.debug('Download POLKA button tapped in mobile FinalPage');
+          StoreUtils.openStore();
+        },
       ),
+      child: isDesktop
+          ? SingleChildScrollView(
+              child: SafeArea(
+                top: false,
+                child: _buildDesktopContent(
+                  width: width,
+                  height: height,
+                  showImage: showImage,
+                  imageWidth: imageWidth,
+                ),
+              ),
+            )
+          : _buildMobileContent(),
     );
   }
 
-  // Desktop
-  Widget _buildDesktopLayout(
-    BuildContext context,
-    bool showImage,
-    double imageWidth,
-  ) {
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
-    final availableHeight = height - 88 - 88 - 70;
+  Widget _buildDesktopContent({
+    required double width,
+    required double height,
+    required bool showImage,
+    required double imageWidth,
+  }) {
+    logger.debug('Building desktop content for FinalPage');
 
-    return Center(
-      child: Row(
+    return DesktopPageLayout(
+      screenWidth: width,
+      screenHeight: height,
+      showImage: showImage,
+      imageWidth: imageWidth,
+      onDownloadTap: () {
+        logger.debug('Opening store from FinalPage image overlay');
+        StoreUtils.openStore();
+      },
+      leftContent: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            flex: 3,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: kMainContainerMaxWidth,
-              ),
-              child: Container(
-                constraints: BoxConstraints(minHeight: availableHeight),
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundOnlineMain,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: AppColors.backgroundOnlineMain,
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0x0C0C0D0D).withValues(alpha: 0.05),
-                      offset: const Offset(0, 4),
-                      blurRadius: 4,
-                      spreadRadius: -4,
-                    ),
-                    BoxShadow(
-                      color: const Color(0x0C0C0D0D).withValues(alpha: 0.10),
-                      offset: const Offset(0, 16),
-                      blurRadius: 32,
-                      spreadRadius: -4,
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.only(
-                  left: 64,
-                  top: 64,
-                  bottom: 64,
-                  right: 40,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left column
-                    Expanded(
-                      child: Container(
-                        constraints: BoxConstraints(
-                          minWidth: width >= 1400
-                              ? 420
-                              : (width >= 1200 ? 400 : 360),
-                          maxWidth: 640,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Отлично! Вы записаны',
-                              style: AppTextStyles.headingLarge,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'А еще проще записаться через наше приложение, установите POLKA',
-                              style: AppTextStyles.bodyMedium500.copyWith(
-                                color: AppColors.iconsDefault,
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-                            AppTextButton.large(
-                              text: 'Установить POLKA',
-                              enabled: true,
-                              onTap: openStore,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: kContainerImageGap),
-
-                    // карточка мастера
-                    _buildMasterCard(context, true),
-                  ],
-                ),
-              ),
+          Text('Отлично! Вы записаны', style: AppTextStyles.headingLarge),
+          const SizedBox(height: 16),
+          Text(
+            'А еще проще записаться через наше приложение, установите POLKA',
+            style: AppTextStyles.bodyMedium500.copyWith(
+              color: AppColors.iconsDefault,
             ),
           ),
+          const SizedBox(height: 32),
+          AppTextButton.large(
+            text: 'Установить POLKA',
+            enabled: true,
+            onTap: () {
+              logger.debug('Install POLKA button tapped in desktop FinalPage');
+              StoreUtils.openStore();
+            },
+          ),
+        ],
+      ),
+      rightCard: _buildMasterCard(context, isDesktop: true),
+    );
+  }
 
-          // картинка
-          if (showImage) ...[
-            const SizedBox(width: kContainerImageGap),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: imageWidth),
-              child: SizedBox(
-                height: availableHeight,
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(
-                              0x0C0C0D0D,
-                            ).withValues(alpha: 0.05),
-                            offset: const Offset(0, 4),
-                            blurRadius: 4,
-                            spreadRadius: -4,
-                          ),
-                          BoxShadow(
-                            color: const Color(
-                              0x0C0C0D0D,
-                            ).withValues(alpha: 0.10),
-                            offset: const Offset(0, 16),
-                            blurRadius: 32,
-                            spreadRadius: -4,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: Image.asset(
-                          'assets/images/welcome_illustration.png',
-                          fit: BoxFit.cover,
-                          width: imageWidth,
-                          height: availableHeight,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 24,
-                      left: 24,
-                      right: 24,
-                      child: GestureDetector(
-                        onTap: openStore,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: AppColors.backgroundDefault,
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(
-                                  0x0C0C0D0D,
-                                ).withValues(alpha: 0.05),
-                                offset: const Offset(0, 4),
-                                blurRadius: 4,
-                                spreadRadius: -4,
-                              ),
-                              BoxShadow(
-                                color: const Color(
-                                  0x0C0C0D0D,
-                                ).withValues(alpha: 0.10),
-                                offset: const Offset(0, 16),
-                                blurRadius: 32,
-                                spreadRadius: -4,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            'Скачать POLKA',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textPrimary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+  Widget _buildMobileContent() {
+    logger.debug('Building mobile content for FinalPage');
+
+    return SingleChildScrollView(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Отлично! Вы записаны', style: AppTextStyles.headingLarge),
+            const SizedBox(height: 16),
+            Text(
+              'А еще проще записаться через наше приложение, установите POLKA',
+              style: AppTextStyles.bodyMedium500.copyWith(
+                color: AppColors.iconsDefault,
               ),
             ),
+            const SizedBox(height: 32),
+            Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: _buildMasterCard(context, isDesktop: false),
+              ),
+            ),
+            const SizedBox(height: 80),
           ],
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildMasterCard(BuildContext context, bool isDesktop) {
+  Widget _buildMasterCard(BuildContext context, {required bool isDesktop}) {
+    final master = _masterInfo!.master;
+    final service = widget.service;
+
+    logger.debug(
+      'Building master card for FinalPage - master: ${master.fullName}, service: ${service?.title}',
+    );
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
@@ -663,64 +267,48 @@ class _FinalPageState extends State<FinalPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildMasterInfoColumn(context, isDesktop)),
-                const SizedBox(width: 20),
-                _buildStatsColumn(context),
-              ],
-            ),
-
+            if (isDesktop)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildMasterInfoColumn(
+                      context,
+                      master: master,
+                      isDesktop: isDesktop,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  _buildStatsColumn(context, master: master),
+                ],
+              )
+            else
+              _buildMasterInfoColumn(
+                context,
+                master: master,
+                isDesktop: isDesktop,
+              ),
             const SizedBox(height: 24),
-
-            _buildServiceInfo(context, isDesktop),
+            if (service != null) _buildServiceInfo(context, service, isDesktop),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMasterInfoColumn(BuildContext context, bool isDesktop) {
+  Widget _buildMasterInfoColumn(
+    BuildContext context, {
+    required Master master,
+    required bool isDesktop,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/images/pink_splash.svg',
-              width: 140,
-              height: 140,
-              fit: BoxFit.contain,
-            ),
-            ClipOval(
-              child: masterAvatarUrl.isNotEmpty
-                  ? Image.network(
-                      masterAvatarUrl,
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                        'assets/images/master_photo.png',
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Image.asset(
-                      'assets/images/master_photo.png',
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
-            ),
-          ],
-        ),
+        MasterAvatar(avatarUrl: master.avatarUrl, size: 100, splashSize: 140),
         const SizedBox(height: 20),
         Text(
-          masterFullName,
+          master.fullName,
           style: AppTextStyles.headingLarge,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
@@ -728,7 +316,7 @@ class _FinalPageState extends State<FinalPage> {
         ),
         const SizedBox(height: 4),
         Text(
-          masterSpecialization,
+          master.profession,
           style: AppTextStyles.bodyMedium,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
@@ -738,128 +326,23 @@ class _FinalPageState extends State<FinalPage> {
     );
   }
 
-  Widget _buildStatsColumn(BuildContext context) {
+  Widget _buildStatsColumn(BuildContext context, {required Master master}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildStatItem(
           context,
-          masterRating.toStringAsFixed(1),
+          master.rating.toStringAsFixed(1),
           'Рейтинг',
           showStar: true,
         ),
-        Container(height: 1, width: 100, color: AppColors.backgroundHover),
-        _buildStatItem(context, getYearsText(masterExperience), 'Опыта'),
-        Container(height: 1, width: 100, color: AppColors.backgroundHover),
-        _buildStatItem(context, masterReviews.toString(), 'Отзыва'),
-      ],
-    );
-  }
-
-  Widget _buildServiceInfo(BuildContext context, bool isDesktop) {
-    final serviceName = widget.service?.title ?? 'Услуга не указана';
-    final serviceDuration =
-        widget.service?.duration.toDurationStringShort() ?? '';
-    final servicePrice = widget.service?.price ?? 0;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Левая колонка с заголовками
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Услуга',
-              style:
-                  (isDesktop
-                          ? AppTextStyles.bodyLarge
-                          : AppTextStyles.bodyMedium)
-                      .copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(
-              height: 31,
-            ), // 4 + 7 + 12 + 4 + отступы между блоками
-            Text(
-              'Дата',
-              style:
-                  (isDesktop
-                          ? AppTextStyles.bodyLarge
-                          : AppTextStyles.bodyMedium)
-                      .copyWith(color: AppColors.textSecondary),
-            ),
-          ],
+        _buildStatItem(
+          context,
+          FormatUtils.getYearsText(master.experience),
+          'Опыта',
         ),
-
-        const SizedBox(width: 80),
-
-        // Правая колонка с контентом
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Название услуги
-              Text(
-                _trimServiceName(serviceName),
-                style: isDesktop
-                    ? AppTextStyles.bodyLarge
-                    : AppTextStyles.bodyMedium,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 7),
-
-              // Длительность и цена
-              Row(
-                children: [
-                  AppIcons.clock.icon(
-                    context,
-                    size: 16,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    serviceDuration,
-                    style: isDesktop
-                        ? AppTextStyles.bodyMedium500
-                        : AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '|',
-                    style: isDesktop
-                        ? AppTextStyles.bodyMedium500
-                        : AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '₽ $servicePrice',
-                    style: isDesktop
-                        ? AppTextStyles.bodyMedium500
-                        : AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // Дата и время
-              Text(
-                _formatDateTime(),
-                style: isDesktop
-                    ? AppTextStyles.bodyLarge
-                    : AppTextStyles.bodyMedium,
-              ),
-            ],
-          ),
-        ),
+        _buildStatItem(context, master.reviewsCount.toString(), 'Отзыва'),
       ],
     );
   }
@@ -892,34 +375,117 @@ class _FinalPageState extends State<FinalPage> {
     );
   }
 
-  // Mobile
-  Widget _buildMobileLayout(BuildContext context) {
-    return SingleChildScrollView(
-      child: SafeArea(
-        top: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Отлично! Вы записаны', style: AppTextStyles.headingLarge),
-            const SizedBox(height: 16),
-            Text(
-              'А еще проще записаться через наше приложение, установите POLKA',
-              style: AppTextStyles.bodyMedium500.copyWith(
-                color: AppColors.iconsDefault,
-              ),
-            ),
-            const SizedBox(height: 32),
+  Widget _buildServiceInfo(
+    BuildContext context,
+    Service service,
+    bool isDesktop,
+  ) {
+    final serviceName = FormatUtils.truncate(service.title, 30);
+    final serviceDuration = service.duration.toDurationStringShort();
+    final servicePrice = service.price;
+    final formattedDateTime = _formatDateTime();
 
-            Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: _buildMasterCard(context, false),
-              ),
-            ),
+    logger.debug(
+      'Building service info for FinalPage - service: $serviceName, duration: $serviceDuration, price: $servicePrice, dateTime: $formattedDateTime',
+    );
 
-            const SizedBox(height: 80),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Строка с информацией об услуге
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 80, // Фиксированная ширина для меток
+                child: Text(
+                  'Услуга',
+                  style:
+                      (isDesktop
+                              ? AppTextStyles.bodyLarge
+                              : AppTextStyles.bodyMedium)
+                          .copyWith(color: AppColors.textSecondary),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                // Занимает всё оставшееся пространство
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      serviceName,
+                      style: isDesktop
+                          ? AppTextStyles.bodyLarge
+                          : AppTextStyles.bodyMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        AppIcons.clock.icon(
+                          context,
+                          size: 16,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          ' $serviceDuration  |  ₽ $servicePrice',
+                          style:
+                              (isDesktop
+                                      ? AppTextStyles.bodyMedium500
+                                      : AppTextStyles.bodySmall)
+                                  .copyWith(
+                                    color: AppColors.textSecondary,
+                                    height: 1,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Строка с датой
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 80, // Такая же фиксированная ширина
+                child: Text(
+                  'Дата',
+                  style:
+                      (isDesktop
+                              ? AppTextStyles.bodyLarge
+                              : AppTextStyles.bodyMedium)
+                          .copyWith(color: AppColors.textSecondary),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                // Занимает всё оставшееся пространство
+                child: Text(
+                  formattedDateTime,
+                  style:
+                      (isDesktop
+                              ? AppTextStyles.bodyLarge
+                              : AppTextStyles.bodyMedium)
+                          .copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

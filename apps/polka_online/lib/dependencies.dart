@@ -144,7 +144,7 @@ class MockMasterRepository extends MasterRepository {
 
     final master = Master(
       id: masterId,
-      firstName: 'Алла',
+      firstName: 'Светлана',
       lastName: 'Светлова',
       profession: 'Визажист',
       city: 'Москва',
