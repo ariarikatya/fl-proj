@@ -58,8 +58,6 @@ export 'src/features/pagination/empty_search_view.dart';
 export 'src/features/pagination/pagination.dart';
 export 'src/features/pagination/pagination_builder.dart';
 export 'src/features/pagination/pagination_cubit.dart';
-export 'src/features/theme/app_theme.dart';
-export 'src/features/theme/app_theme_widget.dart';
 export 'src/icons.dart';
 export 'src/initialization.dart';
 export 'src/logger.dart';

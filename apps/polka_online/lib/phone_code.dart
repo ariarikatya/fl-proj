@@ -42,6 +42,9 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   @override
   void initState() {
     super.initState();
+    logger.debug(
+      'Initializing PhoneCodePage for phone: ${widget.phoneNumber}, masterId: ${widget.masterId}',
+    );
     _loadMasterInfo();
     _startResendTimer();
   }
@@ -51,6 +54,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     _pinController.dispose();
     _focusNode.dispose();
     _resendTimer?.cancel();
+    logger.debug('Disposing PhoneCodePage');
     super.dispose();
   }
 
@@ -98,6 +102,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         });
       },
       err: (error, stackTrace) {
+        logger.error('Ошибка загрузки информации о мастере: $error');
         setState(() {
           _isLoading = false;
         });
@@ -112,27 +117,35 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   int get masterReviews => _masterInfo?.master.reviewsCount ?? 0;
   String get masterAvatarUrl => _masterInfo?.master.avatarUrl ?? '';
 
-  String getYearsText(String experience) {
-    final years = int.tryParse(experience.split(' ').first) ?? 0;
-    if (years % 10 == 1 && years % 100 != 11) {
-      return '$years год';
-    } else if ([2, 3, 4].contains(years % 10) &&
-        ![12, 13, 14].contains(years % 100)) {
-      return '$years года';
-    } else {
-      return '$years лет';
+  String getYearsText(String? experience) {
+    // Проверяем на null и пустую строку
+    if (experience == null || experience.isEmpty) {
+      return '0 лет';
+    }
+
+    try {
+      // Извлекаем число из строки опыта
+      final yearsString = experience.split(' ').first;
+      final years = int.tryParse(yearsString) ?? 0;
+
+      // Правила для русского языка
+      if (years % 10 == 1 && years % 100 != 11) {
+        return '$years год';
+      } else if (years % 10 >= 2 &&
+          years % 10 <= 4 &&
+          (years % 100 < 10 || years % 100 >= 20)) {
+        return '$years года';
+      } else {
+        return '$years лет';
+      }
+    } catch (e) {
+      logger.error('Error parsing experience: $experience, error: $e');
+      return experience; // возвращаем исходное значение если не удалось распарсить
     }
   }
 
   String get formattedPhoneNumber {
-    if (widget.phoneNumber.length >= 11) {
-      final code = widget.phoneNumber.substring(1, 4);
-      final part1 = widget.phoneNumber.substring(4, 7);
-      final part2 = widget.phoneNumber.substring(7, 9);
-      final part3 = widget.phoneNumber.substring(9);
-      return '+7 ($code) $part1-$part2-$part3';
-    }
-    return widget.phoneNumber;
+    return '+${widget.phoneNumber}';
   }
 
   Future<void> openStore() async {
@@ -151,27 +164,36 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // Логирование ошибки
+        logger.warning('Не удалось открыть магазин: $url');
       }
     } catch (e) {
-      // Логирование ошибки
+      logger.error('Ошибка при открытии магазина: $e');
+    }
+  }
+
+  Future<void> _checkClientStatusAndNavigate() async {
+    logger.debug('Navigating to WelcomePage');
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WelcomePage(
+            masterId: widget.masterId,
+            phoneNumber: widget.phoneNumber,
+          ),
+        ),
+      );
     }
   }
 
   Future<void> _verifyCode(String code) async {
     if (code.length != 4) return;
 
+    // Заглушка для тестирования
     if (code == '0942') {
+      logger.debug('Using test code 0942 - navigating to WelcomePage');
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => WelcomePage(
-              masterId: widget.masterId,
-              phoneNumber: widget.phoneNumber,
-            ),
-          ),
-        );
+        _checkClientStatusAndNavigate();
       }
       return;
     }
@@ -190,24 +212,19 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
     result.when(
       ok: (authResult) {
-        logger.info('code verified successfully');
+        logger.info(
+          'Code verified successfully for phone: ${widget.phoneNumber}',
+        );
 
         if (mounted) {
           setState(() => _isVerifying = false);
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WelcomePage(
-                masterId: widget.masterId,
-                phoneNumber: widget.phoneNumber,
-              ),
-            ),
-          );
+          _checkClientStatusAndNavigate();
         }
       },
       err: (error, stackTrace) {
-        logger.error('code verification error', error, stackTrace);
+        logger.error(
+          'Code verification error for phone ${widget.phoneNumber}: $error',
+        );
 
         if (mounted) {
           setState(() {
@@ -227,14 +244,14 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
       _errorText = null;
     });
 
-    logger.debug('resending code to ${widget.phoneNumber}');
+    logger.debug('Resending code to ${widget.phoneNumber}');
 
     final authRepository = Dependencies.instance.authRepository;
     final result = await authRepository.sendCode(widget.phoneNumber);
 
     result.when(
       ok: (_) {
-        logger.info('code resent successfully');
+        logger.info('Code resent successfully to ${widget.phoneNumber}');
 
         _pinController.clear();
         _focusNode.requestFocus();
@@ -253,7 +270,9 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         }
       },
       err: (error, stackTrace) {
-        logger.error('resend code error', error, stackTrace);
+        logger.error(
+          'Resend code error for phone ${widget.phoneNumber}: $error',
+        );
 
         if (mounted) {
           setState(() {
@@ -301,6 +320,10 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
       }
     }
 
+    logger.debug(
+      'Building PhoneCodePage - width: $width, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
+    );
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
@@ -334,13 +357,18 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: const Icon(Icons.menu, size: 24),
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MenuPage(),
-                              ),
-                            ),
+                            icon: AppIcons.menu.icon(context, size: 24),
+                            onPressed: () {
+                              logger.debug(
+                                'Opening menu page from PhoneCodePage',
+                              );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MenuPage(),
+                                ),
+                              );
+                            },
                           )
                         else
                           GestureDetector(
@@ -408,8 +436,8 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                                         style: AppTextStyles.bodyLarge,
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -421,8 +449,8 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -434,8 +462,8 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
+                                      AppIcons.chevronForward.icon(
+                                        context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
                                       ),
@@ -524,6 +552,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
             onChanged: (value) => setState(() {}),
             onCompleted: (value) {
               if (MediaQuery.of(context).size.width < 750) {
+                logger.debug('Code completed on mobile: $value');
                 _verifyCode(value);
               }
             },
@@ -662,6 +691,10 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     final width = MediaQuery.of(context).size.width;
     final availableHeight = height - 88 - 88 - 70;
 
+    logger.debug(
+      'Building desktop layout - height: $height, width: $width, availableHeight: $availableHeight, showImage: $showImage, imageWidth: $imageWidth',
+    );
+
     return Center(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -738,7 +771,12 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                                 width: double.infinity,
                                 child: AppTextButton.large(
                                   text: 'Отправить',
-                                  onTap: () => _verifyCode(_pinController.text),
+                                  onTap: () {
+                                    logger.debug(
+                                      'Manual code submission on desktop: ${_pinController.text}',
+                                    );
+                                    _verifyCode(_pinController.text);
+                                  },
                                 ),
                               ),
                             const SizedBox(height: 24),
@@ -914,12 +952,17 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                        'assets/images/master_photo.png',
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
+                      errorBuilder: (context, error, stackTrace) {
+                        logger.warning(
+                          'Не удалось загрузить аватар мастера: $masterAvatarUrl, ошибка: $error',
+                        );
+                        return Image.asset(
+                          'assets/images/master_photo.png',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     )
                   : Image.asset(
                       'assets/images/master_photo.png',

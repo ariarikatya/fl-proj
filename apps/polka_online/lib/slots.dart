@@ -112,6 +112,26 @@ class _SlotsPageState extends State<SlotsPage> {
         date: dayAfter,
         startTime: const Duration(hours: 16, minutes: 0),
       ),
+      AvailableSlot(
+        id: 10,
+        date: dayAfter,
+        startTime: const Duration(hours: 17, minutes: 0),
+      ),
+      AvailableSlot(
+        id: 11,
+        date: dayAfter,
+        startTime: const Duration(hours: 18, minutes: 0),
+      ),
+      AvailableSlot(
+        id: 12,
+        date: dayAfter,
+        startTime: const Duration(hours: 19, minutes: 0),
+      ),
+      AvailableSlot(
+        id: 13,
+        date: dayAfter,
+        startTime: const Duration(hours: 21, minutes: 0),
+      ),
     ];
 
     _groupSlots(mockSlots);
@@ -407,7 +427,7 @@ class _SlotsPageState extends State<SlotsPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: AppIcons.filter.icon(context, size: 24),
+                            icon: AppIcons.menu.icon(context, size: 24),
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(

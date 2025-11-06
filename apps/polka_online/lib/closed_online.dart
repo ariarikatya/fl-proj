@@ -210,7 +210,7 @@ class _ClosedPageState extends State<ClosedPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: AppIcons.filter.icon(context, size: 24),
+                            icon: AppIcons.menu.icon(context, size: 24),
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(

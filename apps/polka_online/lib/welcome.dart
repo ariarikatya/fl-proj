@@ -31,6 +31,9 @@ class _WelcomePageState extends State<WelcomePage> {
   void initState() {
     super.initState();
     _masterId = widget.masterId ?? '1';
+    logger.debug(
+      'Initializing WelcomePage - masterId: $_masterId, phoneNumber: ${widget.phoneNumber}',
+    );
     _loadMasterInfo();
   }
 
@@ -40,7 +43,6 @@ class _WelcomePageState extends State<WelcomePage> {
       _error = null;
     });
 
-    // Используем настоящий репозиторий вместо мокового
     final repository = Dependencies.instance.masterRepository;
     final result = await repository.getMasterInfo(int.parse(_masterId));
 
@@ -50,8 +52,14 @@ class _WelcomePageState extends State<WelcomePage> {
           _masterInfo = data;
           _isLoading = false;
         });
+        logger.debug(
+          'Master info loaded successfully for masterId: $_masterId',
+        );
       },
       err: (error, stackTrace) {
+        logger.error(
+          'Error loading master info for masterId $_masterId: $error',
+        );
         setState(() {
           _error = error.toString();
           _isLoading = false;
@@ -104,14 +112,19 @@ class _WelcomePageState extends State<WelcomePage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // Logger().warning('Не удалось открыть магазин: $url');
+        logger.warning('Не удалось открыть магазин: $url');
+      } else {
+        logger.debug('Store opened successfully: $url');
       }
     } catch (e) {
-      // Logger().error('Ошибка при открытии магазина: $e');
+      logger.error('Ошибка при открытии магазина: $e');
     }
   }
 
   void _openBooking() {
+    logger.debug(
+      'Navigating to ServicePage - masterId: $_masterId, phoneNumber: ${widget.phoneNumber}',
+    );
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -131,6 +144,7 @@ class _WelcomePageState extends State<WelcomePage> {
     }
 
     if (_error != null || _masterInfo == null) {
+      logger.error('Error displaying WelcomePage: $_error');
       return Scaffold(
         backgroundColor: AppColors.backgroundDefault,
         body: Center(
@@ -180,6 +194,10 @@ class _WelcomePageState extends State<WelcomePage> {
       }
     }
 
+    logger.debug(
+      'Building WelcomePage - width: $width, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
+    );
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
@@ -214,20 +232,27 @@ class _WelcomePageState extends State<WelcomePage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: AppIcons.filter.icon(
-                              context,
-                              size: 24,
-                            ), // ЗАМЕНА: Icons.menu → AppIcons.filter
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MenuPage(),
-                              ),
-                            ),
+                            icon: AppIcons.menu.icon(context, size: 24),
+                            onPressed: () {
+                              logger.debug(
+                                'Opening menu page from WelcomePage',
+                              );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MenuPage(),
+                                ),
+                              );
+                            },
                           )
                         else
                           GestureDetector(
-                            onTap: () => openStore(),
+                            onTap: () {
+                              logger.debug(
+                                'Opening store from desktop WelcomePage',
+                              );
+                              openStore();
+                            },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
@@ -298,7 +323,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                         context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         'Выбор услуги',
@@ -311,7 +336,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                         context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         'Выбор времени',
@@ -324,7 +349,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                         context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         'Персональные данные',
@@ -372,7 +397,10 @@ class _WelcomePageState extends State<WelcomePage> {
               padding: const EdgeInsets.all(16.0),
               child: AppTextButton.large(
                 text: 'Записаться к мастеру',
-                onTap: _openBooking,
+                onTap: () {
+                  logger.debug('Booking button tapped on mobile');
+                  _openBooking();
+                },
               ),
             ),
         ],
@@ -389,6 +417,10 @@ class _WelcomePageState extends State<WelcomePage> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final availableHeight = height - 88 - 88 - 70;
+
+    logger.debug(
+      'Building desktop layout - height: $height, width: $width, availableHeight: $availableHeight, showImage: $showImage, imageWidth: $imageWidth',
+    );
 
     return Center(
       child: Row(
@@ -461,7 +493,12 @@ class _WelcomePageState extends State<WelcomePage> {
                             const SizedBox(height: 32),
                             AppTextButton.large(
                               text: 'Записаться к мастеру',
-                              onTap: _openBooking,
+                              onTap: () {
+                                logger.debug(
+                                  'Booking button tapped on desktop',
+                                );
+                                _openBooking();
+                              },
                             ),
                           ],
                         ),
@@ -537,7 +574,12 @@ class _WelcomePageState extends State<WelcomePage> {
                       left: 24,
                       right: 24,
                       child: GestureDetector(
-                        onTap: () => openStore(),
+                        onTap: () {
+                          logger.debug(
+                            'Store download button tapped from image',
+                          );
+                          openStore();
+                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
@@ -647,12 +689,17 @@ class _WelcomePageState extends State<WelcomePage> {
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                        'assets/images/master_photo.png',
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
+                      errorBuilder: (context, error, stackTrace) {
+                        logger.warning(
+                          'Не удалось загрузить аватар мастера: $masterAvatarUrl, ошибка: $error',
+                        );
+                        return Image.asset(
+                          'assets/images/master_photo.png',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     )
                   : Image.asset(
                       'assets/images/master_photo.png',
@@ -793,13 +840,17 @@ class _WelcomePageState extends State<WelcomePage> {
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Image.asset(
-                                'assets/images/master_photo.png',
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                              ),
+                          errorBuilder: (context, error, stackTrace) {
+                            logger.warning(
+                              'Не удалось загрузить аватар мастера на мобильном: $masterAvatarUrl, ошибка: $error',
+                            );
+                            return Image.asset(
+                              'assets/images/master_photo.png',
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            );
+                          },
                         )
                       : Image.asset(
                           'assets/images/master_photo.png',

@@ -57,6 +57,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
         });
       },
       err: (error, stackTrace) {
+        logger.error('Ошибка загрузки информации о мастере: $error');
         setState(() {
           _error = error.toString();
           _isLoading = false;
@@ -109,23 +110,27 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        // Logger().warning('Не удалось открыть магазин: $url');
+        logger.warning('Не удалось открыть магазин: $url');
       }
     } catch (e) {
-      // Logger().error('Ошибка при открытии магазина: $e');
+      logger.error('Ошибка при открытии магазина: $e');
     }
   }
 
   void _getCode() {
     if (_phoneNotifier.value.length == 10) {
+      final phoneNumber = '7${_phoneNotifier.value}';
+      logger.debug('Sending to PhoneCodePage - phone: $phoneNumber');
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PhoneCodePage(
-            phoneNumber: '7${_phoneNotifier.value}',
-            masterId: _masterId,
-          ),
+          builder: (context) =>
+              PhoneCodePage(phoneNumber: phoneNumber, masterId: _masterId),
         ),
+      );
+    } else {
+      logger.warning(
+        'Некорректная длина номера телефона: ${_phoneNotifier.value}',
       );
     }
   }
@@ -140,6 +145,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     }
 
     if (_error != null || _masterInfo == null) {
+      logger.error('Ошибка отображения страницы авторизации: $_error');
       return Scaffold(
         backgroundColor: AppColors.backgroundDefault,
         body: Center(
@@ -174,7 +180,6 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     final isDesktop = width >= 750;
     final showImage = isDesktop && width >= 1120;
 
-    // Рассчитываем ширину картинки
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
       final fullContent =
@@ -189,6 +194,10 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
         imageWidth = 50 + (kWelcomeImageMaxWidth - 50) * t;
       }
     }
+
+    logger.debug(
+      'Building AuthorizationPage - width: $width, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
+    );
 
     return Scaffold(
       backgroundColor: AppColors.backgroundDefault,
@@ -224,16 +233,16 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: AppIcons.filter.icon(
-                              context,
-                              size: 24,
-                            ), // ЗАМЕНА: Icons.menu → AppIcons.filter
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MenuPage(),
-                              ),
-                            ),
+                            icon: AppIcons.menu.icon(context, size: 24),
+                            onPressed: () {
+                              logger.debug('Opening menu page');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MenuPage(),
+                                ),
+                              );
+                            },
                           )
                         else
                           GestureDetector(
@@ -306,7 +315,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                                         context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         'Выбор услуги',
@@ -319,7 +328,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                                         context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         'Выбор времени',
@@ -332,7 +341,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                                         context,
                                         size: 16,
                                         color: AppColors.textPlaceholder,
-                                      ), // ЗАМЕНА: Icons.chevron_right → AppIcons.chevronForward
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         'Персональные данные',
@@ -387,6 +396,10 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final availableHeight = height - 88 - 88 - 70;
+
+    logger.debug(
+      'Building desktop layout - height: $height, width: $width, availableHeight: $availableHeight, showImage: $showImage, imageWidth: $imageWidth',
+    );
 
     return Center(
       child: Row(
@@ -642,12 +655,17 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                        'assets/images/master_photo.png',
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
+                      errorBuilder: (context, error, stackTrace) {
+                        logger.warning(
+                          'Не удалось загрузить аватар мастера: $masterAvatarUrl, ошибка: $error',
+                        );
+                        return Image.asset(
+                          'assets/images/master_photo.png',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     )
                   : Image.asset(
                       'assets/images/master_photo.png',

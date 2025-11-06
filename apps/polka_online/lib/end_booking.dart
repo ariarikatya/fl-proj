@@ -209,7 +209,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: AppIcons.filter.icon(
+                            icon: AppIcons.menu.icon(
                               context,
                               size: 24,
                               color: AppColors.textPrimary,

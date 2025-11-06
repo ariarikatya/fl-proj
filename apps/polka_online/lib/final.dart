@@ -280,7 +280,7 @@ class _FinalPageState extends State<FinalPage> {
                         ),
                         if (!isDesktop)
                           IconButton(
-                            icon: AppIcons.filter.icon(context, size: 24),
+                            icon: AppIcons.menu.icon(context, size: 24),
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -763,14 +763,12 @@ class _FinalPageState extends State<FinalPage> {
         widget.service?.duration.toDurationStringShort() ?? '';
     final servicePrice = widget.service?.price ?? 0;
 
-    const double serviceTextLeftPadding = 60.0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // Левая колонка с заголовками
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Услуга',
@@ -780,65 +778,9 @@ class _FinalPageState extends State<FinalPage> {
                           : AppTextStyles.bodyMedium)
                       .copyWith(color: AppColors.textSecondary),
             ),
-            Expanded(
-              child: Text(
-                _trimServiceName(serviceName),
-                style: isDesktop
-                    ? AppTextStyles.bodyLarge
-                    : AppTextStyles.bodyMedium,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                textAlign: TextAlign.right,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 7),
-
-        Padding(
-          padding: const EdgeInsets.only(left: serviceTextLeftPadding),
-          child: Row(
-            children: [
-              AppIcons.clock.icon(
-                context,
-                size: 16,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                serviceDuration,
-                style: isDesktop
-                    ? AppTextStyles.bodyMedium500
-                    : AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '|',
-                style: isDesktop
-                    ? AppTextStyles.bodyMedium500
-                    : AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '₽ $servicePrice',
-                style: isDesktop
-                    ? AppTextStyles.bodyMedium500
-                    : AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+            const SizedBox(
+              height: 31,
+            ), // 4 + 7 + 12 + 4 + отступы между блоками
             Text(
               'Дата',
               style:
@@ -847,13 +789,76 @@ class _FinalPageState extends State<FinalPage> {
                           : AppTextStyles.bodyMedium)
                       .copyWith(color: AppColors.textSecondary),
             ),
-            Text(
-              _formatDateTime(),
-              style: isDesktop
-                  ? AppTextStyles.bodyLarge
-                  : AppTextStyles.bodyMedium,
-            ),
           ],
+        ),
+
+        const SizedBox(width: 80),
+
+        // Правая колонка с контентом
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Название услуги
+              Text(
+                _trimServiceName(serviceName),
+                style: isDesktop
+                    ? AppTextStyles.bodyLarge
+                    : AppTextStyles.bodyMedium,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 7),
+
+              // Длительность и цена
+              Row(
+                children: [
+                  AppIcons.clock.icon(
+                    context,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    serviceDuration,
+                    style: isDesktop
+                        ? AppTextStyles.bodyMedium500
+                        : AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '|',
+                    style: isDesktop
+                        ? AppTextStyles.bodyMedium500
+                        : AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '₽ $servicePrice',
+                    style: isDesktop
+                        ? AppTextStyles.bodyMedium500
+                        : AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              // Дата и время
+              Text(
+                _formatDateTime(),
+                style: isDesktop
+                    ? AppTextStyles.bodyLarge
+                    : AppTextStyles.bodyMedium,
+              ),
+            ],
+          ),
         ),
       ],
     );
