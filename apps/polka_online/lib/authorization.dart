@@ -22,11 +22,13 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
   String? _error;
   late String _masterId;
   final _phoneNotifier = ValueNotifier<String>('');
+  bool _isSendingCode = false;
 
   @override
   void initState() {
     super.initState();
-    _masterId = widget.masterId ?? '1';
+    _masterId = widget.masterId ?? Dependencies.getMasterIdFromUrl() ?? '1';
+    logger.info('[AuthorizationPage] Initializing with masterId: $_masterId');
     _loadMasterInfo();
   }
 
@@ -42,43 +44,115 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
       _error = null;
     });
 
-    final repository = Dependencies.instance.masterRepository;
-    final result = await repository.getMasterInfo(int.parse(_masterId));
+    try {
+      final repository = Dependencies.instance.masterRepository;
+      final masterId = int.tryParse(_masterId);
 
-    result.when(
-      ok: (data) {
+      if (masterId == null) {
+        throw Exception('Неверный ID мастера: $_masterId');
+      }
+
+      final result = await repository.getMasterInfo(masterId);
+
+      result.when(
+        ok: (data) {
+          if (mounted) {
+            setState(() {
+              _masterInfo = data;
+              _isLoading = false;
+            });
+            logger.info(
+              '[AuthorizationPage] Master info loaded: ${data.master.fullName}',
+            );
+          }
+        },
+        err: (error, stackTrace) {
+          logger.error('[AuthorizationPage] Error loading master info: $error');
+          if (mounted) {
+            setState(() {
+              _error = _formatError(error, stackTrace);
+              _isLoading = false;
+            });
+          }
+        },
+      );
+    } catch (e, st) {
+      logger.error('[AuthorizationPage] Unexpected error: $e', e, st);
+      if (mounted) {
         setState(() {
-          _masterInfo = data;
+          _error = _formatError(e, st);
           _isLoading = false;
         });
-      },
-      err: (error, stackTrace) {
-        logger.error('Ошибка загрузки информации о мастере: $error');
-        setState(() {
-          _error = error.toString();
-          _isLoading = false;
-        });
-      },
-    );
+      }
+    }
+  }
+
+  String _formatError(Object error, StackTrace? stackTrace) {
+    final errorMsg = parseError(error, stackTrace);
+
+    if (errorMsg.contains('connection') || errorMsg.contains('network')) {
+      return 'Не удалось подключиться к серверу.\nПроверьте подключение к интернету.';
+    }
+    if (errorMsg.contains('timeout')) {
+      return 'Превышено время ожидания.\nПопробуйте ещё раз.';
+    }
+    if (errorMsg.contains('404')) {
+      return 'Мастер не найден.\nПроверьте правильность ссылки.';
+    }
+
+    return errorMsg;
   }
 
   Future<void> openStore() => StoreUtils.openStore();
 
-  void _getCode() {
-    if (_phoneNotifier.value.length == 10) {
-      final phoneNumber = '7${_phoneNotifier.value}';
-      logger.debug('Sending to PhoneCodePage - phone: $phoneNumber');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              PhoneCodePage(phoneNumber: phoneNumber, masterId: _masterId),
-        ),
-      );
-    } else {
+  Future<void> _sendCode() async {
+    if (_phoneNotifier.value.length != 10) {
       logger.warning(
-        'Некорректная длина номера телефона: ${_phoneNotifier.value}',
+        '[AuthorizationPage] Invalid phone length: ${_phoneNotifier.value}',
       );
+      showErrorSnackbar('Введите корректный номер телефона');
+      return;
+    }
+
+    final phoneNumber = '7${_phoneNotifier.value}';
+    logger.info('[AuthorizationPage] Sending code to: $phoneNumber');
+
+    setState(() => _isSendingCode = true);
+
+    try {
+      final authRepository = Dependencies.instance.authRepository;
+      final result = await authRepository.sendCode(phoneNumber);
+
+      setState(() => _isSendingCode = false);
+
+      result.when(
+        ok: (_) {
+          logger.info('[AuthorizationPage] Code sent successfully');
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PhoneCodePage(
+                  phoneNumber: phoneNumber,
+                  masterId: _masterId,
+                ),
+              ),
+            );
+          }
+        },
+        err: (error, stackTrace) {
+          logger.error('[AuthorizationPage] Error sending code: $error');
+          showErrorSnackbar(parseError(error, stackTrace));
+        },
+      );
+    } catch (e, st) {
+      logger.error(
+        '[AuthorizationPage] Unexpected error sending code: $e',
+        e,
+        st,
+      );
+      setState(() => _isSendingCode = false);
+      showErrorSnackbar('Произошла ошибка при отправке кода');
     }
   }
 
@@ -89,7 +163,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     }
 
     if (_error != null || _masterInfo == null) {
-      logger.error('Ошибка отображения страницы авторизации: $_error');
+      logger.error('[AuthorizationPage] Showing error state: $_error');
       return ErrorStateWidget(error: _error, onRetry: _loadMasterInfo);
     }
 
@@ -102,15 +176,10 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
       showImage: showImage,
     );
 
-    logger.debug(
-      'Building AuthorizationPage - width: $width, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
-    );
-
     return PageScaffold(
       isDesktop: isDesktop,
       showImage: showImage,
       onMenuTap: () {
-        logger.debug('Opening menu page');
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const MenuPage()),
@@ -167,9 +236,9 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
             valueListenable: _phoneNotifier,
             builder: (context, value, child) {
               return AppTextButton.large(
-                text: 'Получить код',
-                enabled: value.length == 10,
-                onTap: _getCode,
+                text: _isSendingCode ? 'Отправка...' : 'Получить код',
+                enabled: value.length == 10 && !_isSendingCode,
+                onTap: _sendCode,
               );
             },
           ),
@@ -207,9 +276,9 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
             valueListenable: _phoneNotifier,
             builder: (context, value, child) {
               return AppTextButton.large(
-                text: 'Получить код',
-                enabled: value.length == 10,
-                onTap: _getCode,
+                text: _isSendingCode ? 'Отправка...' : 'Получить код',
+                enabled: value.length == 10 && !_isSendingCode,
+                onTap: _sendCode,
               );
             },
           ),

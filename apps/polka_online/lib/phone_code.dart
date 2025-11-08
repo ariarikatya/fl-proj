@@ -33,13 +33,13 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   bool _isLoading = true;
 
   Timer? _resendTimer;
-  int _resendCountdown = 0;
+  int _resendCountdown = 30;
 
   @override
   void initState() {
     super.initState();
-    logger.debug(
-      'Initializing PhoneCodePage for phone: ${widget.phoneNumber}, masterId: ${widget.masterId}',
+    logger.info(
+      '[PhoneCodePage] Initialized - phone: ${widget.phoneNumber}, masterId: ${widget.masterId}',
     );
     _loadMasterInfo();
     _startResendTimer();
@@ -50,7 +50,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     _pinController.dispose();
     _focusNode.dispose();
     _resendTimer?.cancel();
-    logger.debug('Disposing PhoneCodePage');
     super.dispose();
   }
 
@@ -84,24 +83,29 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     setState(() => _isLoading = true);
 
     final repository = Dependencies.instance.masterRepository;
-    final result = await repository.getMasterInfo(1);
+    final result = await repository.getMasterInfo(int.parse(widget.masterId));
 
     result.when(
       ok: (data) {
-        setState(() {
-          _masterInfo = data;
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _masterInfo = data;
+            _isLoading = false;
+          });
+          logger.info('[PhoneCodePage] Master info loaded');
+        }
       },
       err: (error, stackTrace) {
-        logger.error('Ошибка загрузки информации о мастере: $error');
-        setState(() => _isLoading = false);
+        logger.error('[PhoneCodePage] Error loading master: $error');
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       },
     );
   }
 
   Future<void> _checkClientStatusAndNavigate() async {
-    logger.debug('Navigating to WelcomePage');
+    logger.info('[PhoneCodePage] Navigating to WelcomePage');
     if (mounted) {
       Navigator.pushReplacement(
         context,
@@ -118,51 +122,50 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   Future<void> _verifyCode(String code) async {
     if (code.length != 4) return;
 
-    // Заглушка для тестирования
-    if (code == '0942') {
-      logger.debug('Using test code 0942 - navigating to WelcomePage');
-      if (mounted) {
-        _checkClientStatusAndNavigate();
-      }
-      return;
-    }
-
     setState(() {
       _isVerifying = true;
       _errorText = null;
     });
 
-    final authRepository = Dependencies.instance.authRepository;
-    final result = await authRepository.verifyCode<Client>(
-      widget.phoneNumber,
-      code,
-      'web_simulator_udid',
-    );
+    logger.info('[PhoneCodePage] Verifying code: $code');
 
-    result.when(
-      ok: (authResult) {
-        logger.info(
-          'Code verified successfully for phone: ${widget.phoneNumber}',
-        );
+    try {
+      final authRepository = Dependencies.instance.authRepository;
+      final result = await authRepository.verifyCode<Client>(
+        widget.phoneNumber,
+        code,
+        'web_polka_online',
+      );
 
-        if (mounted) {
-          setState(() => _isVerifying = false);
-          _checkClientStatusAndNavigate();
-        }
-      },
-      err: (error, stackTrace) {
-        logger.error(
-          'Code verification error for phone ${widget.phoneNumber}: $error',
-        );
+      result.when(
+        ok: (authResult) {
+          logger.info('[PhoneCodePage] Code verified successfully');
 
-        if (mounted) {
-          setState(() {
-            _isVerifying = false;
-            _errorText = parseError(error, stackTrace);
-          });
-        }
-      },
-    );
+          if (mounted) {
+            setState(() => _isVerifying = false);
+            _checkClientStatusAndNavigate();
+          }
+        },
+        err: (error, stackTrace) {
+          logger.error('[PhoneCodePage] Code verification error: $error');
+
+          if (mounted) {
+            setState(() {
+              _isVerifying = false;
+              _errorText = parseError(error, stackTrace);
+            });
+          }
+        },
+      );
+    } catch (e, st) {
+      logger.error('[PhoneCodePage] Unexpected error: $e', e, st);
+      if (mounted) {
+        setState(() {
+          _isVerifying = false;
+          _errorText = 'Произошла ошибка при проверке кода';
+        });
+      }
+    }
   }
 
   Future<void> _resendCode() async {
@@ -173,14 +176,14 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
       _errorText = null;
     });
 
-    logger.debug('Resending code to ${widget.phoneNumber}');
+    logger.info('[PhoneCodePage] Resending code to ${widget.phoneNumber}');
 
     final authRepository = Dependencies.instance.authRepository;
     final result = await authRepository.sendCode(widget.phoneNumber);
 
     result.when(
       ok: (_) {
-        logger.info('Code resent successfully to ${widget.phoneNumber}');
+        logger.info('[PhoneCodePage] Code resent successfully');
 
         _pinController.clear();
         _focusNode.requestFocus();
@@ -188,34 +191,18 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
         if (mounted) {
           setState(() => _isResending = false);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Код отправлен повторно'),
-              duration: Duration(seconds: 2),
-              backgroundColor: Colors.green,
-            ),
-          );
+          showSuccessSnackbar('Код отправлен повторно');
         }
       },
       err: (error, stackTrace) {
-        logger.error(
-          'Resend code error for phone ${widget.phoneNumber}: $error',
-        );
+        logger.error('[PhoneCodePage] Resend error: $error');
 
         if (mounted) {
           setState(() {
             _isResending = false;
             _errorText = parseError(error, stackTrace);
           });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(parseError(error, stackTrace)),
-              duration: const Duration(seconds: 3),
-              backgroundColor: Colors.red,
-            ),
-          );
+          showErrorSnackbar(parseError(error, stackTrace));
         }
       },
     );
@@ -234,15 +221,10 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
       showImage: showImage,
     );
 
-    logger.debug(
-      'Building PhoneCodePage - width: $width, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
-    );
-
     return PageScaffold(
       isDesktop: isDesktop,
       showImage: showImage,
       onMenuTap: () {
-        logger.debug('Opening menu page from PhoneCodePage');
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const MenuPage()),
@@ -300,12 +282,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
               width: double.infinity,
               child: AppTextButton.large(
                 text: 'Отправить',
-                onTap: () {
-                  logger.debug(
-                    'Manual code submission on desktop: ${_pinController.text}',
-                  );
-                  _verifyCode(_pinController.text);
-                },
+                onTap: () => _verifyCode(_pinController.text),
               ),
             ),
           const SizedBox(height: 24),
@@ -388,7 +365,6 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
             onChanged: (value) => setState(() {}),
             onCompleted: (value) {
               if (MediaQuery.of(context).size.width < 750) {
-                logger.debug('Code completed on mobile: $value');
                 _verifyCode(value);
               }
             },

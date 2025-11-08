@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:shared/shared.dart';
 
-// Флаг для переключения между моком и реальным API
-const bool useMockData = true;
+const bool useMockData = false;
 
 class Dependencies {
   Dependencies._();
@@ -11,44 +11,91 @@ class Dependencies {
 
   late final MasterRepository masterRepository;
   late final AuthRepository authRepository;
+  late final ProfileRepository profileRepository;
   late final Dio dio;
 
   void init() {
     if (useMockData) {
-      // Для разработки: используем моковый Dio с интерцептором
+      logger.info(
+        '[Dependencies] 🎭 Using MOCK data (set useMockData = false to use real API)',
+      );
       dio = _createMockDio();
       masterRepository = MockMasterRepository();
       authRepository = RestAuthRepository(dio);
+      profileRepository = RestProfileRepository(dio);
     } else {
-      // Для продакшена: используем реальный API
-      dio = Dio(
-        BaseOptions(
-          baseUrl: 'https://polka-bm.online/api_v1',
-          contentType: 'application/json',
-        ),
-      );
+      logger.info('[Dependencies] 🌐 Using REAL API');
+      dio = DioFactory.createDio();
       masterRepository = RestMasterRepository(dio);
       authRepository = RestAuthRepository(dio);
+      profileRepository = RestProfileRepository(dio);
     }
   }
 
-  // Создаем Dio с моковым интерцептором
+  /// Извлекает masterId из текущего URL
+  static String? getMasterIdFromUrl() {
+    final uri = Uri.base;
+
+    logger.debug('[Dependencies] Current URL: $uri');
+    logger.debug('[Dependencies] Path: ${uri.path}');
+    logger.debug('[Dependencies] Query params: ${uri.queryParameters}');
+
+    // Проверяю query: /?masterId=123
+    if (uri.queryParameters.containsKey('masterId')) {
+      final masterId = uri.queryParameters['masterId'];
+      logger.info('[Dependencies] Found masterId in query: $masterId');
+      return masterId;
+    }
+
+    // Проверяю: /masters/123
+    final pathSegments = uri.pathSegments;
+    if (pathSegments.length >= 2 && pathSegments[0] == 'masters') {
+      final masterId = pathSegments[1];
+      logger.info('[Dependencies] Found masterId in path: $masterId');
+      return masterId;
+    }
+
+    logger.warning('[Dependencies] No masterId found in URL, using default: 1');
+    return null;
+  }
+
   Dio _createMockDio() {
     final mockDio = Dio(
       BaseOptions(baseUrl: 'https://mock.api', contentType: 'application/json'),
     );
-
-    // Добавляем интерцептор для мока
-    mockDio.interceptors.add(MockApiInterceptor());
-
+    mockDio.interceptors.add(_MockApiInterceptor());
     return mockDio;
   }
 }
 
-// ============================================================
-// 🔹 Моковый интерцептор для имитации API
-// ============================================================
-class MockApiInterceptor extends Interceptor {
+class RestMasterRepository extends MasterRepository {
+  RestMasterRepository(this.dio);
+
+  final Dio dio;
+
+  @override
+  Future<Result<MasterInfo>> getMasterInfo(int masterId) => tryCatch(() async {
+    logger.debug('[MasterRepository] Fetching master info for id: $masterId');
+
+    final response = await dio.get('/masters/$masterId');
+
+    logger.debug('[MasterRepository] Response status: ${response.statusCode}');
+
+    final masterInfo = MasterInfo.fromJson(response.data);
+
+    logger.info(
+      '[MasterRepository] Successfully loaded master: ${masterInfo.master.fullName}',
+    );
+
+    return masterInfo;
+  });
+}
+
+abstract class MasterRepository {
+  Future<Result<MasterInfo>> getMasterInfo(int masterId);
+}
+
+class _MockApiInterceptor extends Interceptor {
   @override
   void onRequest(
     RequestOptions options,
@@ -56,42 +103,38 @@ class MockApiInterceptor extends Interceptor {
   ) async {
     logger.info('[Mock API] ${options.method} ${options.path}');
 
-    // Имитируем задержку сети
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 300));
 
-    // Отправка кода
-    if (options.path.contains('/auth/send-code')) {
+    if (options.path.contains('/send_code')) {
       handler.resolve(
         Response(
           requestOptions: options,
           statusCode: 200,
-          data: {'success': true},
+          data: {'message': 'Код отправлен'},
         ),
       );
       return;
     }
 
-    // Проверка кода
-    if (options.path.contains('/auth/verify-code')) {
+    if (options.path.contains('/auth/verify_code')) {
       final code = options.data['code'] as String?;
-
-      // Принимаем любой 4-значный код
       if (code != null && code.length == 4) {
         handler.resolve(
           Response(
             requestOptions: options,
             statusCode: 200,
             data: {
-              'phone_number': options.data['phone_number'],
-              'access_token':
-                  'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
+              'phone': options.data['phone'],
+              'token': 'mock_token_${DateTime.now().millisecondsSinceEpoch}',
               'refresh_token':
-                  'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-              'account': {
+                  'mock_refresh_${DateTime.now().millisecondsSinceEpoch}',
+              'client_profile': {
                 'id': 1,
                 'first_name': 'Тест',
                 'last_name': 'Пользователь',
-                'phone_number': options.data['phone_number'],
+                'city': 'Москва',
+                'preferred_services': [],
+                'avatar_url': '',
               },
             },
           ),
@@ -112,7 +155,6 @@ class MockApiInterceptor extends Interceptor {
       return;
     }
 
-    // Если маршрут не найден
     handler.reject(
       DioException(
         requestOptions: options,
@@ -127,40 +169,57 @@ class MockApiInterceptor extends Interceptor {
   }
 }
 
-// ============================================================
-// 🔹 Абстрактный репозиторий мастеров
-// ============================================================
-abstract class MasterRepository {
-  Future<Result<MasterInfo>> getMasterInfo(int masterId);
-}
-
-// ============================================================
-// 🔹 Моковая реализация репозитория мастеров
-// ============================================================
 class MockMasterRepository extends MasterRepository {
   @override
   Future<Result<MasterInfo>> getMasterInfo(int masterId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    logger.info(
+      '[MockMasterRepository] Loading mock data for master $masterId',
+    );
+
+    await Future.delayed(const Duration(milliseconds: 500));
 
     final master = Master(
       id: masterId,
-      firstName: 'Светлана',
-      lastName: 'Светлова',
-      profession: 'Визажист',
-      city: 'Москва',
-      experience: '5 лет',
-      about: 'Профессиональный визажист. Работаю с макияжем любой сложности.',
-      address: 'ул. Тверская, 10',
-      avatarUrl: 'assets/images/master_photo.png',
+      firstName: 'Мария',
+      lastName: 'Абрамова',
+      profession: 'Стилист по волосам',
+      city: 'Екатеринбург',
+      experience: '6 лет',
+      about: 'Профессиональный стилист с большим опытом работы',
+      address: 'ул. Ленина, 50',
+      avatarUrl: 'https://i.pravatar.cc/300?img=47',
       portfolio: const [],
       workplace: const [],
-      categories: const [],
+      categories: const [ServiceCategories.hairStyling],
       rating: 4.9,
       reviewsCount: 58,
-      latitude: 55.7558,
-      longitude: 37.6173,
+      latitude: 56.838011,
+      longitude: 60.597474,
       json: const {},
     );
+
+    final mockServices = [
+      Service(
+        id: 1,
+        category: ServiceCategories.hairStyling,
+        title: 'Стрижка женская',
+        duration: const Duration(minutes: 60),
+        description: 'Профессиональная женская стрижка',
+        location: ServiceLocation.studio,
+        resultPhotos: [],
+        price: 1500,
+      ),
+      Service(
+        id: 2,
+        category: ServiceCategories.hairStyling,
+        title: 'Окрашивание',
+        duration: const Duration(minutes: 120),
+        description: 'Окрашивание волос',
+        location: ServiceLocation.studio,
+        resultPhotos: [],
+        price: 3500,
+      ),
+    ];
 
     final schedule = Schedule(
       periodStart: DateTime.now(),
@@ -168,28 +227,16 @@ class MockMasterRepository extends MasterRepository {
       days: const {},
     );
 
-    final masterInfo = MasterInfo(
-      master: master,
-      services: const [],
-      schedule: schedule,
-      reviews: const [],
-      json: const {},
+    logger.info('[MockMasterRepository] Mock data loaded successfully');
+
+    return Result.ok(
+      MasterInfo(
+        master: master,
+        services: mockServices,
+        schedule: schedule,
+        reviews: const [],
+        json: const {},
+      ),
     );
-
-    return Result.ok(masterInfo);
   }
-}
-
-// ============================================================
-// 🔹 REST реализация репозитория мастеров (для продакшена)
-// ============================================================
-class RestMasterRepository extends MasterRepository {
-  RestMasterRepository(this.dio);
-  final Dio dio;
-
-  @override
-  Future<Result<MasterInfo>> getMasterInfo(int masterId) => tryCatch(() async {
-    final response = await dio.get('/masters/$masterId');
-    return MasterInfo.fromJson(response.data);
-  });
 }

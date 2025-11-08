@@ -16,7 +16,7 @@ class RestMasterRepository extends MasterRepository {
   });
 }
 
-// Моковая версия для разработки
+// Моковая версия
 class MockMasterRepository extends MasterRepository {
   @override
   Future<Result<MasterInfo>> getMasterInfo(int masterId) async {
