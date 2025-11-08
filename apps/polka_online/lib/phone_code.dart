@@ -127,45 +127,31 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
       _errorText = null;
     });
 
-    logger.info('[PhoneCodePage] Verifying code: $code');
+    final authRepository = Dependencies.instance.authRepository;
+    final result = await authRepository.verifyCode<Client>(
+      widget.phoneNumber,
+      code,
+      'web_polka_online',
+    );
 
-    try {
-      final authRepository = Dependencies.instance.authRepository;
-      final result = await authRepository.verifyCode<Client>(
-        widget.phoneNumber,
-        code,
-        'web_polka_online',
-      );
-
-      result.when(
-        ok: (authResult) {
-          logger.info('[PhoneCodePage] Code verified successfully');
-
-          if (mounted) {
-            setState(() => _isVerifying = false);
-            _checkClientStatusAndNavigate();
-          }
-        },
-        err: (error, stackTrace) {
-          logger.error('[PhoneCodePage] Code verification error: $error');
-
-          if (mounted) {
-            setState(() {
-              _isVerifying = false;
-              _errorText = parseError(error, stackTrace);
-            });
-          }
-        },
-      );
-    } catch (e, st) {
-      logger.error('[PhoneCodePage] Unexpected error: $e', e, st);
-      if (mounted) {
-        setState(() {
-          _isVerifying = false;
-          _errorText = 'Произошла ошибка при проверке кода';
-        });
-      }
-    }
+    result.when(
+      ok: (authResult) {
+        logger.info('[PhoneCodePage] Code verified successfully');
+        if (mounted) {
+          setState(() => _isVerifying = false);
+          _checkClientStatusAndNavigate();
+        }
+      },
+      err: (error, stackTrace) {
+        logger.error('[PhoneCodePage] Code verification error: $error');
+        if (mounted) {
+          setState(() {
+            _isVerifying = false;
+            _errorText = parseError(error, stackTrace);
+          });
+        }
+      },
+    );
   }
 
   Future<void> _resendCode() async {

@@ -44,52 +44,47 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
       _error = null;
     });
 
-    try {
-      final repository = Dependencies.instance.masterRepository;
-      final masterId = int.tryParse(_masterId);
+    final repository = Dependencies.instance.masterRepository;
+    final masterId = int.tryParse(_masterId);
 
-      if (masterId == null) {
-        throw Exception('Неверный ID мастера: $_masterId');
-      }
-
-      final result = await repository.getMasterInfo(masterId);
-
-      result.when(
-        ok: (data) {
-          if (mounted) {
-            setState(() {
-              _masterInfo = data;
-              _isLoading = false;
-            });
-            logger.info(
-              '[AuthorizationPage] Master info loaded: ${data.master.fullName}',
-            );
-          }
-        },
-        err: (error, stackTrace) {
-          logger.error('[AuthorizationPage] Error loading master info: $error');
-          if (mounted) {
-            setState(() {
-              _error = _formatError(error, stackTrace);
-              _isLoading = false;
-            });
-          }
-        },
-      );
-    } catch (e, st) {
-      logger.error('[AuthorizationPage] Unexpected error: $e', e, st);
-      if (mounted) {
-        setState(() {
-          _error = _formatError(e, st);
-          _isLoading = false;
-        });
-      }
+    if (masterId == null) {
+      setState(() {
+        _error = 'Неверный ID мастера: $_masterId';
+        _isLoading = false;
+      });
+      return;
     }
+
+    final result = await repository.getMasterInfo(masterId);
+
+    result.when(
+      ok: (data) {
+        if (mounted) {
+          setState(() {
+            _masterInfo = data;
+            _isLoading = false;
+          });
+          logger.info(
+            '[AuthorizationPage] Master info loaded: ${data.master.fullName}',
+          );
+        }
+      },
+      err: (error, stackTrace) {
+        logger.error('[AuthorizationPage] Error loading master info: $error');
+        if (mounted) {
+          setState(() {
+            _error = _formatError(error, stackTrace);
+            _isLoading = false;
+          });
+        }
+      },
+    );
   }
 
   String _formatError(Object error, StackTrace? stackTrace) {
     final errorMsg = parseError(error, stackTrace);
 
+    // Более понятные сообщения для пользователя
     if (errorMsg.contains('connection') || errorMsg.contains('network')) {
       return 'Не удалось подключиться к серверу.\nПроверьте подключение к интернету.';
     }
