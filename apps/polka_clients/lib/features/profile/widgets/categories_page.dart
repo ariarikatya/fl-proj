@@ -35,26 +35,26 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Мои категории'),
+      appBar: const CustomAppBar(title: 'Мои категории'),
       child: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
+                const Padding(
                   padding: EdgeInsets.fromLTRB(24, 12, 24, 8),
                   child: AppText('Выбери интересные тебе категории', style: AppTextStyles.headingSmall),
                 ),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                   child: AppText(
                     'На основе твоего выбора мы показываем мастеров на "Главной"',
                     style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(left: 24, right: 8),
+                  padding: const EdgeInsets.only(left: 24, right: 8),
                   child: Wrap(
                     spacing: 4,
                     runSpacing: 8,
@@ -66,8 +66,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                           onClose: () => setState(() => _selectedCategories.remove(option)),
                           child: Row(
                             children: [
-                              AppEmojis.fromMasterService(option).icon(size: Size(14, 14)),
-                              SizedBox(width: 4),
+                              AppEmojis.fromMasterService(option).icon(size: const Size(14, 14)),
+                              const SizedBox(width: 4),
                               AppText(option.label, style: AppTextStyles.bodyMedium),
                             ],
                           ),

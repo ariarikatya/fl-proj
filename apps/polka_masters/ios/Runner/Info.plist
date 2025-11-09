@@ -34,6 +34,10 @@
 	<string>We need access to photo library to upload photos.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to camera to upload photos.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>We need access to calendar to create events.</string>
+	<key>NSContactsUsageDescription</key>  
+	<string>We need this permission to fetch your contacts in app and show suggestions.</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>ru</string>

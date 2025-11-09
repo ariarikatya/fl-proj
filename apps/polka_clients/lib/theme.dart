@@ -16,6 +16,7 @@ const clientsTheme = AppTheme(
   iconsDefault: Color(0xFF525252),
   iconsMuted: Color(0xFFA3A3A3),
   error: Color(0xFFFF383C),
+  errorLight: Color(0xFFFFB3B3),
   success: Color(0xFF34C759),
   successLight: Color(0xFFE2FFE6),
   accent: Color(0xFFFF85C5),
@@ -38,6 +39,7 @@ const clientsDarkTheme = AppTheme(
   iconsDefault: Color(0xFF525252),
   iconsMuted: Color(0xFFA3A3A3),
   error: Color(0xFFFF383C),
+  errorLight: Color(0xFFFFB3B3),
   success: Color(0xFF34C759),
   successLight: Color(0xFFE2FFE6),
   accent: Color(0xFFFF85C5),
@@ -69,6 +71,7 @@ const pivnayaTheme = AppTheme(
 
   // Emotions — keep meaning but beer-styled
   error: Color(0xFFD93D3D), // Slightly darker ale red
+  errorLight: Color(0xFFFFB3B3),
   success: Color(0xFF7BB662), // Hops green
   successLight: Color(0xFFEAF6E2), // Light hops foam
   // Main accent — lager gold

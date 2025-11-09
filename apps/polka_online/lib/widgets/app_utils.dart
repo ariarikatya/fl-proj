@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared/shared.dart';
+import 'package:shared/shared.dart' hide launchUrl;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 
@@ -43,8 +43,7 @@ class FormatUtils {
     final years = int.tryParse(experience.split(' ').first) ?? 0;
     if (years % 10 == 1 && years % 100 != 11) {
       return '$years год';
-    } else if ([2, 3, 4].contains(years % 10) &&
-        ![12, 13, 14].contains(years % 100)) {
+    } else if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
       return '$years года';
     } else {
       return '$years лет';
@@ -86,21 +85,11 @@ class ErrorStateWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'Ошибка загрузки данных',
-                style: AppTextStyles.headingMedium,
-              ),
+              Text('Ошибка загрузки данных', style: AppTextStyles.headingMedium),
               const SizedBox(height: 16),
-              Text(
-                error ?? 'Неизвестная ошибка',
-                style: AppTextStyles.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
+              Text(error ?? 'Неизвестная ошибка', style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: onRetry,
-                child: const Text('Попробовать снова'),
-              ),
+              ElevatedButton(onPressed: onRetry, child: const Text('Попробовать снова')),
             ],
           ),
         ),

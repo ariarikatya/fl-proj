@@ -9,7 +9,7 @@ class MapFeedCubit extends PaginationCubit<MasterMapInfo> {
 
   final MapRepository repo;
   final BuildContext context;
-  final filter = ValueNotifier(SearchFilter());
+  final filter = ValueNotifier(const SearchFilter());
 
   @override
   Future<void> close() {

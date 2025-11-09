@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:polka_clients/app_links.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
 import 'package:shared/shared.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ReviewPage extends StatefulWidget {
   const ReviewPage({super.key, required this.booking});
@@ -56,14 +54,14 @@ class _ReviewPageState extends State<ReviewPage> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Оцени прошедшую услугу'),
+      appBar: const CustomAppBar(title: 'Оцени прошедшую услугу'),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _subtitle('Как все прошло?'),
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
               child: _BookingInfoCard(booking: widget.booking),
             ),
             _Stars(stars: _stars),
@@ -75,7 +73,7 @@ class _ReviewPageState extends State<ReviewPage> {
 
             _subtitle('Напиши комментарий'),
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: AppTextFormField(
                 hintText: 'Что было особенно приятно? Или что можно улучшить?',
                 maxLines: 4,
@@ -90,7 +88,7 @@ class _ReviewPageState extends State<ReviewPage> {
             MultiImagePickerWidget(count: 5, onImagesChanged: (images) => _images.value = images),
 
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 16, 24, 0),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               child: ValueListenableBuilder(
                 valueListenable: _continueNotifier,
                 builder: (context, enabled, child) {
@@ -99,7 +97,7 @@ class _ReviewPageState extends State<ReviewPage> {
               ),
             ),
 
-            _Disclaimer(),
+            const _Disclaimer(),
           ],
         ),
       ),
@@ -107,7 +105,7 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Widget _subtitle(String text) => Padding(
-    padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
+    padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
     child: AppText(text, style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600)),
   );
 }
@@ -118,7 +116,7 @@ class _Disclaimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
@@ -132,7 +130,7 @@ class _Disclaimer extends StatelessWidget {
             ),
             WidgetSpan(
               child: GestureDetector(
-                onTap: () => launchUrl(Uri.parse(AppLinks.reviewPublicationConditions)),
+                onTap: () => launchUrl(Uri.parse(AppDocLinks.reviewPublicationConditions)),
                 child: AppText(
                   'условия публикации',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -164,7 +162,7 @@ class _Tags extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(24, 0, 8, 16),
+      padding: const EdgeInsets.fromLTRB(24, 0, 8, 16),
       child: ValueListenableBuilder(
         valueListenable: _tags,
         builder: (context, value, child) {
@@ -196,7 +194,7 @@ class _Stars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(24, 8, 24, 16),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
       child: Center(
         child: ValueListenableBuilder(
           valueListenable: _stars,
@@ -247,7 +245,7 @@ class _BookingInfoCard extends StatelessWidget {
                 style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w700),
                 maxLines: 1,
               ),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               AppText(timeLabel, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w500), maxLines: 1),
               AppText(
                 booking.masterName,

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared/shared.dart';
@@ -8,20 +9,23 @@ import 'package:dotted_border/dotted_border.dart';
 class ImagePickerWidget extends StatelessWidget {
   const ImagePickerWidget({
     super.key,
-    // required this.isMain,
-    // required this.onMain,
     required this.onDelete,
     required this.image,
+    this.imagePLaceholderUrl,
+    this.onPlaceholderDelete,
     this.onImageAdded,
     this.onPickImage,
-  });
+  }) : assert(
+         (imagePLaceholderUrl == onPlaceholderDelete) || (imagePLaceholderUrl != null && onPlaceholderDelete != null),
+         'You should provide either both imagePlaceholderUrl and onPlaceholderDelete or none of them',
+       );
 
-  // final bool isMain;
-  // final VoidCallback onMain;
   final Function()? onPickImage;
   final Function(XFile image)? onImageAdded;
   final VoidCallback onDelete;
+  final VoidCallback? onPlaceholderDelete;
   final XFile? image;
+  final String? imagePLaceholderUrl;
 
   void _pickImage() async {
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -30,6 +34,13 @@ class ImagePickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget? picture;
+    if (imagePLaceholderUrl != null) {
+      picture = CachedNetworkImage(imageUrl: imagePLaceholderUrl!, fit: BoxFit.cover);
+    } else if (image != null) {
+      picture = Image.file(File(image!.path), fit: BoxFit.cover);
+    }
+
     return GestureDetector(
       onTap: onPickImage ?? _pickImage,
       child: Material(
@@ -40,18 +51,7 @@ class ImagePickerWidget extends StatelessWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: image == null
-                      ? SizedBox.shrink()
-                      // ? Container(
-                      //     decoration: BoxDecoration(
-                      //       borderRadius: BorderRadius.circular(14),
-                      //       color: context.ext.theme.backgroundDisabled,
-                      //     ),
-                      //   )
-                      : Image.file(File(image!.path), fit: BoxFit.cover),
-                ),
+                child: ClipRRect(borderRadius: BorderRadius.circular(14), child: picture ?? SizedBox.shrink()),
               ),
               DottedBorder(
                 options: RoundedRectDottedBorderOptions(
@@ -60,7 +60,7 @@ class ImagePickerWidget extends StatelessWidget {
                   color: context.ext.theme.iconsDefault,
                 ),
                 child: Center(
-                  child: image != null
+                  child: picture != null
                       ? SizedBox.shrink()
                       : Container(
                           padding: EdgeInsets.all(4),
@@ -72,12 +72,12 @@ class ImagePickerWidget extends StatelessWidget {
                         ),
                 ),
               ),
-              if (image != null)
+              if (picture != null)
                 Positioned(
                   top: 6,
                   right: 6,
                   child: GestureDetector(
-                    onTap: onDelete,
+                    onTap: imagePLaceholderUrl != null ? onPlaceholderDelete : onDelete,
                     child: Container(
                       padding: EdgeInsets.all(4),
                       decoration: BoxDecoration(
@@ -95,21 +95,3 @@ class ImagePickerWidget extends StatelessWidget {
     );
   }
 }
-
-// GestureDetector(
-//   onTap: onMain,
-//   child: Material(
-//     color: Colors.transparent,
-//     child: Row(
-//       children: [
-//         Checkbox(
-//           value: isMain,
-//           activeColor: context.ext.theme.accent,
-//           onChanged: (_) => onMain(),
-//           visualDensity: VisualDensity.compact,
-//         ),
-//         Expanded(child: AppText('Установить главным', style: AppTextStyles.bodySmall)),
-//       ],
-//     ),
-//   ),
-// ),

@@ -9,14 +9,16 @@ class AppTextFormField extends StatefulWidget {
   const AppTextFormField({
     super.key,
     this.labelText,
-    this.hintText,
+    this.hintText = '',
     this.maxLines = 1,
     this.controller,
     this.prefixIcon,
+    this.prefixIconConstraints,
     this.fillColor,
     this.focusNode,
     this.compact = false,
     this.onFieldSubmitted,
+    this.onChanged,
     this.keyboardType,
     this.inputFormatters,
     this.clearButton = true,
@@ -25,24 +27,28 @@ class AppTextFormField extends StatefulWidget {
     this.enabled = true,
     this.onClear,
     this.maxLength,
+    this.textStyle,
   });
 
   final String? labelText;
-  final String? hintText;
+  final String hintText;
   final int? maxLines, maxLength;
   final TextEditingController? controller;
   final Widget? prefixIcon;
+  final BoxConstraints? prefixIconConstraints;
   final bool clearButton;
   final Color? fillColor;
   final bool compact;
   final FocusNode? focusNode;
   final ValueChanged<String>? onFieldSubmitted;
+  final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final bool readOnly;
   final bool enabled;
   final FormFieldValidator<String>? validator;
   final VoidCallback? onClear;
+  final TextStyle? textStyle;
 
   @override
   State<AppTextFormField> createState() => _AppTextFormFieldState();
@@ -100,10 +106,11 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
           widget.onFieldSubmitted?.call(widget.controller?.text ?? '');
         }
       },
+      onChanged: widget.onChanged,
       focusNode: focusNode,
       maxLines: widget.maxLines,
       controller: widget.controller,
-      style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+      style: widget.textStyle ?? AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
       textAlignVertical: widget.compact ? TextAlignVertical.bottom : null,
       cursorColor: context.ext.theme.textPlaceholder,
       onFieldSubmitted: widget.onFieldSubmitted,
@@ -113,6 +120,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
           AppText(error, style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.error)),
       decoration: InputDecoration(
         prefixIcon: prefix,
+        prefixIconConstraints: widget.prefixIconConstraints ?? BoxConstraints.tight(Size(44, 44)),
         suffixIcon: clearBtn,
         suffixIconConstraints: BoxConstraints.tight(Size(48, 48)),
         floatingLabelBehavior: FloatingLabelBehavior.auto,
@@ -120,7 +128,6 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
         hintText: widget.hintText,
         floatingLabelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
         alignLabelWithHint: true,
-        prefixIconConstraints: BoxConstraints.tight(Size(44, 44)),
         labelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
         hintStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
         border: border,

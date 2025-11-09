@@ -6,14 +6,14 @@ import 'package:polka_clients/dependencies.dart';
 part 'feed_state.dart';
 
 class FeedCubit extends Cubit<FeedState> {
-  FeedCubit() : super(FeedState.initial()) {
+  FeedCubit() : super(const FeedState.initial()) {
     loadFeed();
   }
 
   final clientRepo = Dependencies().clientRepository;
 
   void loadFeed() async {
-    emit(FeedState.loading());
+    emit(const FeedState.loading());
 
     final result = await clientRepo.getMastersFeed();
 

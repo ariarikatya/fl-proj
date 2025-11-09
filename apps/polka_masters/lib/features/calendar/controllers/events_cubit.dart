@@ -9,7 +9,7 @@ typedef Events = Map<DateTime, List<Booking>>;
 class EventsCubit extends Cubit<Events> with SocketListenerMixin {
   EventsCubit(this.context, this.repo, this.websockets) : super({}) {
     controller = CalendarControllerProvider.of<Booking>(context).controller;
-    reloadEvents();
+    reloadEvents(); // TODO: HOW is this method gets called on every socket update???
     listenSockets(websockets);
   }
 
@@ -29,7 +29,7 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
       var _ = switch (updateType) {
         'created' => addEvent(booking),
         'changed' => updateEvent(booking.id, booking),
-        'deleted' => removeEvent(booking),
+        'deleted' => removeEvent(booking.id),
         _ => logger.error('unknown booking update type: $updateType'),
       };
       logger.debug('$updateType booking: ${booking.toJson()}');
@@ -46,19 +46,21 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
   }
 
   Future<void> addEvent(Booking event) async {
+    logger.debug('removing event ${event.id}');
     final colors = _getEventColors(event);
     controller.add(_createEvent(event, colors.bgcolor, colors.fgcolor));
   }
 
   Future<void> updateEvent(int bookingId, Booking newEvent) async {
+    logger.debug('updating event $bookingId');
     final colors = _getEventColors(newEvent);
     final oldEvent = controller.allEvents.firstWhere((e) => e.event?.id == bookingId);
     controller.update(oldEvent, _createEvent(newEvent, colors.bgcolor, colors.fgcolor));
   }
 
-  Future<void> removeEvent(Booking event) async {
-    final colors = _getEventColors(event);
-    controller.remove(_createEvent(event, colors.bgcolor, colors.fgcolor));
+  Future<void> removeEvent(int bookingId) async {
+    logger.debug('removing event $bookingId');
+    controller.removeWhere((e) => e.event?.id == bookingId);
   }
 
   Future<void> reloadEvents() async {

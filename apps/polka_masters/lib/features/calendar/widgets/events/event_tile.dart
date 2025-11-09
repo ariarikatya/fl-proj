@@ -35,13 +35,13 @@ class BookingEventTile extends StatelessWidget {
         description: event.description,
         padding: padding,
         backgroundColor: event.backgroundColor,
-        margin: EdgeInsets.only(bottom: 3),
+        margin: const EdgeInsets.only(bottom: 3),
         titleStyle: event.titleStyle,
         descriptionStyle: event.descriptionStyle,
         foregroundColor: event.foregroundColor,
       );
     } else {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
   }
 }
@@ -79,13 +79,13 @@ class SmallBookingEventTile extends StatelessWidget {
         description: event.description,
         padding: padding,
         backgroundColor: event.backgroundColor,
-        margin: EdgeInsets.only(left: 1, bottom: 1),
+        margin: const EdgeInsets.only(left: 1, bottom: 1),
         titleStyle: event.titleStyle,
         descriptionStyle: event.descriptionStyle,
         foregroundColor: event.foregroundColor,
       );
     } else {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
   }
 }

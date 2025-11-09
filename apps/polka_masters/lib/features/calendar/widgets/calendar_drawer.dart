@@ -15,7 +15,7 @@ class CalendarDrawer extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 10, 24, 0),
+              padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
@@ -29,7 +29,7 @@ class CalendarDrawer extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Column(children: [for (var mode in CalendarViewMode.values) _ViewModeButton(mode)]),
             ),
           ],
@@ -57,7 +57,7 @@ class _ViewModeButton extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: Container(
-          padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           decoration: calendar.viewMode == viewMode ? decoration : null,
           child: Row(spacing: 8, children: [viewMode.icon.icon(context), AppText(viewMode.label)]),
         ),

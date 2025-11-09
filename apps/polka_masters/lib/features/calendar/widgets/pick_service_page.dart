@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/calendar/widgets/service_card.dart';
 import 'package:polka_masters/scopes/master_scope.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class PickServicePage extends StatelessWidget {
@@ -11,7 +12,7 @@ class PickServicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return LoadDataPage(
       title: 'Твои услуги',
-      future: () => Dependencies().masterRepository.getMasterInfo(MasterScope.of(context).master.id),
+      future: () => Dependencies().masterRepository.getMasterInfo(context.read<MasterScope>().master.id),
       builder: (info) => _View(info.services),
     );
   }
@@ -32,16 +33,16 @@ class _ViewState extends State<_View> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Твои услуги'),
+      appBar: const CustomAppBar(title: 'Твои услуги'),
       child: Padding(
-        padding: EdgeInsetsGeometry.all(24),
+        padding: const EdgeInsetsGeometry.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppText('Выбери услугу', style: AppTextStyles.headingLarge),
-            SizedBox(height: 8),
-            AppText.secondary('Здесь показываются все созданные тобой услуги', style: AppTextStyles.bodyMedium),
-            SizedBox(height: 30),
+            const AppText('Выбери услугу', style: AppTextStyles.headingLarge),
+            const SizedBox(height: 8),
+            const AppText.secondary('Здесь показываются все созданные тобой услуги', style: AppTextStyles.bodyMedium),
+            const SizedBox(height: 30),
             Expanded(
               child: ListView.builder(
                 itemCount: widget.services.length,

@@ -236,6 +236,12 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "fast_contacts",
+      "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/fast_contacts-5.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.15"
+    },
+    {
       "name": "ffi",
       "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/ffi-2.1.4",
       "packageUri": "lib/",
@@ -1074,6 +1080,30 @@
       "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/web_socket_channel-3.0.3",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "webview_flutter",
+      "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/webview_flutter-4.13.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "webview_flutter_android",
+      "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/webview_flutter_android-4.10.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.9"
+    },
+    {
+      "name": "webview_flutter_platform_interface",
+      "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/webview_flutter_platform_interface-2.14.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "webview_flutter_wkwebview",
+      "rootUri": "file:///Users/ekaterinaaristova/.pub-cache/hosted/pub.dev/webview_flutter_wkwebview-3.23.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.9"
     },
     {
       "name": "win32",

@@ -16,6 +16,7 @@ class AppTheme {
     required this.iconsDefault,
     required this.iconsMuted,
     required this.error,
+    required this.errorLight,
     required this.success,
     required this.successLight,
     required this.accent,
@@ -43,6 +44,7 @@ class AppTheme {
   final Color buttonPrimary;
 
   final Color error;
+  final Color errorLight;
   final Color success;
   final Color successLight;
   final Color accent;

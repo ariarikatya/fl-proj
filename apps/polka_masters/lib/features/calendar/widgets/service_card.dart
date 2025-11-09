@@ -11,7 +11,7 @@ class ServiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 64,
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: enabled ? context.ext.theme.accentLight : context.ext.theme.backgroundHover,
         borderRadius: BorderRadius.circular(14),

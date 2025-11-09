@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared/src/dev/json_equatable.dart';
 import 'package:shared/src/models/service/service_categories.dart';
+import 'package:shared/src/models/service/service_location.dart';
 import 'package:shared/src/models/user.dart';
 
 class Master extends JsonEquatable implements User {
@@ -21,6 +22,7 @@ class Master extends JsonEquatable implements User {
     required this.reviewsCount,
     required this.latitude,
     required this.longitude,
+    required this.location,
     super.json,
   });
 
@@ -41,6 +43,7 @@ class Master extends JsonEquatable implements User {
     reviewsCount: json['reviews_count'] as int? ?? 0,
     latitude: (json['latitude'] as num? ?? 0).toDouble(),
     longitude: (json['longitude'] as num? ?? 0).toDouble(),
+    location: ServiceLocation.fromJson(json['location'] ?? ''),
     json: json,
   );
 
@@ -49,6 +52,7 @@ class Master extends JsonEquatable implements User {
   final List<String> portfolio, workplace;
   final List<ServiceCategories> categories;
   final double rating, latitude, longitude;
+  final ServiceLocation location;
 
   @override
   String get identifier => 'master-$id';
@@ -75,6 +79,7 @@ class Master extends JsonEquatable implements User {
     reviewsCount,
     latitude,
     longitude,
+    location,
   ];
 
   Master copyWith({
@@ -93,6 +98,7 @@ class Master extends JsonEquatable implements User {
     ValueGetter<int>? reviewsCount,
     ValueGetter<double>? latitude,
     ValueGetter<double>? longitude,
+    ValueGetter<ServiceLocation>? location,
   }) => Master(
     id: id,
     firstName: firstName != null ? firstName() : this.firstName,
@@ -110,6 +116,7 @@ class Master extends JsonEquatable implements User {
     reviewsCount: reviewsCount != null ? reviewsCount() : this.reviewsCount,
     latitude: latitude != null ? latitude() : this.latitude,
     longitude: longitude != null ? longitude() : this.longitude,
+    location: location != null ? location() : this.location,
     json: json,
   );
 
@@ -130,5 +137,6 @@ class Master extends JsonEquatable implements User {
     'reviews_count': reviewsCount,
     'latitude': latitude,
     'longitude': longitude,
+    'location': location.toJson(),
   };
 }

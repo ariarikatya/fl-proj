@@ -27,16 +27,16 @@ class ReviewsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Услуги мастера'),
+      appBar: const CustomAppBar(title: 'Услуги мастера'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             child: MasterHeader(master: master),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
             child: AppText(
               master.reviewsCount.pluralMasculine('отзыв'),
               style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
@@ -44,15 +44,15 @@ class ReviewsView extends StatelessWidget {
           ),
           Expanded(
             child: ListView.separated(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               itemCount: reviews.length,
-              separatorBuilder: (context, index) => SizedBox(height: 32),
+              separatorBuilder: (context, index) => const SizedBox(height: 32),
               itemBuilder: (context, index) {
                 return ReviewWidget(review: reviews[index]);
               },
             ),
           ),
-          SizedBox(height: 48),
+          const SizedBox(height: 48),
         ],
       ),
     );

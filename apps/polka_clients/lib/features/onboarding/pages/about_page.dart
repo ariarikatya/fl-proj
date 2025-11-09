@@ -40,10 +40,10 @@ class _OnboardingPage$AboutState extends OnboardingPageState<OnboardingPage$Abou
 
   @override
   List<Widget> content() => [
-    AppText('Расскажи о себе', style: AppTextStyles.headingLarge),
-    SizedBox(height: 24),
+    const AppText('Расскажи о себе', style: AppTextStyles.headingLarge),
+    const SizedBox(height: 24),
     AppTextFormField(labelText: 'Имя Фамилия', controller: name, validator: Validators.fullName),
-    SizedBox(height: 16),
+    const SizedBox(height: 16),
     GestureOverrideWidget(
       onTap: _pickCity,
       child: AppTextFormField(labelText: 'Твой город', controller: city, readOnly: true),

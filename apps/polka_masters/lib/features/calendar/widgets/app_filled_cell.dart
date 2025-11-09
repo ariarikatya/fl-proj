@@ -78,14 +78,14 @@ class AppFilledCell<T extends Object?> extends StatelessWidget {
       color: backgroundColor,
       child: Column(
         children: [
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           dayWidget,
           if (events.isNotEmpty)
             Expanded(
               child: Container(
-                margin: EdgeInsets.only(top: 5.0),
+                margin: const EdgeInsets.only(top: 5.0),
                 clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(),
+                decoration: const BoxDecoration(),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [for (var event in events) EventCard(event: event)],
@@ -134,11 +134,11 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 1, bottom: 1),
+      margin: const EdgeInsets.only(left: 1, bottom: 1),
       decoration: BoxDecoration(color: event.backgroundColor),
       child: Container(
-        margin: EdgeInsets.only(left: 1),
-        padding: EdgeInsets.fromLTRB(4, 4, 0, 4),
+        margin: const EdgeInsets.only(left: 1),
+        padding: const EdgeInsets.fromLTRB(4, 4, 0, 4),
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(color: event.foregroundColor),
         child: Text(

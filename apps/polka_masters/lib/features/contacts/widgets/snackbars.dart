@@ -6,7 +6,7 @@ SnackBar contactAddedSnackbar(BuildContext context, Contact contact) => infoSnac
   Row(
     spacing: 8,
     children: [
-      ContactAvatar(contact.avatarUrl),
+      ContactAvatar(contact, size: 32),
       Flexible(
         child: AppText.rich([
           TextSpan(

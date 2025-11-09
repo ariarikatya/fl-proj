@@ -5,6 +5,7 @@ sealed class MasterRepository {
   Future<Result<Service>> createMasterService(Service service);
   Future<Result<Schedule>> createMasterSchedule(Schedule schedule);
   Future<Result<MasterInfo>> getMasterInfo(int id);
+  Future<Result<OnlineBookingConfig>> getMasterLink(int id);
 
   Future<Result<String>> getClientPhone(int clientId);
 
@@ -64,4 +65,17 @@ class RestMasterRepository extends MasterRepository {
     final response = await dio.get('/client-phone/$clientId');
     return response.data['phone_number'] as String;
   });
+
+  @override
+  Future<Result<OnlineBookingConfig>> getMasterLink(int id) {
+    return Future.value(
+      Result.ok(
+        OnlineBookingConfig(
+          masterLink: 'https://polka-bm.online?master_id=$id',
+          publicMode: OnlineBookingPublicMode.private,
+          nightMode: true,
+        ),
+      ),
+    );
+  }
 }

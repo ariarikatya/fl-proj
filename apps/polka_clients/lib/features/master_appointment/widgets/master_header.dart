@@ -10,13 +10,13 @@ class MasterHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       decoration: BoxDecoration(color: context.ext.theme.backgroundSubtle, borderRadius: BorderRadius.circular(24)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           BlotAvatar(avatarUrl: master.avatarUrl),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

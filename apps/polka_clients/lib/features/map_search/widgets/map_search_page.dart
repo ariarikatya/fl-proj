@@ -37,9 +37,9 @@ class _MapSearchPageState extends State<MapSearchPage> {
   @override
   Widget build(BuildContext context) {
     if (mapInit.isCompleted) {
-      return _MapSearchPage();
+      return const _MapSearchPage();
     } else {
-      return AppPage(child: Center(child: LoadingIndicator()));
+      return const AppPage(child: Center(child: LoadingIndicator()));
     }
   }
 }
@@ -67,7 +67,7 @@ class __MapSearchPageState extends State<_MapSearchPage> {
       safeAreaBuilder: (child) => SafeArea(bottom: false, child: child),
       child: Stack(
         children: [
-          if (Platform.isAndroid || Platform.isIOS) MapView() else MockMapView(),
+          if (Platform.isAndroid || Platform.isIOS) const MapView() else const MockMapView(),
 
           Container(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
@@ -92,10 +92,10 @@ class __MapSearchPageState extends State<_MapSearchPage> {
                 _controller.clear();
                 blocs.get<MapFeedCubit>(context)
                   ..setQuery(null)
-                  ..setFilter(SearchFilter());
+                  ..setFilter(const SearchFilter());
                 blocs.get<MapMarkersPaginator>(context)
                   ..setQuery(null)
-                  ..setFilter(SearchFilter());
+                  ..setFilter(const SearchFilter());
               },
             ),
           ),
@@ -153,7 +153,7 @@ class _MastersSearchBarState extends State<MastersSearchBar> {
         Expanded(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              boxShadow: [BoxShadow(blurRadius: 4, offset: Offset(0, 1), color: Colors.black.withValues(alpha: 0.1))],
+              boxShadow: [BoxShadow(blurRadius: 4, offset: const Offset(0, 1), color: Colors.black.withValues(alpha: 0.1))],
               borderRadius: BorderRadius.circular(14),
             ),
             child: AppTextFormField(

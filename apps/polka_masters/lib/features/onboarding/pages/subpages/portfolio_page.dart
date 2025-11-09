@@ -33,13 +33,13 @@ class _PortfolioPageState extends OnboardingPageState<PortfolioPage, OnboardingC
 
   @override
   List<Widget> content() => [
-    AppText('Загрузи фото своих лучших работ', style: AppTextStyles.headingLarge),
-    SizedBox(height: 16),
+    const AppText('Загрузи фото своих лучших работ', style: AppTextStyles.headingLarge),
+    const SizedBox(height: 16),
     AppText(
       'Мы покажем их клиентам в твоей карточке',
       style: AppTextStyles.headingSmall.copyWith(color: context.ext.theme.textSecondary, fontWeight: FontWeight.w500),
     ),
-    SizedBox(height: 16),
+    const SizedBox(height: 16),
     Row(
       spacing: 8,
       children: [
@@ -58,7 +58,7 @@ class _PortfolioPageState extends OnboardingPageState<PortfolioPage, OnboardingC
           ),
       ],
     ),
-    SizedBox(height: 16),
+    const SizedBox(height: 16),
     Row(
       spacing: 8,
       children: [
@@ -75,7 +75,7 @@ class _PortfolioPageState extends OnboardingPageState<PortfolioPage, OnboardingC
               },
             ),
           ),
-        Spacer(),
+        const Spacer(),
       ],
     ),
   ];

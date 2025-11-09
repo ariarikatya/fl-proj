@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/booking/booking_utils.dart';
 import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
-import 'package:polka_clients/features/master_appointment/widgets/about_info.dart';
 import 'package:polka_clients/features/master_appointment/widgets/master_appointment_info.dart';
 import 'package:shared/shared.dart';
 
@@ -56,7 +55,7 @@ class BookingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Твоя услуга'),
+      appBar: const CustomAppBar(title: 'Твоя услуга'),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,13 +63,13 @@ class BookingView extends StatelessWidget {
             _Header(master: master, title: service.title, price: service.price, status: booking.status),
             if (booking.status == BookingStatus.completed)
               Padding(
-                padding: EdgeInsets.fromLTRB(24, 0, 24, 8),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                 child: booking.reviewSent
                     ? AppTextButtonSecondary.large(text: 'Отзыв отправлен', onTap: () {}, enabled: false)
                     : AppTextButtonSecondary.large(text: 'Оставить отзыв', onTap: () => leaveReview(context, booking)),
               ),
             Container(
-              padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               decoration: BoxDecoration(
                 border: Border.symmetric(horizontal: BorderSide(color: context.ext.theme.backgroundHover, width: 1)),
               ),
@@ -79,14 +78,14 @@ class BookingView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4,
                 children: [
-                  AppText('Когда:', style: AppTextStyles.headingSmall),
+                  const AppText('Когда:', style: AppTextStyles.headingSmall),
                   AppText(
                     booking.datetime.formatFull(),
                     style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                   ),
                   if (booking.status == BookingStatus.confirmed)
                     Padding(
-                      padding: EdgeInsets.only(top: 16),
+                      padding: const EdgeInsets.only(top: 16),
                       child: AppTextButtonSecondary.large(
                         text: 'Добавить в календарь',
                         onTap: () => addCalendarEvent(booking),
@@ -96,16 +95,16 @@ class BookingView extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               child: SizedBox(
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 4,
                   children: [
-                    AppText('Где:', style: AppTextStyles.headingSmall),
+                    const AppText('Где:', style: AppTextStyles.headingSmall),
                     AppText(
-                      service.location.label,
+                      master.location.label,
                       style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                       textAlign: TextAlign.center,
                     ),
@@ -114,7 +113,7 @@ class BookingView extends StatelessWidget {
                       style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     AppTextButtonSecondary.large(
                       text: 'Показать на карте',
                       onTap: () => showOnMap(context, master.latitude, master.longitude, service.title),
@@ -124,15 +123,15 @@ class BookingView extends StatelessWidget {
               ),
             ),
             if (master.workplace.isNotEmpty) ...[
-              Padding(
+              const Padding(
                 padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
                 child: AppText('Рабочее место', style: AppTextStyles.headingSmall),
               ),
               ImageScroll(imageUrls: master.workplace),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
             ],
             Container(
-              padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               width: double.infinity,
               decoration: BoxDecoration(
                 border: Border(top: BorderSide(color: context.ext.theme.backgroundHover, width: 1)),
@@ -144,7 +143,7 @@ class BookingView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     spacing: 8,
                     children: [
-                      Flexible(child: AppText('Связаться с мастером:', style: AppTextStyles.headingSmall)),
+                      const Flexible(child: AppText('Связаться с мастером:', style: AppTextStyles.headingSmall)),
                       BlotAvatar(avatarUrl: master.avatarUrl, size: 60),
                     ],
                   ),
@@ -174,7 +173,7 @@ class BookingView extends StatelessWidget {
               ),
             ),
             MasterAppointmentInfo(master: master),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
               child: switch (booking.status) {
@@ -191,7 +190,7 @@ class BookingView extends StatelessWidget {
                 _ => AppTextButton.large(text: 'Записаться снова', onTap: () => _bookAgain(context)),
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -210,13 +209,13 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsetsGeometry.fromLTRB(24, 16, 24, 16),
+      padding: const EdgeInsetsGeometry.fromLTRB(24, 16, 24, 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           BlotAvatar(avatarUrl: master.avatarUrl),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,12 +224,12 @@ class _Header extends StatelessWidget {
                   '${master.firstName} ${master.lastName}',
                   style: AppTextStyles.headingSmall.copyWith(height: 1),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 AppText(
                   master.profession,
                   style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Wrap(
                   spacing: 4,
                   runSpacing: 4,
@@ -239,11 +238,11 @@ class _Header extends StatelessWidget {
                     AboutInfo.experience(master: master, short: true),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 AppText(title),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 AppText('₽$price', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _BookingStatusBadge(status: status),
               ],
             ),
@@ -278,7 +277,7 @@ class _BookingStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       decoration: BoxDecoration(
         color: bgColorOf(context),
         border: Border.all(color: colorOf(context)),

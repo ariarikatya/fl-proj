@@ -16,7 +16,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late var _filter = widget.initFilter ?? SearchFilter();
+  late var _filter = widget.initFilter ?? const SearchFilter();
   late final _controller = TextEditingController();
   late final _focusNode = FocusNode();
 
@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _resetFilters() {
-    setState(() => _filter = SearchFilter());
+    setState(() => _filter = const SearchFilter());
     _search();
   }
 
@@ -55,12 +55,12 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Поиск'),
+      appBar: const CustomAppBar(title: 'Поиск'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
             child: Row(
               spacing: 8,
               children: [
@@ -79,16 +79,16 @@ class _SearchPageState extends State<SearchPage> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
             child: AppText('Нашли для тебя', style: AppTextStyles.headingSmall),
           ),
           Expanded(
             child: BlocBuilder<FeedSearchCubit, FeedSearchState>(
               bloc: blocs.get<FeedSearchCubit>(context),
               builder: (context, state) => switch (state) {
-                FeedSearchInitial() => SizedBox.shrink(),
-                FeedSearchLoading() => Center(child: LoadingIndicator()),
+                FeedSearchInitial() => const SizedBox.shrink(),
+                FeedSearchLoading() => const Center(child: LoadingIndicator()),
                 FeedSearchError(:final error) => Center(child: AppText(error)),
                 FeedSearchLoaded(:final data) =>
                   data.isEmpty
@@ -117,7 +117,7 @@ class FilterButton extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Container(
-            padding: EdgeInsets.all(11),
+            padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
               color: enabled ? context.ext.theme.accentLight : context.ext.theme.backgroundSubtle,
               borderRadius: BorderRadius.circular(14),

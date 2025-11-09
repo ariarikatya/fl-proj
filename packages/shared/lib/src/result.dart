@@ -50,7 +50,7 @@ final class ResultSuccess<T> extends Result<T> {
 
 final class ResultError<T> extends Result<T> {
   ResultError._(this.err, [this.stackTrace]) : super._() {
-    // if (kDebugMode) logger.error('Error caught in Result constructor', err, stackTrace);
+    handleError(err, stackTrace, false);
   }
 
   final Object err;

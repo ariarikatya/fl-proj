@@ -46,14 +46,14 @@ class _WorkplacePageState extends OnboardingPageState<WorkplacePage, OnboardingC
 
   @override
   List<Widget> content() => [
-    AppText('Расскажи, где ты принимаешь клиентов', style: AppTextStyles.headingLarge),
-    SizedBox(height: 24),
-    AppText('Выбери место', style: AppTextStyles.headingSmall),
-    SizedBox(height: 16),
-    _PlaceTypePicker(notifier: place),
-    SizedBox(height: 24),
-    AppText('Выбери адрес', style: AppTextStyles.headingSmall),
-    SizedBox(height: 8),
+    const AppText('Расскажи, где ты принимаешь клиентов', style: AppTextStyles.headingLarge),
+    const SizedBox(height: 24),
+    const AppText('Выбери место', style: AppTextStyles.headingSmall),
+    const SizedBox(height: 16),
+    ServiceLocationPicker(notifier: place),
+    const SizedBox(height: 24),
+    const AppText('Выбери адрес', style: AppTextStyles.headingSmall),
+    const SizedBox(height: 8),
     GestureOverrideWidget(
       onTap: _pickAddress,
       child: AppTextFormField(
@@ -63,9 +63,9 @@ class _WorkplacePageState extends OnboardingPageState<WorkplacePage, OnboardingC
         readOnly: true,
       ),
     ),
-    SizedBox(height: 24),
-    AppText('Добавь фото рабочего места', style: AppTextStyles.headingSmall),
-    SizedBox(height: 16),
+    const SizedBox(height: 24),
+    const AppText('Добавь фото рабочего места', style: AppTextStyles.headingSmall),
+    const SizedBox(height: 16),
     Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
@@ -86,33 +86,4 @@ class _WorkplacePageState extends OnboardingPageState<WorkplacePage, OnboardingC
       ],
     ),
   ];
-}
-
-class _PlaceTypePicker extends StatelessWidget {
-  const _PlaceTypePicker({required this.notifier});
-
-  final ValueNotifier<ServiceLocation?> notifier;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: notifier,
-      builder: (context, value, child) {
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: ServiceLocation.values
-              .map(
-                (e) => AppChip(
-                  onTap: () => notifier.value = e,
-                  onClose: () => notifier.value = null,
-                  enabled: value == e,
-                  child: AppText(e.label, style: AppTextStyles.bodyLarge),
-                ),
-              )
-              .toList(),
-        );
-      },
-    );
-  }
 }

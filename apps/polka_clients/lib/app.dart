@@ -27,7 +27,7 @@ class AppState extends State<App> {
     return MaterialApp(
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [Locale('ru', 'RU')],
-      home: MainPage(),
+      home: const MainPage(),
       navigatorKey: navigatorKey,
       navigatorObservers: [talkerRouteObserver()],
       builder: (context, child) => $injectScopes(child!),

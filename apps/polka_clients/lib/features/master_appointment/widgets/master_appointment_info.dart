@@ -9,7 +9,7 @@ class MasterAppointmentInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover, width: 1)),
       ),

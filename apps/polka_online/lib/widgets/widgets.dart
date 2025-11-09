@@ -39,42 +39,25 @@ class TopAppBar extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 maxWidth: showImage
-                    ? kMainContainerMaxWidth +
-                          kContainerImageGap +
-                          kWelcomeImageMaxWidth
+                    ? kMainContainerMaxWidth + kContainerImageGap + kWelcomeImageMaxWidth
                     : kMainContainerMaxWidth,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SvgPicture.asset(
-                    'assets/images/polka_logo.svg',
-                    width: 89,
-                    height: 32,
-                  ),
+                  SvgPicture.asset('assets/images/polka_logo.svg', width: 89, height: 32),
                   if (!isDesktop)
                     IconButton(
-                      icon: AppIcons.menu.icon(context, size: 24),
+                      icon: Icon(Icons.menu, color: context.ext.theme.iconsDefault),
                       onPressed: onMenuTap,
                     )
                   else
                     GestureDetector(
                       onTap: onDownloadTap,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          color: Colors.black,
-                        ),
-                        child: Text(
-                          'Скачать POLKA',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), color: Colors.black),
+                        child: Text('Скачать POLKA', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
                       ),
                     ),
                 ],
@@ -94,20 +77,11 @@ class Breadcrumbs extends StatelessWidget {
   final bool showImage;
   final int activeStep; // 0-3 (авторизация, услуга, время, данные)
 
-  const Breadcrumbs({
-    super.key,
-    required this.showImage,
-    required this.activeStep,
-  });
+  const Breadcrumbs({super.key, required this.showImage, required this.activeStep});
 
   @override
   Widget build(BuildContext context) {
-    final steps = [
-      'Авторизация',
-      'Выбор услуги',
-      'Выбор времени',
-      'Персональные данные',
-    ];
+    final steps = ['Авторизация', 'Выбор услуги', 'Выбор времени', 'Персональные данные'];
 
     final contentWidth = showImage
         ? kMainContainerMaxWidth + kContainerImageGap + kWelcomeImageMaxWidth
@@ -125,27 +99,19 @@ class Breadcrumbs extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: contentWidth.clamp(0.0, constraints.maxWidth),
-                  ),
+                  constraints: BoxConstraints(maxWidth: contentWidth.clamp(0.0, constraints.maxWidth)),
                   child: Row(
                     children: [
                       for (int i = 0; i < steps.length; i++) ...[
                         if (i > 0) ...[
                           const SizedBox(width: 4),
-                          AppIcons.chevronForward.icon(
-                            context,
-                            size: 16,
-                            color: AppColors.textPlaceholder,
-                          ),
+                          AppIcons.chevronForward.icon(context, size: 16, color: AppColors.textPlaceholder),
                           const SizedBox(width: 4),
                         ],
                         Text(
                           steps[i],
                           style: AppTextStyles.bodyLarge.copyWith(
-                            color: i == activeStep
-                                ? AppColors.textPrimary
-                                : AppColors.textPlaceholder,
+                            color: i == activeStep ? AppColors.textPrimary : AppColors.textPlaceholder,
                           ),
                         ),
                       ],
@@ -179,20 +145,13 @@ class MobileProgressBar extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: onBackTap,
-            child: AppIcons.chevronBack.icon(
-              context,
-              size: 24,
-              color: AppColors.textPrimary,
-            ),
+            child: AppIcons.chevronBack.icon(context, size: 24, color: AppColors.textPrimary),
           ),
           const SizedBox(width: 27),
           Container(
             width: 40,
             height: 8,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(1000),
-              color: AppColors.accentLight,
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(1000), color: AppColors.accentLight),
           ),
         ],
       ),
@@ -225,8 +184,7 @@ class DesktopMasterCard extends StatelessWidget {
     final years = int.tryParse(experience.split(' ').first) ?? 0;
     if (years % 10 == 1 && years % 100 != 11) {
       return '$years год';
-    } else if ([2, 3, 4].contains(years % 10) &&
-        ![12, 13, 14].contains(years % 100)) {
+    } else if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
       return '$years года';
     } else {
       return '$years лет';
@@ -264,18 +222,10 @@ class DesktopMasterCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Flexible(
-                child: _MasterInfoColumn(
-                  fullName: fullName,
-                  specialization: specialization,
-                  avatarUrl: avatarUrl,
-                ),
+                child: _MasterInfoColumn(fullName: fullName, specialization: specialization, avatarUrl: avatarUrl),
               ),
               const SizedBox(width: 20),
-              _MasterStatsColumn(
-                rating: rating,
-                experience: getYearsText(experience),
-                reviews: reviews,
-              ),
+              _MasterStatsColumn(rating: rating, experience: getYearsText(experience), reviews: reviews),
             ],
           ),
         ),
@@ -311,8 +261,7 @@ class MobileMasterCard extends StatelessWidget {
     final years = int.tryParse(experience.split(' ').first) ?? 0;
     if (years % 10 == 1 && years % 100 != 11) {
       return '$years год';
-    } else if ([2, 3, 4].contains(years % 10) &&
-        ![12, 13, 14].contains(years % 100)) {
+    } else if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
       return '$years года';
     } else {
       return '$years лет';
@@ -348,46 +297,25 @@ class MobileMasterCard extends StatelessWidget {
           children: [
             MasterAvatar(avatarUrl: avatarUrl, size: 80, splashSize: 112),
             const SizedBox(height: 16),
-            Text(
-              fullName,
-              style: AppTextStyles.headingMedium,
-              textAlign: TextAlign.center,
-            ),
+            Text(fullName, style: AppTextStyles.headingMedium, textAlign: TextAlign.center),
             const SizedBox(height: 4),
-            Text(
-              specialization,
-              style: AppTextStyles.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
+            Text(specialization, style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
-                  child: _StatItemVertical(
-                    value: rating.toStringAsFixed(1),
-                    label: 'Рейтинг',
-                    showStar: true,
-                  ),
+                  child: _StatItemVertical(value: rating.toStringAsFixed(1), label: 'Рейтинг', showStar: true),
                 ),
                 Expanded(
-                  child: _StatItemVertical(
-                    value: getYearsText(experience),
-                    label: 'Опыта',
-                  ),
+                  child: _StatItemVertical(value: getYearsText(experience), label: 'Опыта'),
                 ),
                 Expanded(
-                  child: _StatItemVertical(
-                    value: reviews.toString(),
-                    label: 'Отзыва',
-                  ),
+                  child: _StatItemVertical(value: reviews.toString(), label: 'Отзыва'),
                 ),
               ],
             ),
-            if (actionButton != null) ...[
-              const SizedBox(height: 24),
-              actionButton!,
-            ],
+            if (actionButton != null) ...[const SizedBox(height: 24), actionButton!],
           ],
         ),
       ),
@@ -403,24 +331,14 @@ class MasterAvatar extends StatelessWidget {
   final double size;
   final double splashSize;
 
-  const MasterAvatar({
-    super.key,
-    required this.avatarUrl,
-    this.size = 100,
-    this.splashSize = 140,
-  });
+  const MasterAvatar({super.key, required this.avatarUrl, this.size = 100, this.splashSize = 140});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
-        SvgPicture.asset(
-          'assets/images/pink_splash.svg',
-          width: splashSize,
-          height: splashSize,
-          fit: BoxFit.contain,
-        ),
+        SvgPicture.asset('assets/images/pink_splash.svg', width: splashSize, height: splashSize, fit: BoxFit.contain),
         ClipOval(
           child: avatarUrl.isNotEmpty
               ? Image.network(
@@ -428,19 +346,10 @@ class MasterAvatar extends StatelessWidget {
                   width: size,
                   height: size,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Image.asset(
-                    'assets/images/master_photo.png',
-                    width: size,
-                    height: size,
-                    fit: BoxFit.cover,
-                  ),
+                  errorBuilder: (context, error, stackTrace) =>
+                      Image.asset('assets/images/master_photo.png', width: size, height: size, fit: BoxFit.cover),
                 )
-              : Image.asset(
-                  'assets/images/master_photo.png',
-                  width: size,
-                  height: size,
-                  fit: BoxFit.cover,
-                ),
+              : Image.asset('assets/images/master_photo.png', width: size, height: size, fit: BoxFit.cover),
         ),
       ],
     );
@@ -509,9 +418,7 @@ class SideImage extends StatelessWidget {
                 right: 24,
                 child: Text(
                   overlayText!,
-                  style: imageWidth >= kWelcomeImageMaxWidth
-                      ? AppTextStyles.heading
-                      : AppTextStyles.headingLarge,
+                  style: imageWidth >= kWelcomeImageMaxWidth ? AppTextStyles.heading : AppTextStyles.headingLarge,
                 ),
               ),
             Positioned(
@@ -542,9 +449,7 @@ class SideImage extends StatelessWidget {
                   ),
                   child: Text(
                     'Скачать POLKA',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -565,11 +470,7 @@ class _MasterInfoColumn extends StatelessWidget {
   final String specialization;
   final String avatarUrl;
 
-  const _MasterInfoColumn({
-    required this.fullName,
-    required this.specialization,
-    required this.avatarUrl,
-  });
+  const _MasterInfoColumn({required this.fullName, required this.specialization, required this.avatarUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -605,11 +506,7 @@ class _MasterStatsColumn extends StatelessWidget {
   final String experience;
   final int reviews;
 
-  const _MasterStatsColumn({
-    required this.rating,
-    required this.experience,
-    required this.reviews,
-  });
+  const _MasterStatsColumn({required this.rating, required this.experience, required this.reviews});
 
   @override
   Widget build(BuildContext context) {
@@ -618,11 +515,7 @@ class _MasterStatsColumn extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _StatItem(
-          value: rating.toStringAsFixed(1),
-          label: 'Рейтинг',
-          showStar: true,
-        ),
+        _StatItem(value: rating.toStringAsFixed(1), label: 'Рейтинг', showStar: true),
         const SizedBox(height: 16),
         _StatItem(value: experience, label: 'Опыта'),
         const SizedBox(height: 16),
@@ -637,11 +530,7 @@ class _StatItem extends StatelessWidget {
   final String label;
   final bool showStar;
 
-  const _StatItem({
-    required this.value,
-    required this.label,
-    this.showStar = false,
-  });
+  const _StatItem({required this.value, required this.label, this.showStar = false});
 
   @override
   Widget build(BuildContext context) {
@@ -654,10 +543,7 @@ class _StatItem extends StatelessWidget {
           Row(
             children: [
               Text(value, style: AppTextStyles.bodyLarge),
-              if (showStar) ...[
-                const SizedBox(width: 4),
-                AppIcons.star.icon(context, size: 16),
-              ],
+              if (showStar) ...[const SizedBox(width: 4), AppIcons.star.icon(context, size: 16)],
             ],
           ),
           const SizedBox(height: 2),
@@ -673,11 +559,7 @@ class _StatItemVertical extends StatelessWidget {
   final String label;
   final bool showStar;
 
-  const _StatItemVertical({
-    required this.value,
-    required this.label,
-    this.showStar = false,
-  });
+  const _StatItemVertical({required this.value, required this.label, this.showStar = false});
 
   @override
   Widget build(BuildContext context) {
@@ -687,10 +569,7 @@ class _StatItemVertical extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(value, style: AppTextStyles.bodyLarge),
-            if (showStar) ...[
-              const SizedBox(width: 4),
-              AppIcons.star.icon(context, size: 16),
-            ],
+            if (showStar) ...[const SizedBox(width: 4), AppIcons.star.icon(context, size: 16)],
           ],
         ),
         const SizedBox(height: 4),

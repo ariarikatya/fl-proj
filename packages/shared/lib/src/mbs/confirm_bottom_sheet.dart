@@ -53,8 +53,9 @@ class _ConfirmSheet extends StatelessWidget {
           ],
           const SizedBox(height: 24),
           AppTextButton.large(text: acceptText, onTap: () => context.ext.pop(true)),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           AppLinkButton(text: declineText, onTap: () => context.ext.pop(false)),
+          const SizedBox(height: 8),
         ],
       ),
     );

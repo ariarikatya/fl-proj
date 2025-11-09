@@ -46,7 +46,7 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
   late Duration _endTime = widget.info.booking.startTime + widget.info.booking.duration;
 
   void _changeService() async {
-    final service = await context.ext.push<Service>(PickServicePage());
+    final service = await context.ext.push<Service>(const PickServicePage());
     if (service != null) {
       setState(() => _service = service);
     }
@@ -109,25 +109,14 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
           style: AppTextStyles.headingLarge,
         ),
         const SizedBox(height: 24),
-        AppText('Кто записан на услугу?', style: AppTextStyles.headingSmall),
+        const AppText('Кто записан на услугу?', style: AppTextStyles.headingSmall),
         const SizedBox(height: 16),
         switch (widget.info) {
           BookingInfo(contact: Contact contact) => ContactCard(contact: contact),
-          BookingInfo(client: Client client) => ContactCard(
-            contact: Contact(
-              id: client.id,
-              name: client.fullName,
-              number: widget.info.contact?.number ?? '',
-              avatarUrl: client.avatarUrl,
-            ),
-          ),
-          _ => ContactCard(
-            contact: Contact(id: 0, name: 'Неизвестный клиент', number: '', avatarUrl: null),
-          ),
         },
-        if (widget.info.client != null || widget.info.contact != null)
+        if (widget.info.client != null)
           Padding(
-            padding: EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: 8),
             child: Row(
               spacing: 8,
               children: [
@@ -136,9 +125,9 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
                     text: 'Чат',
                     onTap: () => ChatsUtils().openChat(
                       context,
-                      widget.info.client?.id ?? widget.info.contact!.id,
-                      widget.info.client?.fullName ?? widget.info.contact?.name ?? 'Неизвестный клиент',
-                      widget.info.client?.avatarUrl ?? widget.info.contact?.avatarUrl,
+                      widget.info.client?.id ?? widget.info.contact.id,
+                      widget.info.client?.fullName ?? widget.info.contact.name,
+                      widget.info.client?.avatarUrl ?? widget.info.contact.avatarUrl,
                       withClient: false,
                     ),
                   ),
@@ -149,7 +138,7 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
                     onTap: () {
                       ChatsUtils().callNumber(
                         Dependencies().masterRepository.getClientPhone(
-                          widget.info.client?.id ?? widget.info.contact!.id,
+                          widget.info.client?.id ?? widget.info.contact.id,
                         ),
                       );
                     },
@@ -158,18 +147,18 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
               ],
             ),
           ),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            AppText('Какая услуга?', style: AppTextStyles.headingSmall),
+            const AppText('Какая услуга?', style: AppTextStyles.headingSmall),
             AppLinkButton(text: 'Изменить', onTap: _changeService),
           ],
         ),
         const SizedBox(height: 16),
         ServiceCard(_service),
         const SizedBox(height: 16),
-        AppText('Когда?', style: AppTextStyles.headingSmall),
+        const AppText('Когда?', style: AppTextStyles.headingSmall),
         const SizedBox(height: 8),
         AppText(
           'Ты можешь изменить время услуги, а мы сообщим клиенту в приложении',
@@ -182,10 +171,10 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
           onStartTimeChanged: _setStartTime,
           onEndTimeChanged: _setEndTime,
         ),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
         AppTextButton.large(text: 'Сохранить изменения', onTap: _saveChanges, enabled: hasChanges),
         Padding(
-          padding: EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
           child: Center(
             child: AppLinkButton(text: 'Отменить запись', onTap: _maybeDeleteBooking),
           ),

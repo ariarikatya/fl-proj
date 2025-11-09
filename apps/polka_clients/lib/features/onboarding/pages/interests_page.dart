@@ -30,18 +30,18 @@ class _OnboardingPage$InterestsState
 
   @override
   List<Widget> content() => [
-    AppText('Выбери, \nчто тебе интересно', style: AppTextStyles.headingLarge),
-    SizedBox(height: 8),
+    const AppText('Выбери, \nчто тебе интересно', style: AppTextStyles.headingLarge),
+    const SizedBox(height: 8),
     AppText(
       'Мы сможем сделать для тебя подборку максимально интересной',
       style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
     ),
-    SizedBox(height: 24),
+    const SizedBox(height: 24),
     ListView.separated(
       shrinkWrap: true,
       itemCount: ServiceCategories.categories.length,
       itemBuilder: (context, index) => _card(interests.entries.elementAt(index)),
-      separatorBuilder: (context, index) => SizedBox(height: 8),
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
     ),
   ];
 
@@ -53,7 +53,7 @@ class _OnboardingPage$InterestsState
       return GestureDetector(
         onTap: () => notifier.value = !notifier.value,
         child: Container(
-          padding: EdgeInsets.fromLTRB(24, 18, 24, 18),
+          padding: const EdgeInsets.fromLTRB(24, 18, 24, 18),
           decoration: BoxDecoration(
             color: value ? context.ext.theme.accentLight : context.ext.theme.backgroundHover,
             borderRadius: BorderRadius.circular(14),
@@ -61,7 +61,7 @@ class _OnboardingPage$InterestsState
           child: Row(
             children: [
               AppText(interest.label, style: AppTextStyles.bodyLarge),
-              Spacer(),
+              const Spacer(),
               if (value) Icon(Icons.check, color: context.ext.theme.iconsDefault, size: 16),
             ],
           ),

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/result.dart';
+import 'package:shared/src/utils.dart';
 import 'package:shared/src/widgets/app_page.dart';
 import 'package:shared/src/widgets/appbars.dart';
 import 'package:shared/src/widgets/error_widget.dart';
@@ -40,7 +42,12 @@ class _LoadDataPageState<T extends Object> extends State<LoadDataPage<T>> {
         }
         if (snapshot.hasError || snapshot.data?.isErr == true) {
           if (widget.onErrorBehavior == OnErrorBehavior.pop) {
-            Timer(Duration.zero, () => Navigator.pop(context));
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (snapshot.data case ResultError(:var err)) {
+                showErrorSnackbar(parseError(err));
+              }
+              context.ext.pop();
+            });
           } else {
             return Center(child: const AppErrorWidget(error: 'Произошла ошибка'));
           }

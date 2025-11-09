@@ -33,15 +33,15 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       phoneNumber: widget.phoneNumber,
       child: PageView(
         controller: _pageCtrl,
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         children: [
-          AboutOnboardingPage(),
-          AvatarUploadPage(),
-          WorkplacePage(),
-          ServiceCategoryPage(),
-          ServiceDescriptionPage(),
-          SchedulePage(),
-          PortfolioPage(),
+          const AboutOnboardingPage(),
+          const AvatarUploadPage(),
+          const WorkplacePage(),
+          const ServiceCategoryPage(),
+          const ServiceDescriptionPage(),
+          const SchedulePage(),
+          const PortfolioPage(),
         ],
       ),
     );

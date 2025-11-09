@@ -33,10 +33,18 @@ abstract class AppTextStyles {
     letterSpacing: 0,
   );
 
+  static const bodyLarge700 = TextStyle(
+    fontFamily: 'Manrope',
+    fontSize: 16,
+    height: 1.33,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0,
+  );
+
   static const bodyLarge = TextStyle(
     fontFamily: 'Manrope',
     fontSize: 16,
-    height: 1.5,
+    height: 1.33,
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
   );
@@ -52,7 +60,7 @@ abstract class AppTextStyles {
   static const bodyMedium = TextStyle(
     fontFamily: 'Manrope',
     fontSize: 14,
-    height: 20 / 14,
+    height: 18 / 14,
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
   );
@@ -60,7 +68,7 @@ abstract class AppTextStyles {
   static const bodyMedium500 = TextStyle(
     fontFamily: 'Manrope',
     fontSize: 14,
-    height: 20 / 14,
+    height: 18 / 14,
     fontWeight: FontWeight.w500,
     letterSpacing: 0,
   );
@@ -70,6 +78,14 @@ abstract class AppTextStyles {
     fontSize: 12,
     height: 1.33,
     fontWeight: FontWeight.w600,
+    letterSpacing: 0,
+  );
+
+  static const bodySmall500 = TextStyle(
+    fontFamily: 'Manrope',
+    fontSize: 12,
+    height: 1.33,
+    fontWeight: FontWeight.w500,
     letterSpacing: 0,
   );
 }

@@ -12,12 +12,12 @@ class SchedulePage extends StatefulWidget {
 class _SchedulePageState extends OnboardingPageState<SchedulePage, OnboardingController, ScheduleData?> {
   late final days = {
     for (var i in WeekDays.values)
-      i: useNotifier('day-$i', ScheduleDay(start: Duration(hours: 10), end: Duration(hours: 18), active: i.isWorkday)),
+      i: useNotifier('day-$i', ScheduleDay(start: const Duration(hours: 10), end: const Duration(hours: 18), active: i.isWorkday)),
   };
-  late final startTime = useNotifier('start', Duration(hours: 10));
-  late final endTime = useNotifier('end', Duration(hours: 18));
+  late final startTime = useNotifier('start', const Duration(hours: 10));
+  late final endTime = useNotifier('end', const Duration(hours: 18));
   late final startDate = useNotifier('start-date', DateTime.now());
-  late final endDate = useNotifier('end-date', startDate.value.add(Duration(days: 30)));
+  late final endDate = useNotifier('end-date', startDate.value.add(const Duration(days: 30)));
 
   @override
   List<Listenable> get dependencies => [...days.values];
@@ -43,10 +43,10 @@ class _SchedulePageState extends OnboardingPageState<SchedulePage, OnboardingCon
 
   @override
   List<Widget> content() => [
-    AppText('Создай расписание', style: AppTextStyles.headingLarge),
-    SizedBox(height: 16),
-    AppText('Выбери период', style: AppTextStyles.headingSmall),
-    SizedBox(height: 8),
+    const AppText('Создай расписание', style: AppTextStyles.headingLarge),
+    const SizedBox(height: 16),
+    const AppText('Выбери период', style: AppTextStyles.headingSmall),
+    const SizedBox(height: 8),
     Row(
       spacing: 16,
       children: [
@@ -82,7 +82,7 @@ class _SchedulePageState extends OnboardingPageState<SchedulePage, OnboardingCon
                     if (date.isAfter(DateTime.now())) {
                       endDate.value = date;
                     } else {
-                      endDate.value = startDate.value.add(Duration(days: 1));
+                      endDate.value = startDate.value.add(const Duration(days: 1));
                     }
                   }
                 },
@@ -92,9 +92,9 @@ class _SchedulePageState extends OnboardingPageState<SchedulePage, OnboardingCon
         ),
       ],
     ),
-    SizedBox(height: 16),
-    AppText('Выбери время', style: AppTextStyles.headingSmall),
-    SizedBox(height: 8),
+    const SizedBox(height: 16),
+    const AppText('Выбери время', style: AppTextStyles.headingSmall),
+    const SizedBox(height: 8),
     Row(
       spacing: 16,
       children: [
@@ -138,11 +138,11 @@ class _SchedulePageState extends OnboardingPageState<SchedulePage, OnboardingCon
         ),
       ],
     ),
-    SizedBox(height: 16),
-    AppText('Выбери время', style: AppTextStyles.headingSmall),
-    SizedBox(height: 8),
-    AppText('Отключая день, ты делаешь \nего выходным', style: AppTextStyles.bodyMedium),
-    SizedBox(height: 16),
+    const SizedBox(height: 16),
+    const AppText('Выбери время', style: AppTextStyles.headingSmall),
+    const SizedBox(height: 8),
+    const AppText('Отключая день, ты делаешь \nего выходным', style: AppTextStyles.bodyMedium),
+    const SizedBox(height: 16),
     for (var i in days.entries) _DayToggle(name: i.key.short, notifier: i.value),
   ];
 }
@@ -164,7 +164,7 @@ class _DayToggle extends StatelessWidget {
             return Material(
               color: Colors.transparent,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+                padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
                 child: RichText(
                   text: TextSpan(
                     style: AppTextStyles.bodyLarge.copyWith(
@@ -211,7 +211,7 @@ class _DayToggle extends StatelessWidget {
                           ),
                         ),
                       ),
-                      TextSpan(text: ' - '),
+                      const TextSpan(text: ' - '),
                       WidgetSpan(
                         alignment: PlaceholderAlignment.bottom,
                         child: GestureDetector(

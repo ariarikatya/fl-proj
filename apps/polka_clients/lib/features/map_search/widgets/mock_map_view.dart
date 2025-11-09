@@ -95,7 +95,7 @@ class _MockMapViewState extends State<MockMapView> {
           minScale: _minScale,
           maxScale: _maxScale,
           constrained: true,
-          boundaryMargin: EdgeInsets.all(500),
+          boundaryMargin: const EdgeInsets.all(500),
           child: Container(
             width: _mapSize.width,
             height: _mapSize.height,

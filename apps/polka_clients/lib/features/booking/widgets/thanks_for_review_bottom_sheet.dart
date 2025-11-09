@@ -15,7 +15,7 @@ class ThanksForReviewBottomSheet extends StatelessWidget {
         children: [
           Center(
             child: Padding(
-              padding: EdgeInsets.all(14),
+              padding: const EdgeInsets.all(14),
               child: Image.asset(
                 'assets/images/master_avatar_default.png',
                 package: 'shared',
@@ -25,9 +25,9 @@ class ThanksForReviewBottomSheet extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           AppText('Спасибо за отзыв!', style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           AppText(
             'Твой отклик помогает другим найти своего мастера, а мастеру — расти и становиться лучше. 💛',
             style: AppTextStyles.bodyLarge.copyWith(

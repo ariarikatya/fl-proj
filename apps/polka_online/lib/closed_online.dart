@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:polka_online/authorization.dart';
-import 'package:shared/shared.dart';
+import 'package:shared/shared.dart' hide launchUrl;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'menu.dart';
@@ -46,14 +46,10 @@ class _ClosedPageState extends State<ClosedPage> {
           _masterInfo = data;
           _isLoading = false;
         });
-        logger.debug(
-          'Master info loaded successfully for masterId: $_masterId',
-        );
+        logger.debug('Master info loaded successfully for masterId: $_masterId');
       },
       err: (error, stackTrace) {
-        logger.error(
-          'Error loading master info for masterId $_masterId: $error',
-        );
+        logger.error('Error loading master info for masterId $_masterId: $error');
         setState(() {
           _error = error.toString();
           _isLoading = false;
@@ -70,8 +66,7 @@ class _ClosedPageState extends State<ClosedPage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      url =
-          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+      url = 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
 
     final uri = Uri.parse(url);
@@ -89,10 +84,7 @@ class _ClosedPageState extends State<ClosedPage> {
 
   void _openBooking() {
     logger.debug('Navigating to AuthorizationPage from ClosedPage');
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AuthorizationPage()),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const AuthorizationPage()));
   }
 
   @override
@@ -113,10 +105,7 @@ class _ClosedPageState extends State<ClosedPage> {
     final height = MediaQuery.of(context).size.height;
     final isDesktop = LayoutHelper.isDesktopLayout(width);
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(
-      screenWidth: width,
-      showImage: showImage,
-    );
+    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
 
     logger.debug(
       'Building ClosedPage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
@@ -127,10 +116,7 @@ class _ClosedPageState extends State<ClosedPage> {
       showImage: showImage,
       onMenuTap: () {
         logger.debug('Opening menu page from ClosedPage');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
       },
       onDownloadTap: () {
         logger.debug('Opening store from ClosedPage header');
@@ -141,12 +127,7 @@ class _ClosedPageState extends State<ClosedPage> {
           ? SingleChildScrollView(
               child: SafeArea(
                 top: false,
-                child: _buildDesktopContent(
-                  width: width,
-                  height: height,
-                  showImage: showImage,
-                  imageWidth: imageWidth,
-                ),
+                child: _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth),
               ),
             )
           : _buildMobileContent(),
@@ -166,9 +147,7 @@ class _ClosedPageState extends State<ClosedPage> {
     );
 
     if (master.avatarUrl.isEmpty) {
-      logger.warning(
-        'Master avatar URL is empty for master: ${master.fullName}',
-      );
+      logger.warning('Master avatar URL is empty for master: ${master.fullName}');
     }
 
     return DesktopPageLayout(
@@ -186,16 +165,11 @@ class _ClosedPageState extends State<ClosedPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'У мастера установлена закрытая запись',
-            style: AppTextStyles.headingLarge,
-          ),
+          Text('У мастера установлена закрытая запись', style: AppTextStyles.headingLarge),
           const SizedBox(height: 16),
           Text(
             'Вас нет в клиентской базе мастера, поэтому запись недоступна. Если это не так, то, пожалуйста, попросите мастера добавить вас в клиентскую базу в приложении POLKA',
-            style: AppTextStyles.bodyMedium500.copyWith(
-              color: AppColors.iconsDefault,
-            ),
+            style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -224,29 +198,20 @@ class _ClosedPageState extends State<ClosedPage> {
   Widget _buildMobileContent() {
     final master = _masterInfo!.master;
 
-    logger.debug(
-      'Building mobile content for ClosedPage - master: ${master.fullName}, avatarUrl: ${master.avatarUrl}',
-    );
+    logger.debug('Building mobile content for ClosedPage - master: ${master.fullName}, avatarUrl: ${master.avatarUrl}');
 
     if (master.avatarUrl.isEmpty) {
-      logger.warning(
-        'Master avatar URL is empty for mobile view - master: ${master.fullName}',
-      );
+      logger.warning('Master avatar URL is empty for mobile view - master: ${master.fullName}');
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'У мастера установлена закрытая запись',
-          style: AppTextStyles.headingLarge,
-        ),
+        Text('У мастера установлена закрытая запись', style: AppTextStyles.headingLarge),
         const SizedBox(height: 16),
         Text(
           'Вас нет в клиентской базе мастера, поэтому запись недоступна. Если это не так, то, пожалуйста, попросите мастера добавить вас в клиентскую базу в приложении POLKA',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
-          ),
+          style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
         ),
         const SizedBox(height: 32),
         MobileMasterCard(
@@ -261,9 +226,7 @@ class _ClosedPageState extends State<ClosedPage> {
             child: AppTextButton.large(
               text: 'Скачать POLKA',
               onTap: () {
-                logger.debug(
-                  'Download POLKA button tapped in mobile ClosedPage',
-                );
+                logger.debug('Download POLKA button tapped in mobile ClosedPage');
                 _openBooking();
               },
             ),
@@ -282,16 +245,9 @@ class _ClosedPageState extends State<ClosedPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'Ошибка загрузки данных',
-                style: AppTextStyles.headingMedium,
-              ),
+              Text('Ошибка загрузки данных', style: AppTextStyles.headingMedium),
               const SizedBox(height: 16),
-              Text(
-                _error ?? 'Неизвестная ошибка',
-                style: AppTextStyles.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
+              Text(_error ?? 'Неизвестная ошибка', style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {

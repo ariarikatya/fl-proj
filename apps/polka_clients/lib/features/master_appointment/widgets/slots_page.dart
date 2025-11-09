@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/master_appointment/controller/slots_cubit.dart';
 import 'package:shared/shared.dart';
 
@@ -12,19 +13,14 @@ class SlotsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SlotsCubit(masterId, serviceId),
+      create: (context) => SlotsCubit(repo: Dependencies().clientRepository, masterId: masterId, serviceId: serviceId),
       child: AppPage(
-        appBar: ModalAppBar(title: 'Календарь'),
-        child: BlocConsumer<SlotsCubit, SlotsState>(
-          listener: (context, state) {
-            if (state is SlotsError) Navigator.pop(context);
-          },
-          builder: (context, state) => switch (state) {
-            SlotsInitial() => SizedBox.shrink(),
-            SlotsLoading() => Center(child: LoadingIndicator()),
-            SlotsLoaded(:final data) => SlotsView(slots: data),
-            SlotsError(:final error) => Text(error),
-          },
+        appBar: const ModalAppBar(title: 'Календарь'),
+        child: Builder(
+          builder: (ctx) => DataBuilder<SlotsCubit, List<AvailableSlot>>(
+            cubit: ctx.read<SlotsCubit>(),
+            dataBuilder: (_, slots) => SlotsView(slots: slots),
+          ),
         ),
       ),
     );
@@ -50,8 +46,8 @@ class _SlotsViewState extends State<SlotsView> {
     widget.slots.sort((a, b) => a.datetime.compareTo(b.datetime));
 
     for (var slot in widget.slots) {
-      map[slot.date] ??= [];
-      map[slot.date]!.add(slot);
+      map[slot.datetime.dateOnly.toLocal()] ??= [];
+      map[slot.datetime.dateOnly.toLocal()]!.add(slot);
     }
 
     return map;
@@ -92,7 +88,10 @@ class _SlotsViewState extends State<SlotsView> {
                           children: entry.value.map((slot) {
                             return GestureDetector(
                               onTap: () => setState(() => selectedSlot = slot),
-                              child: _SlotButton(time: slot.startTime.toTimeString(), isSelected: selectedSlot == slot),
+                              child: _SlotButton(
+                                time: slot.datetime.formatTimeOnly(),
+                                isSelected: selectedSlot == slot,
+                              ),
                             );
                           }).toList(),
                         ),
@@ -151,7 +150,7 @@ class NextPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: "Выбранный слот"),
+      appBar: const CustomAppBar(title: "Выбранный слот"),
       child: Center(child: Text("Вы выбрали: $selectedDate в $selectedTime")),
     );
   }

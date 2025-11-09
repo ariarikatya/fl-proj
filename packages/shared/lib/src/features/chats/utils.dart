@@ -6,7 +6,6 @@ import 'package:shared/src/features/chats/cubit/chats_cubit.dart';
 import 'package:shared/src/features/chats/widgets/new_chat_page.dart';
 import 'package:shared/src/result.dart';
 import 'package:shared/src/utils.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 final class ChatsUtils {
   ChatsUtils._();

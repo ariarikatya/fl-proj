@@ -2,13 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared/src/extensions/bloc.dart';
 import 'package:shared/src/logger.dart';
 import 'package:shared/src/result.dart';
 import 'package:shared/src/utils.dart';
 
 abstract class SearchCubit<T extends Object> extends Cubit<SearchState<T>> {
-  SearchCubit({this.throttleDuration = const Duration(milliseconds: 300), this.limit = 10})
-    : super(SearchState.initial()) {
+  SearchCubit({
+    this.throttleDuration = const Duration(milliseconds: 300),
+    this.limit = 10,
+    this.allowEmptySearch = false,
+  }) : super(SearchState.initial()) {
     logger.info('Created SearchCubit<$T>');
   }
 
@@ -20,41 +24,51 @@ abstract class SearchCubit<T extends Object> extends Cubit<SearchState<T>> {
 
   final Duration throttleDuration;
   final int limit;
+  final bool allowEmptySearch;
+  final _controllers = <TextEditingController>{};
+  TextEditingController? get activeController => _controllers.lastOrNull;
 
   void bindController(TextEditingController controller) {
+    _controllers.add(controller);
     controller.addListener(() {
-      if (controller.text.trim().isNotEmpty) {
-        search(controller.text.trim());
+      if (controller.text.trim().isNotEmpty || allowEmptySearch) {
+        search();
       }
       // Assuming the user has finished typing; Anyway this will be throttled in `search` method
       Timer(Duration(milliseconds: 500), () {
-        if (!isClosed) search(controller.text.trim());
+        if (!isClosed) search();
       });
     });
-    search(controller.text.trim());
+    search();
+  }
+
+  void unbindController(TextEditingController controller) {
+    _controllers.remove(controller);
+    search();
   }
 
   Future<Result<List<T>>> query(String query);
 
   bool _isLoading = false;
 
-  void search(String $query) async {
-    if (_isLoading) return;
+  void search() async {
+    if (_isLoading && isClosed || activeController == null) return;
 
-    if ($query.trim().isEmpty) return emit(SearchState.initial());
+    final $query = activeController!.text.trim();
+    if ($query.trim().isEmpty && !allowEmptySearch) return emit(SearchState.initial());
 
     try {
       _isLoading = true;
-      final data = await query($query);
+      final result = await query($query);
       emit(
-        data.when(
-          ok: (data) => SearchState.loaded(data: data),
+        result.when(
+          ok: (data) => SearchState.loaded(data: data.take(limit).toList()),
           err: (e, st) => SearchState.error(parseError(e, st)),
         ),
       );
       await Future.delayed(throttleDuration);
     } catch (e, st) {
-      emit(SearchState.error(parseError(e, st)));
+      safeEmit(SearchState.error(parseError(e, st)));
     } finally {
       _isLoading = false;
     }

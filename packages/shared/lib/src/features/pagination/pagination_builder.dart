@@ -21,30 +21,33 @@ class PaginationBuilder<C extends PaginationCubit<T>, T extends Object> extends 
   final int invisibleItemsThreshold;
   final EdgeInsets? padding;
   final IndexedWidgetBuilder? separatorBuilder;
-  final Widget Function(BuildContext) emptyBuilder;
-  final Widget Function(BuildContext, int index, T item) itemBuilder;
+  final Widget Function(BuildContext context) emptyBuilder;
+  final Widget Function(BuildContext context, int index, T item) itemBuilder;
   final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<C, PagingState<int, T>>(
       bloc: cubit,
-      builder: (context, state) => PagedListView<int, T>.separated(
-        state: state,
-        fetchNextPage: cubit.load,
-        scrollController: scrollController,
-        padding: padding,
-        separatorBuilder: separatorBuilder ?? (_, __) => SizedBox.shrink(),
-        reverse: reverse,
-        builderDelegate: PagedChildBuilderDelegate(
-          animateTransitions: true,
-          invisibleItemsThreshold: invisibleItemsThreshold,
-          itemBuilder: (context, item, index) => itemBuilder(context, index, item),
-          noItemsFoundIndicatorBuilder: (_) => emptyBuilder(context),
-          firstPageProgressIndicatorBuilder: (_) => _buildLoading(),
-          newPageProgressIndicatorBuilder: (_) => _buildLoading(),
-          firstPageErrorIndicatorBuilder: (_) => _buildError(),
-          newPageErrorIndicatorBuilder: (_) => _buildError(),
+      builder: (context, state) => RefreshWidget(
+        refresh: cubit.reset,
+        child: PagedListView<int, T>.separated(
+          state: state,
+          fetchNextPage: cubit.load,
+          scrollController: scrollController,
+          padding: padding,
+          separatorBuilder: separatorBuilder ?? (_, __) => SizedBox.shrink(),
+          reverse: reverse,
+          builderDelegate: PagedChildBuilderDelegate(
+            animateTransitions: true,
+            invisibleItemsThreshold: invisibleItemsThreshold,
+            itemBuilder: (context, item, index) => itemBuilder(context, index, item),
+            noItemsFoundIndicatorBuilder: (_) => emptyBuilder(context),
+            firstPageProgressIndicatorBuilder: (_) => _buildLoading(),
+            newPageProgressIndicatorBuilder: (_) => _buildLoading(),
+            firstPageErrorIndicatorBuilder: (_) => _buildError(),
+            newPageErrorIndicatorBuilder: (_) => _buildError(),
+          ),
         ),
       ),
     );

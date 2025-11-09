@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:polka_clients/features/master_appointment/widgets/about_info.dart';
 import 'package:polka_clients/features/master_appointment/widgets/master_appointment_info.dart';
 import 'package:shared/shared.dart';
 
@@ -15,7 +14,7 @@ class AppointmentConfirmationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Подтверждение брони'),
+      appBar: const CustomAppBar(title: 'Подтверждение брони'),
       child: Column(
         children: [
           Expanded(
@@ -24,20 +23,20 @@ class AppointmentConfirmationPage extends StatelessWidget {
                 children: [
                   _Header(master: master),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
                         _Row(left: 'Услуга, ${service.duration.toDurationString()}', right: service.title),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         _Row(left: 'Дата', right: slot.datetime.formatFull()),
-                        SizedBox(height: 16),
-                        _Row(left: 'Локация', right: '${master.address}, ${service.location.label.toLowerCase()}'),
-                        SizedBox(height: 24),
+                        const SizedBox(height: 16),
+                        _Row(left: 'Локация', right: '${master.address}, ${master.location.label.toLowerCase()}'),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                     decoration: BoxDecoration(
                       border: Border.symmetric(
                         horizontal: BorderSide(color: context.ext.theme.backgroundHover, width: 1),
@@ -45,8 +44,8 @@ class AppointmentConfirmationPage extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        AppText('Итого'),
-                        Spacer(),
+                        const AppText('Итого'),
+                        const Spacer(),
                         AppText('₽${service.price}', style: AppTextStyles.headingSmall),
                       ],
                     ),
@@ -57,7 +56,7 @@ class AppointmentConfirmationPage extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Column(
               spacing: 8,
               children: [
@@ -90,7 +89,7 @@ class _Row extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(child: AppText(left)),
-        SizedBox(width: 16),
+        const SizedBox(width: 16),
         Flexible(child: AppText(right, textAlign: TextAlign.end)),
       ],
     );
@@ -105,12 +104,12 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsetsGeometry.all(24),
+      padding: const EdgeInsetsGeometry.all(24),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           BlotAvatar(avatarUrl: master.avatarUrl),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,12 +118,12 @@ class _Header extends StatelessWidget {
                   '${master.firstName} ${master.lastName}',
                   style: AppTextStyles.headingSmall.copyWith(height: 1),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 AppText(
                   master.profession,
                   style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Wrap(
                   spacing: 4,
                   runSpacing: 4,

@@ -6,6 +6,9 @@ sealed class BookingsRepository {
   Future<Result<List<Booking>>> getAllBookings();
   Future<Result> confirmBooking(int bookingId);
   Future<Result> completeBooking(int bookingId);
+  Future<Result<List<Booking>>> getBookingsHistory(int contactId, {int page = 1, int limit = 10});
+  Future<Result<List<BookingInfo>>> getPendingBookingsInfo({int page = 1, int limit = 10});
+  Future<Result<List<BookingInfo>>> getScheduledTomorrowBookingsInfo({int page = 1, int limit = 10});
 
   /// Reject pending booking
   Future<Result> rejectBooking(int bookingId);
@@ -14,19 +17,12 @@ sealed class BookingsRepository {
   Future<Result> cancelBooking(int bookingId);
 
   Future<Result<Booking>> createBooking({
-    required int clientId,
+    required int contactId,
     required int serviceId,
     required DateTime date,
     required Duration startTime,
     required Duration endTime,
     String? notes,
-  });
-
-  Future<Result<bool>> blockTime({
-    required DateTime date,
-    required Duration startTime,
-    required Duration endTime,
-    String? reason,
   });
 
   Future<Result<Booking?>> updateBooking({
@@ -35,6 +31,13 @@ sealed class BookingsRepository {
     Duration? startTime,
     Duration? endTime,
     DateTime? date,
+  });
+
+  Future<Result<bool>> blockTime({
+    required DateTime date,
+    required Duration startTime,
+    required Duration endTime,
+    String? reason,
   });
 
   Future<Result<bool>> unblockTime({required DateTime date, required Duration startTime, required Duration endTime});
@@ -77,7 +80,7 @@ final class RestBookingsRepository extends BookingsRepository {
 
   @override
   Future<Result<Booking>> createBooking({
-    required int clientId,
+    required int contactId,
     required int serviceId,
     required DateTime date,
     required Duration startTime,
@@ -87,7 +90,7 @@ final class RestBookingsRepository extends BookingsRepository {
     final response = await dio.post(
       '/appointments/create-by-master',
       data: {
-        'client_id': clientId,
+        'contact_id': contactId,
         'service_id': serviceId,
         'date': date.toJson(),
         'start_time': startTime.toJson(),
@@ -145,4 +148,31 @@ final class RestBookingsRepository extends BookingsRepository {
     await dio.put('/master/appointment/$bookingId', data: body);
     return null; // Потому что поля на бэке своей жизнью живут
   });
+
+  @override
+  Future<Result<List<Booking>>> getBookingsHistory(int contactId, {int page = 1, int limit = 10}) => tryCatch(() async {
+    final params = {'page': page, 'limit': limit};
+    final response = await dio.get('/master/contacts/$contactId/appointments', queryParameters: params);
+    return parseJsonList(response.data['data'], Booking.fromJson);
+  });
+
+  @override
+  Future<Result<List<BookingInfo>>> getPendingBookingsInfo({int page = 1, int limit = 10}) => tryCatch(() async {
+    final params = {'page': page, 'limit': limit};
+    final response = await dio.get('/master/appointments/pending', queryParameters: params);
+    return parseJsonList(response.data['data'], BookingInfo.fromJson);
+  });
+
+  @override
+  Future<Result<List<BookingInfo>>> getScheduledTomorrowBookingsInfo({int page = 1, int limit = 10}) =>
+      tryCatch(() async {
+        final params = {
+          'page': page,
+          'limit': limit,
+          'date_from': DateTime.now().add(const Duration(days: 1)).toJson(),
+          'date_to': DateTime.now().add(const Duration(days: 1)).toJson(),
+        };
+        final response = await dio.get('/master/appointments/confirmed', queryParameters: params);
+        return parseJsonList(response.data['data'], BookingInfo.fromJson);
+      });
 }

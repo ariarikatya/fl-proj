@@ -6,22 +6,14 @@ import 'widgets.dart';
 // 🔹 Помощники для вычисления размеров
 // ============================================================
 class LayoutHelper {
-  static double calculateImageWidth({
-    required double screenWidth,
-    required bool showImage,
-  }) {
+  static double calculateImageWidth({required double screenWidth, required bool showImage}) {
     double imageWidth = kWelcomeImageMaxWidth;
     if (showImage) {
-      final fullContent =
-          kMainContainerMaxWidth + kContainerImageGap + kWelcomeImageMaxWidth;
+      final fullContent = kMainContainerMaxWidth + kContainerImageGap + kWelcomeImageMaxWidth;
       if (screenWidth < fullContent) {
         final denom = (kWelcomeImageMaxWidth - 50);
         final t = denom > 0
-            ? ((screenWidth -
-                          (kMainContainerMaxWidth + kContainerImageGap) -
-                          50) /
-                      denom)
-                  .clamp(0.0, 1.0)
+            ? ((screenWidth - (kMainContainerMaxWidth + kContainerImageGap) - 50) / denom).clamp(0.0, 1.0)
             : 1.0;
         imageWidth = 50 + (kWelcomeImageMaxWidth - 50) * t;
       }
@@ -81,18 +73,13 @@ class DesktopPageLayout extends StatelessWidget {
           Flexible(
             flex: 3,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: kMainContainerMaxWidth,
-              ),
+              constraints: const BoxConstraints(maxWidth: kMainContainerMaxWidth),
               child: Container(
                 constraints: BoxConstraints(minHeight: availableHeight),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundOnlineMain,
+                  color: AppColors.backgroundSubtle,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: AppColors.backgroundOnlineMain,
-                    width: 1,
-                  ),
+                  border: Border.all(color: AppColors.backgroundHover, width: 1),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0x0C0C0D0D).withValues(alpha: 0.05),
@@ -108,21 +95,14 @@ class DesktopPageLayout extends StatelessWidget {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.only(
-                  left: 64,
-                  top: 64,
-                  bottom: 64,
-                  right: 40,
-                ),
+                padding: const EdgeInsets.only(left: 64, top: 64, bottom: 64, right: 40),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(
-                          minWidth: screenWidth >= 1400
-                              ? 420
-                              : (screenWidth >= 1200 ? 400 : 360),
+                          minWidth: screenWidth >= 1400 ? 420 : (screenWidth >= 1200 ? 400 : 360),
                           maxWidth: 640,
                         ),
                         child: leftContent,
@@ -130,10 +110,7 @@ class DesktopPageLayout extends StatelessWidget {
                     ),
                     if (rightCard != null) ...[
                       const SizedBox(width: kContainerImageGap),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 520),
-                        child: rightCard!,
-                      ),
+                      ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: rightCard!),
                     ],
                   ],
                 ),
@@ -187,26 +164,15 @@ class PageScaffold extends StatelessWidget {
       backgroundColor: AppColors.backgroundDefault,
       body: Column(
         children: [
-          TopAppBar(
-            isDesktop: isDesktop,
-            showImage: showImage,
-            onMenuTap: onMenuTap,
-            onDownloadTap: onDownloadTap,
-          ),
-          if (!isDesktop && onBackTap != null)
-            MobileProgressBar(onBackTap: onBackTap!),
+          TopAppBar(isDesktop: isDesktop, showImage: showImage, onMenuTap: onMenuTap, onDownloadTap: onDownloadTap),
+          if (!isDesktop && onBackTap != null) MobileProgressBar(onBackTap: onBackTap!),
           Expanded(
             child: Container(
-              color: isDesktop
-                  ? AppColors.backgroundOnline
-                  : AppColors.backgroundDefault,
+              color: isDesktop ? AppColors.backgroundOnline : AppColors.backgroundDefault,
               child: Stack(
                 children: [
                   if (isDesktop && breadcrumbStep != null)
-                    Breadcrumbs(
-                      showImage: showImage,
-                      activeStep: breadcrumbStep!,
-                    ),
+                    Breadcrumbs(showImage: showImage, activeStep: breadcrumbStep!),
                   Padding(
                     padding: EdgeInsets.only(
                       left: 24.0,
@@ -221,10 +187,7 @@ class PageScaffold extends StatelessWidget {
             ),
           ),
           if (!isDesktop && mobileBottomButton != null)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: mobileBottomButton!,
-            ),
+            Padding(padding: const EdgeInsets.all(16.0), child: mobileBottomButton!),
         ],
       ),
     );
@@ -239,8 +202,7 @@ class StringUtils {
     final years = int.tryParse(experience.split(' ').first) ?? 0;
     if (years % 10 == 1 && years % 100 != 11) {
       return '$years год';
-    } else if ([2, 3, 4].contains(years % 10) &&
-        ![12, 13, 14].contains(years % 100)) {
+    } else if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
       return '$years года';
     } else {
       return '$years лет';

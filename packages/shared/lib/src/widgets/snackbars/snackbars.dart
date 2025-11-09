@@ -34,9 +34,13 @@ SnackBar successSnackbar(String text) {
   );
 }
 
-SnackBar infoSnackbar(Widget child, {double bottom = 24}) {
+SnackBar infoSnackbar(Widget child, {double bottom = 0}) {
   double bottomPadding = 24;
-  if (navigatorKey.currentContext case BuildContext ctx) bottomPadding = MediaQuery.of(ctx).padding.bottom;
+  if (navigatorKey.currentContext case BuildContext ctx) {
+    bottomPadding = MediaQuery.of(ctx).padding.bottom;
+    // If on the main page, add bottom navbar padding
+    if (Navigator.maybeOf(ctx)?.canPop() == false) bottomPadding += 24;
+  }
   final theme = navigatorKey.currentContext?.ext.theme;
 
   return SnackBar(

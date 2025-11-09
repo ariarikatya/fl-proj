@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared/shared.dart';
 import 'dependencies.dart';
 import 'authorization.dart';
@@ -7,7 +6,7 @@ import 'authorization.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initializeDateFormatting('ru_RU', null);
+  await initializeFormatting();
 
   Dependencies.instance.init();
 
@@ -42,6 +41,7 @@ class MyApp extends StatelessWidget {
       accent: const Color(0xFFFFB9CD),
       accentLight: const Color(0xFFFFF0F4),
       buttonPrimary: Colors.black,
+      errorLight: Colors.red.shade300,
     );
 
     return AppThemeScope(
@@ -50,10 +50,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Polka Online',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFB9CD)),
-          useMaterial3: true,
-        ),
+        theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFB9CD)), useMaterial3: true),
         navigatorKey: navigatorKey,
         initialRoute: '/',
         onGenerateRoute: (settings) {
@@ -64,9 +61,7 @@ class MyApp extends StatelessWidget {
           logger.info('[Router] URI path: ${uri.path}');
           logger.info('[Router] MasterId: $masterId');
 
-          if (uri.pathSegments.isEmpty ||
-              (uri.pathSegments.length >= 2 &&
-                  uri.pathSegments[0] == 'masters')) {
+          if (uri.pathSegments.isEmpty || (uri.pathSegments.length >= 2 && uri.pathSegments[0] == 'masters')) {
             return MaterialPageRoute(
               builder: (context) => AuthorizationPage(masterId: masterId),
               settings: settings,

@@ -15,7 +15,7 @@ class MasterInfo extends JsonEquatable {
     master: Master.fromJson(json['master_profile']),
     schedule: Schedule.fromJson((json['master_schedules'] as List).first),
     services: parseJsonList(json['master_services'], Service.fromJson),
-    reviews: parseJsonList(json['reviews'], Review.fromJson),
+    reviews: parseJsonList(json['reviews'] ?? [], Review.fromJson),
     json: json,
   );
 

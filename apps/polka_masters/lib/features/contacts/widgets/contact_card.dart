@@ -11,12 +11,12 @@ class ContactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 64,
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(14)),
       child: Row(
         spacing: 8,
         children: [
-          ContactAvatar(contact.avatarUrl),
+          ContactAvatar(contact, size: 48, fontSize: 18),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

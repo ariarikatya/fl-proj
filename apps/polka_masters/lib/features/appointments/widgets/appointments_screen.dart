@@ -51,7 +51,7 @@ class _AppointmentsViewState extends State<_AppointmentsView> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Твои записи'),
+      appBar: const CustomAppBar(title: 'Твои записи'),
       child: RefreshIndicator(
         onRefresh: _updateBookings,
         color: context.ext.theme.accent,
@@ -59,7 +59,7 @@ class _AppointmentsViewState extends State<_AppointmentsView> {
         child: ListView.separated(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           itemCount: bookings.length,
-          separatorBuilder: (context, index) => SizedBox(height: 16),
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             return _AppointmentCard(
               booking: bookings[index],

@@ -28,7 +28,7 @@ class MapMarkersPaginator extends Cubit<int> {
   final BuildContext context;
 
   int _page = 1;
-  SearchFilter filter = SearchFilter();
+  SearchFilter filter = const SearchFilter();
   String? query;
   (double latitude, double longitude)? location;
 

@@ -1,7 +1,7 @@
 name: polka_clients
 description: "A new Flutter project."
 publish_to: 'none'
-version: 3.3.2+224
+version: 3.3.3+225
 
 environment:
   sdk: ^3.8.1

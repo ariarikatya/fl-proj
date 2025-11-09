@@ -33,13 +33,13 @@ class _AvatarUploadPageState extends OnboardingPageState<AvatarUploadPage, Onboa
 
   @override
   List<Widget> content() => [
-    AppText('Загрузи свое фото', style: AppTextStyles.headingLarge),
-    SizedBox(height: 16),
+    const AppText('Загрузи свое фото', style: AppTextStyles.headingLarge),
+    const SizedBox(height: 16),
     AppText(
       'Мы покажем его в твоей карточке, это поможет клиентам лучше узнать тебя',
       style: AppTextStyles.headingSmall.copyWith(color: context.ext.theme.textSecondary, fontWeight: FontWeight.w500),
     ),
-    SizedBox(height: 40),
+    const SizedBox(height: 40),
     Center(
       child: GestureDetector(
         onTap: _pickImage,
@@ -53,7 +53,7 @@ class _AvatarUploadPageState extends OnboardingPageState<AvatarUploadPage, Onboa
                 AppAvatar(avatarUrl: '', size: 160, provider: value != null ? FileImage(File(value.path)) : null),
                 if (value == null)
                   Container(
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: context.ext.theme.accentLight,
                       borderRadius: BorderRadius.circular(40),

@@ -11,7 +11,7 @@ class WelcomePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 48),
+          const SizedBox(height: 48),
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -19,7 +19,7 @@ class WelcomePage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 8,
               children: [
-                AppText('Добро пожаловать\nв POLKA!', style: AppTextStyles.headingLarge),
+                const AppText('Добро пожаловать\nв POLKA!', style: AppTextStyles.headingLarge),
                 AppText(
                   'Находи клиентов, управляй расписанием,\nСоздавай бьюти-услуги',
                   style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
@@ -27,7 +27,7 @@ class WelcomePage extends StatelessWidget {
               ],
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
             child: AppTextButton.large(

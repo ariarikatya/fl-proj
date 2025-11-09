@@ -54,17 +54,13 @@ class _EndBookingPageState extends State<EndBookingPage> {
   void _submitBooking() {
     final name = _nameController.text.trim();
     final comment = _commentController.text.trim();
-    final selectedTime = DateFormat(
-      'HH:mm',
-    ).format(widget.selectedSlot.datetime);
+    final selectedTime = DateFormat('HH:mm').format(widget.selectedSlot.datetime);
 
-    logger.debug(
-      'Submit booking attempt - name: $name, comment length: ${comment.length}, time: $selectedTime',
-    );
+    logger.debug('Submit booking attempt - name: $name, comment length: ${comment.length}, time: $selectedTime');
 
     if (name.isNotEmpty) {
       logger.info(
-        'Booking submitted successfully - name: $name, service: ${widget.service.title}, date: ${widget.selectedSlot.date}',
+        'Booking submitted successfully - name: $name, service: ${widget.service.title}, date: ${widget.selectedSlot.datetime.dateOnly}',
       );
       Navigator.push(
         context,
@@ -72,7 +68,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
           builder: (context) => FinalPage(
             masterId: widget.masterInfo.master.id.toString(),
             service: widget.service,
-            selectedDate: widget.selectedSlot.date,
+            selectedDate: widget.selectedSlot.datetime.dateOnly,
             selectedTime: selectedTime,
             name: name,
             comment: comment,
@@ -82,9 +78,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
       );
     } else {
       logger.warning('Booking submission failed - name is empty');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Введите имя')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Введите имя')));
     }
   }
 
@@ -94,10 +88,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
     final height = MediaQuery.of(context).size.height;
     final isDesktop = LayoutHelper.isDesktopLayout(width);
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(
-      screenWidth: width,
-      showImage: showImage,
-    );
+    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
 
     logger.debug(
       'Building EndBookingPage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth, nameLength: ${_nameController.text.length}, commentLength: ${_commentController.text.length}',
@@ -108,10 +99,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
       showImage: showImage,
       onMenuTap: () {
         logger.debug('Opening menu page from EndBookingPage');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
       },
       onDownloadTap: () {
         logger.debug('Opening store from EndBookingPage header');
@@ -131,12 +119,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
         child: SafeArea(
           top: false,
           child: isDesktop
-              ? _buildDesktopContent(
-                  width: width,
-                  height: height,
-                  showImage: showImage,
-                  imageWidth: imageWidth,
-                )
+              ? _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth)
               : _buildMobileContent(),
         ),
       ),
@@ -156,9 +139,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
     );
 
     if (master.avatarUrl.isEmpty) {
-      logger.warning(
-        'Master avatar URL is empty for master: ${master.fullName}',
-      );
+      logger.warning('Master avatar URL is empty for master: ${master.fullName}');
     }
 
     return DesktopPageLayout(
@@ -178,15 +159,10 @@ class _EndBookingPageState extends State<EndBookingPage> {
           const SizedBox(height: 16),
           Text(
             'Оставьте Ваше имя и комментарий, чтобы мы могли добавить Вас в расписание к мастеру',
-            style: AppTextStyles.bodyMedium500.copyWith(
-              color: AppColors.iconsDefault,
-            ),
+            style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
           ),
           const SizedBox(height: 24),
-          AppTextFormField(
-            controller: _nameController,
-            labelText: 'Ваше имя и фамилия',
-          ),
+          AppTextFormField(controller: _nameController, labelText: 'Ваше имя и фамилия'),
           const SizedBox(height: 16),
           AppTextFormField(
             controller: _commentController,
@@ -225,15 +201,10 @@ class _EndBookingPageState extends State<EndBookingPage> {
         const SizedBox(height: 16),
         Text(
           'Оставьте Ваше имя и комментарий, чтобы мы могли добавить Вас в расписание к мастеру',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
-          ),
+          style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
         ),
         const SizedBox(height: 24),
-        AppTextFormField(
-          controller: _nameController,
-          labelText: 'Ваше имя и фамилия',
-        ),
+        AppTextFormField(controller: _nameController, labelText: 'Ваше имя и фамилия'),
         const SizedBox(height: 16),
         AppTextFormField(
           controller: _commentController,

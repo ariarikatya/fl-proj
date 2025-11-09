@@ -15,7 +15,7 @@ class CalendarDayView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scope = context.read<CalendarScope>();
-    final scheduleDay = MasterScope.of(context).schedule.days[WeekDays.fromDateTime(scope.date)];
+    final scheduleDay = context.watch<MasterScope>().schedule.days[WeekDays.fromDateTime(scope.date)];
     final offset = (DateTime.now().hour - 1.5) * CalendarScope.heigthPerMinuteRatio * 60;
 
     return Stack(
@@ -25,7 +25,7 @@ class CalendarDayView extends StatelessWidget {
           onPageChange: (date, __) => scope.setDate(date),
           key: scope.dayViewKey,
           keepScrollOffset: true,
-          safeAreaOption: SafeAreaOption(bottom: false),
+          safeAreaOption: const SafeAreaOption(bottom: false),
           dayTitleBuilder: (date) => _DayTitleBuilder(date),
           backgroundColor: context.ext.theme.backgroundDefault,
           eventTileBuilder: (date, events, boundary, startDuration, endDuration) => BookingEventTile(
@@ -66,32 +66,14 @@ class CalendarDayView extends StatelessWidget {
             }
           },
         ),
-        Align(alignment: Alignment.bottomCenter, child: _CreateBookingButton()),
-      ],
-    );
-  }
-}
-
-class _CreateBookingButton extends StatelessWidget {
-  const _CreateBookingButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => showBookClientMbs(context: context, start: DateTime.now().withoutMinutes),
-      child: Container(
-        margin: EdgeInsets.only(bottom: 8),
-        padding: EdgeInsets.fromLTRB(8, 12, 16, 12),
-        decoration: BoxDecoration(color: context.ext.theme.buttonPrimary, borderRadius: BorderRadius.circular(16)),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 4,
-          children: [
-            AppIcons.add.icon(context, color: context.ext.theme.backgroundDefault),
-            AppText('Создать  запись', color: context.ext.theme.backgroundDefault),
-          ],
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: AppFloatingActionButton$Add(
+            text: 'Создать  запись',
+            onTap: () => showBookClientMbs(context: context, start: DateTime.now().withoutMinutes),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

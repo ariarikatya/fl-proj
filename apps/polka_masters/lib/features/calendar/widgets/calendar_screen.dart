@@ -15,12 +15,12 @@ class CalendarScreen extends StatelessWidget {
     final viewMode = context.watch<CalendarScope>().viewMode;
 
     return Scaffold(
-      appBar: CalendarAppbar(),
-      drawer: CalendarDrawer(),
+      appBar: const CalendarAppbar(),
+      drawer: const CalendarDrawer(),
       body: switch (viewMode) {
-        CalendarViewMode.month => CalendarMonthView(),
-        CalendarViewMode.week => CalendarWeekView(),
-        CalendarViewMode.day => CalendarDayView(),
+        CalendarViewMode.month => const CalendarMonthView(),
+        CalendarViewMode.week => const CalendarWeekView(),
+        CalendarViewMode.day => const CalendarDayView(),
       },
     );
   }

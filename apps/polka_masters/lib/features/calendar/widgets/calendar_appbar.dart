@@ -7,7 +7,7 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
   const CalendarAppbar({super.key});
 
   @override
-  Size get preferredSize => Size.fromHeight(48);
+  Size get preferredSize => const Size.fromHeight(48);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
             clipBehavior: Clip.none,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   spacing: 24,
                   children: [
@@ -52,7 +52,7 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     GestureDetector(
                       onTap: () => _updateDate(context, DateTime.now()),
                       child: Container(
@@ -79,7 +79,7 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
                   },
                   left: 0,
                   right: 0,
-                  child: CalendarBanner$ScheduleRequired(),
+                  child: const CalendarBanner$ScheduleRequired(),
                 ),
             ],
           ),
@@ -103,7 +103,7 @@ class CalendarBanner$ScheduleRequired extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
       color: context.ext.theme.accentLight,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -111,7 +111,7 @@ class CalendarBanner$ScheduleRequired extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              const Expanded(
                 child: AppText(
                   'Твои свободные слоты сейчас не видны клиенту в приложении, заполни расписание, чтобы начать работу',
                   style: AppTextStyles.bodyLarge500,
@@ -120,7 +120,7 @@ class CalendarBanner$ScheduleRequired extends StatelessWidget {
               AppIcons.close.icon(context),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           AppTextButtonTertiary.medium(text: 'Заполнить расписание', onTap: () {}),
         ],
       ),

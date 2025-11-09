@@ -20,7 +20,33 @@ class ChatWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
-                ImageClipped(imageUrl: chat.preview.otherUserAvatar, borderRadius: 64, height: 64, width: 64),
+                Stack(
+                  children: [
+                    ImageClipped(imageUrl: chat.preview.otherUserAvatar, borderRadius: 64, height: 64, width: 64),
+                    Positioned(
+                      bottom: 4,
+                      right: 4,
+                      child: ListenableBuilder(
+                        listenable: chat,
+                        builder: (context, child) {
+                          // if (chat.preview.isOnline) {
+                          return Container(
+                            height: 12,
+                            width: 12,
+                            decoration: BoxDecoration(
+                              color: chat.preview.isOnline
+                                  ? context.ext.theme.success
+                                  : context.ext.theme.backgroundDisabled,
+                              shape: BoxShape.circle,
+                            ),
+                          );
+                          // }
+                          // return const SizedBox.shrink();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
                 Expanded(
                   child: ListenableBuilder(
                     listenable: chat,
@@ -45,7 +71,8 @@ class ChatWidget extends StatelessWidget {
                                 maxLines: 2,
                               ),
                             ),
-                            if (chat.preview.unreadCount > 0) _UnreadCounter(chat.preview.unreadCount),
+                            if (chat.preview.unreadCount > 0)
+                              CounterWidget(count: chat.preview.unreadCount, color: context.ext.theme.error),
                           ],
                         ),
                       ],
@@ -61,10 +88,11 @@ class ChatWidget extends StatelessWidget {
   }
 }
 
-class _UnreadCounter extends StatelessWidget {
-  const _UnreadCounter(this.count);
+class CounterWidget extends StatelessWidget {
+  const CounterWidget({super.key, required this.count, required this.color});
 
   final int count;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -76,14 +104,13 @@ class _UnreadCounter extends StatelessWidget {
     return Container(
       width: width,
       height: 16,
-      decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(40)),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(40)),
       alignment: Alignment.center,
       child: AppText(
         '$count',
         textAlign: TextAlign.center,
         style: AppTextStyles.bodySmall.copyWith(
           color: context.ext.theme.backgroundDefault,
-          height: 0.75,
           overflow: TextOverflow.ellipsis,
         ),
       ),

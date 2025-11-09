@@ -56,13 +56,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class ModalAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ModalAppBar({super.key, required this.title});
+  const ModalAppBar({super.key, required this.title, this.bottomBorder = true, this.canPopOverride});
 
   final String title;
+  final bool bottomBorder;
+  final bool? canPopOverride;
 
   @override
   Widget build(BuildContext context) {
-    final canPop = Navigator.canPop(context);
+    final canPop = canPopOverride ?? Navigator.canPop(context);
     final closeButton = canPop
         ? GestureDetector(
             onTap: () => Navigator.pop(context),
@@ -78,7 +80,7 @@ class ModalAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: SafeArea(
         child: Container(
           decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
+            border: bottomBorder ? Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)) : null,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

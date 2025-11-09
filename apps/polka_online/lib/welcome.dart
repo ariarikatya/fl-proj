@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:polka_online/service.dart';
-import 'package:shared/shared.dart';
+import 'package:shared/shared.dart' hide launchUrl;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'menu.dart';
@@ -28,9 +28,7 @@ class _WelcomePageState extends State<WelcomePage> {
   void initState() {
     super.initState();
     _masterId = widget.masterId ?? '1';
-    logger.debug(
-      'Initializing WelcomePage - masterId: $_masterId, phoneNumber: ${widget.phoneNumber}',
-    );
+    logger.debug('Initializing WelcomePage - masterId: $_masterId, phoneNumber: ${widget.phoneNumber}');
     _loadMasterInfo();
   }
 
@@ -49,14 +47,10 @@ class _WelcomePageState extends State<WelcomePage> {
           _masterInfo = data;
           _isLoading = false;
         });
-        logger.debug(
-          'Master info loaded successfully for masterId: $_masterId',
-        );
+        logger.debug('Master info loaded successfully for masterId: $_masterId');
       },
       err: (error, stackTrace) {
-        logger.error(
-          'Error loading master info for masterId $_masterId: $error',
-        );
+        logger.error('Error loading master info for masterId $_masterId: $error');
         setState(() {
           _error = error.toString();
           _isLoading = false;
@@ -73,8 +67,7 @@ class _WelcomePageState extends State<WelcomePage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      url =
-          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+      url = 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
 
     final uri = Uri.parse(url);
@@ -91,14 +84,11 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   void _openBooking() {
-    logger.debug(
-      'Navigating to ServicePage - masterId: $_masterId, phoneNumber: ${widget.phoneNumber}',
-    );
+    logger.debug('Navigating to ServicePage - masterId: $_masterId, phoneNumber: ${widget.phoneNumber}');
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            ServicePage(masterId: _masterId, phoneNumber: widget.phoneNumber),
+        builder: (context) => ServicePage(masterId: _masterId, phoneNumber: widget.phoneNumber),
       ),
     );
   }
@@ -122,21 +112,11 @@ class _WelcomePageState extends State<WelcomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Ошибка загрузки данных',
-                  style: AppTextStyles.headingMedium,
-                ),
+                Text('Ошибка загрузки данных', style: AppTextStyles.headingMedium),
                 const SizedBox(height: 16),
-                Text(
-                  _error ?? 'Неизвестная ошибка',
-                  style: AppTextStyles.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
+                Text(_error ?? 'Неизвестная ошибка', style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _loadMasterInfo,
-                  child: const Text('Попробовать снова'),
-                ),
+                ElevatedButton(onPressed: _loadMasterInfo, child: const Text('Попробовать снова')),
               ],
             ),
           ),
@@ -148,10 +128,7 @@ class _WelcomePageState extends State<WelcomePage> {
     final height = MediaQuery.of(context).size.height;
     final isDesktop = LayoutHelper.isDesktopLayout(width);
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(
-      screenWidth: width,
-      showImage: showImage,
-    );
+    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
 
     logger.debug(
       'Building WelcomePage - width: $width, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
@@ -162,10 +139,7 @@ class _WelcomePageState extends State<WelcomePage> {
       showImage: showImage,
       onMenuTap: () {
         logger.debug('Opening menu page from WelcomePage');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
       },
       onDownloadTap: () {
         logger.debug('Opening store from desktop WelcomePage');
@@ -183,17 +157,10 @@ class _WelcomePageState extends State<WelcomePage> {
           ? SingleChildScrollView(
               child: SafeArea(
                 top: false,
-                child: _buildDesktopContent(
-                  width: width,
-                  height: height,
-                  showImage: showImage,
-                  imageWidth: imageWidth,
-                ),
+                child: _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth),
               ),
             )
-          : SingleChildScrollView(
-              child: SafeArea(top: false, child: _buildMobileContent()),
-            ),
+          : SingleChildScrollView(child: SafeArea(top: false, child: _buildMobileContent())),
     );
   }
 
@@ -221,9 +188,7 @@ class _WelcomePageState extends State<WelcomePage> {
           const SizedBox(height: 16),
           Text(
             'Чтобы записаться к мастеру и выбрать услугу, пожалуйста, нажмите "Записаться"',
-            style: AppTextStyles.bodyMedium500.copyWith(
-              color: AppColors.iconsDefault,
-            ),
+            style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
           ),
           const SizedBox(height: 32),
           AppTextButton.large(
@@ -256,9 +221,7 @@ class _WelcomePageState extends State<WelcomePage> {
         const SizedBox(height: 16),
         Text(
           'Чтобы записаться к мастеру и выбрать услугу, пожалуйста, нажмите "Записаться"',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
-          ),
+          style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
         ),
         const SizedBox(height: 32),
         Center(

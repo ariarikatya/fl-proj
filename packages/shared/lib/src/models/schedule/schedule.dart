@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared/src/extensions/datetime.dart';
 import 'package:shared/src/models/schedule/schedule_day.dart';
 import 'package:shared/src/models/schedule/weekdays.dart';
@@ -20,6 +20,8 @@ class Schedule extends Equatable {
   final DateTime periodStart;
   final DateTime periodEnd;
   final Map<WeekDays, ScheduleDay> days;
+
+  DateTimeRange get dateTimeRange => DateTimeRange(start: periodStart, end: periodEnd);
 
   @override
   List<Object?> get props => [periodStart, periodEnd, days];

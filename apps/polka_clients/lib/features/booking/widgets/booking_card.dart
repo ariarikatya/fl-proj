@@ -17,7 +17,7 @@ class BookingCard extends StatelessWidget {
         '${booking.date.formatShort()} • ${booking.startTime.toTimeString()}-${booking.endTime.toTimeString()}';
 
     Widget child = Padding(
-      padding: EdgeInsetsGeometry.all(24),
+      padding: const EdgeInsetsGeometry.all(24),
       child: Row(
         spacing: 16,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +73,7 @@ class BookingCard extends StatelessWidget {
       child = TweenAnimationBuilder(
         key: ValueKey(booking),
         tween: Tween(begin: .4, end: .0),
-        duration: Duration(milliseconds: 2000),
+        duration: const Duration(milliseconds: 2000),
         child: child,
         onEnd: () => blocs.get<BookingsCubit>(context).markAsRead(),
         builder: (context, value, child) {
@@ -145,7 +145,7 @@ class _AddToCalendarBtn extends StatelessWidget {
     return PopupMenuButton<String>(
       borderRadius: BorderRadius.circular(16),
       elevation: 5,
-      offset: Offset(0, 24),
+      offset: const Offset(0, 24),
       menuPadding: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: context.ext.theme.backgroundDefault,
@@ -159,7 +159,7 @@ class _AddToCalendarBtn extends StatelessWidget {
             spacing: 8,
             children: [
               AppIcons.calendar.icon(context, size: 24, color: context.ext.theme.accent),
-              AppText('Добавить в календарь', style: AppTextStyles.bodyMedium),
+              const AppText('Добавить в календарь', style: AppTextStyles.bodyMedium),
             ],
           ),
         ),

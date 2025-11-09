@@ -15,8 +15,8 @@ class _OnboardingPage$CompletedState extends OnboardingPageState<OnboardingPage$
 
   @override
   List<Widget> content() => [
-    AppText('Поздравлем, теперь ты в POLKA!', style: AppTextStyles.headingLarge),
-    SizedBox(height: 8),
+    const AppText('Поздравлем, теперь ты в POLKA!', style: AppTextStyles.headingLarge),
+    const SizedBox(height: 8),
     AppText(
       'Здесь ты найдешь своего мастера за пять минут',
       style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),

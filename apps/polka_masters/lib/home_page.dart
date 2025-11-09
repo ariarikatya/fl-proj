@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:polka_masters/dependencies.dart';
-import 'package:polka_masters/features/appointments/widgets/appointments_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_masters/features/calendar/controllers/events_cubit.dart';
 import 'package:polka_masters/features/calendar/widgets/calendar_screen.dart';
+import 'package:polka_masters/features/contacts/controller/pending_bookings_cubit.dart';
+import 'package:polka_masters/features/contacts/widgets/contacts_screen.dart';
 import 'package:polka_masters/features/profile/widgets/profile_screen.dart';
 import 'package:polka_masters/scopes/master_scope.dart';
 import 'package:shared/shared.dart';
@@ -15,21 +16,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final _pages = [
-    CalendarScreen(),
-    ChatsPage(),
-    AppointmentsScreen(repo: Dependencies().bookingsRepository),
-    ProfileScreen(),
-  ];
+  late final _pages = [const CalendarScreen(), const ChatsPage(), const ContactsScreen(), const ProfileScreen()];
 
   int _index = 3;
 
   @override
   void didChangeDependencies() {
+    super.didChangeDependencies();
     // By calling these cubits we create and initialize them
     blocs.get<ChatsCubit>(context);
     blocs.get<EventsCubit>(context);
-    super.didChangeDependencies();
+    blocs.get<PendingBookingsCubit>(context);
   }
 
   @override
@@ -74,7 +71,7 @@ class _HomePageState extends State<HomePage> {
                   _NavigationBarItem(
                     icon: Builder(
                       builder: (ctx) => AppAvatar(
-                        avatarUrl: MasterScope.of(ctx).master.avatarUrl,
+                        avatarUrl: ctx.read<MasterScope>().master.avatarUrl,
                         size: 24,
                         borderColor: context.ext.theme.textPrimary,
                         shadow: false,

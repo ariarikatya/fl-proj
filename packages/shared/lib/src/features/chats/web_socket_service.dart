@@ -63,7 +63,7 @@ final class WebSocketService$IOImpl extends WebSocketService {
       await channel!.ready;
     } catch (e, st) {
       logger.error('[sockets] error connecting', e, st);
-      await Future.delayed(const Duration(seconds: 5));
+      await Future.delayed(const Duration(seconds: 10));
       _reconnect();
     }
 

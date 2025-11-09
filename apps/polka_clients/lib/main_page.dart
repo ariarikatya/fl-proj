@@ -30,5 +30,5 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
-  Widget build(BuildContext context) => HomePage();
+  Widget build(BuildContext context) => const HomePage();
 }

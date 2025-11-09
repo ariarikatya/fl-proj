@@ -31,7 +31,7 @@ class HomeFeedPage extends StatelessWidget {
                   'г. ${client.city}',
                   style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
                 ),
-                AppSearchBar(),
+                const AppSearchBar(),
               ],
             ),
           ),
@@ -47,9 +47,9 @@ class HomeFeedPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: AppText('🌿 Привет, ${client.firstName}', style: AppTextStyles.headingLarge),
                     ),
-                    SizedBox(height: 16),
-                    _Filters(),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 16),
+                    const _Filters(),
+                    const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: AppText(
@@ -57,7 +57,7 @@ class HomeFeedPage extends StatelessWidget {
                         style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
-                    _MastersFeed(),
+                    const _MastersFeed(),
                   ],
                 ),
               ),
@@ -78,7 +78,7 @@ class _MastersFeed extends StatelessWidget {
       bloc: blocs.get<FeedCubit>(context),
       builder: (context, state) => switch (state) {
         FeedInitial() => const SizedBox.shrink(),
-        FeedLoading() => SizedBox(height: 200, child: Center(child: LoadingIndicator())),
+        FeedLoading() => const SizedBox(height: 200, child: Center(child: LoadingIndicator())),
         FeedLoaded() => Padding(
           padding: const EdgeInsets.only(top: 12),
           child: MastersView(masters: state.data, embedded: true),
@@ -116,10 +116,10 @@ class AppSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureOverrideWidget(
-      onTap: () => context.ext.push(SearchPage()),
+      onTap: () => context.ext.push(const SearchPage()),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          boxShadow: [BoxShadow(blurRadius: 4, offset: Offset(0, 1), color: Colors.black.withValues(alpha: 0.1))],
+          boxShadow: [BoxShadow(blurRadius: 4, offset: const Offset(0, 1), color: Colors.black.withValues(alpha: 0.1))],
           borderRadius: BorderRadius.circular(14),
         ),
         child: AppTextFormField(
@@ -154,14 +154,14 @@ class CategoryFilterButton extends StatelessWidget {
             Container(
               width: 60,
               height: 56,
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: context.ext.theme.backgroundHover,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: icon,
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             AppText(service.label, style: AppTextStyles.bodySmall, textAlign: TextAlign.center),
           ],
         ),

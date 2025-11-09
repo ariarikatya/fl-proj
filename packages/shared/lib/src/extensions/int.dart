@@ -27,4 +27,7 @@ extension IntX on int {
     other: '$this $word(ов)',
     locale: 'ru',
   );
+
+  String pluralize({required String one, required String few, required String many, required String other}) =>
+      Intl.plural(this, one: '$this $one', few: '$this $few', many: '$this $many', other: '$this $other', locale: 'ru');
 }

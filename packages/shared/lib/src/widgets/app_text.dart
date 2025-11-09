@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/extensions/context.dart';
 
+@immutable
 class AppText extends StatelessWidget {
   const AppText(
     this.text, {
@@ -24,6 +25,28 @@ class AppText extends StatelessWidget {
     this.color,
     this.selectable = false,
   }) : _secondaryTextColor = true;
+
+  const AppText.headingSmall(
+    this.text, {
+    super.key,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+    this.color,
+    this.selectable = false,
+  }) : style = AppTextStyles.headingSmall,
+       _secondaryTextColor = false;
+
+  const AppText.headingLarge(
+    this.text, {
+    super.key,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+    this.color,
+    this.selectable = false,
+  }) : style = AppTextStyles.headingLarge,
+       _secondaryTextColor = false;
 
   factory AppText.rich(
     List<InlineSpan> children, {

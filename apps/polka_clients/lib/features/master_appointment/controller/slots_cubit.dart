@@ -1,24 +1,12 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:polka_clients/dependencies.dart';
+import 'package:polka_clients/repositories/client_repository.dart';
 import 'package:shared/shared.dart';
 
-part 'slots_state.dart';
+class SlotsCubit extends DataCubit<List<AvailableSlot>> {
+  SlotsCubit({required this.repo, required this.masterId, required this.serviceId});
 
-class SlotsCubit extends Cubit<SlotsState> {
-  SlotsCubit(int masterId, int serviceId) : super(SlotsState.initial()) {
-    getSlots(masterId, serviceId);
-  }
+  final ClientRepository repo;
+  final int masterId, serviceId;
 
-  final _clientRepo = Dependencies().clientRepository;
-
-  void getSlots(int masterId, int serviceId) async {
-    emit(SlotsState.loading());
-    final result = await _clientRepo.getSlots(masterId, serviceId);
-    safeEmit(
-      result.when(
-        ok: (data) => SlotsState.loaded(data: data),
-        err: (error, st) => SlotsState.error(parseError(error, st)),
-      ),
-    );
-  }
+  @override
+  Future<Result<List<AvailableSlot>>> loadData() => repo.getSlots(masterId, serviceId);
 }

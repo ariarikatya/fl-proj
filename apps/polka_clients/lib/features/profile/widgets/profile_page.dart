@@ -4,7 +4,6 @@ import 'package:polka_clients/client_scope.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/favorites/widgets/favorites_page.dart';
 import 'package:polka_clients/features/profile/widgets/categories_page.dart';
-import 'package:polka_clients/features/profile/widgets/profile_button.dart';
 import 'package:polka_clients/features/profile/widgets/profile_info_page.dart';
 import 'package:polka_clients/features/profile/widgets/settings_page.dart';
 import 'package:shared/shared.dart';
@@ -22,28 +21,49 @@ class ProfilePage extends StatelessWidget {
     if (logout == true && context.mounted) AuthenticationScope.of(context).logout();
   }
 
+  void _onAvatarPicked(BuildContext context, XFile xfile) async {
+    logger.debug('updating profile avatar');
+    final result = await Dependencies().clientRepository.uploadClientAvatar(xfile);
+    result.maybeWhen(
+      ok: (avatarUrl) => ClientScope.of(context).updateClient((client) => client.copyWith(avatarUrl: () => avatarUrl)),
+      err: (error, stackTrace) => handleError(error, stackTrace),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Личный кабинет'),
+      appBar: const CustomAppBar(title: 'Личный кабинет'),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _Header(),
-            _AddPhotoBtn(),
-            SizedBox(height: 16),
-            ProfileButton(icon: AppIcons.user, title: 'Мой профиль', onTap: () => context.ext.push(ProfileInfoPage())),
+            const _Header(),
+            AddPhotoBtn(onImagePicked: (xfile) => _onAvatarPicked(context, xfile)),
+            const SizedBox(height: 16),
+            ProfileButton(
+              icon: AppIcons.user,
+              title: 'Мой профиль',
+              onTap: () => context.ext.push(const ProfileInfoPage()),
+            ),
             ProfileButton(
               icon: AppIcons.saved,
               title: 'Мои Категории',
-              onTap: () => context.ext.push(CategoriesPage()),
+              onTap: () => context.ext.push(const CategoriesPage()),
             ),
-            ProfileButton(icon: AppIcons.favorite, title: 'Избранное', onTap: () => context.ext.push(FavoritesPage())),
-            ProfileButton(icon: AppIcons.chats, title: 'Чаты', onTap: () => context.ext.push(ChatsPage())),
-            ProfileButton(icon: AppIcons.support, title: 'Поддержка', onTap: () => logger.debug('tap')),
-            ProfileButton(icon: AppIcons.settings, title: 'Настройки', onTap: () => context.ext.push(SettingsPage())),
+            ProfileButton(
+              icon: AppIcons.favorite,
+              title: 'Избранное',
+              onTap: () => context.ext.push(const FavoritesPage()),
+            ),
+            ProfileButton(icon: AppIcons.chats, title: 'Чаты', onTap: () => context.ext.push(const ChatsPage())),
+            ProfileButton(icon: AppIcons.chat, title: 'Поддержка', onTap: () => logger.debug('tap')),
+            ProfileButton(
+              icon: AppIcons.settings,
+              title: 'Настройки',
+              onTap: () => context.ext.push(const SettingsPage()),
+            ),
             if (devMode) ...[
               ProfileButton(
                 icon: AppIcons.filter,
@@ -55,45 +75,6 @@ class ProfilePage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(18, 32, 18, 32),
               child: AppLinkButton(text: 'Выйти', onTap: () => _logout(context)),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AddPhotoBtn extends StatelessWidget {
-  const _AddPhotoBtn();
-
-  Future<void> changePhoto(BuildContext context) async {
-    logger.debug('updating profile avatar');
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      logger.info('Image picked: ${image.path}, size: ${await image.length() ~/ 1024} KB');
-      final result = await Dependencies().clientRepository.uploadClientAvatar(image);
-      result.maybeWhen(
-        ok: (avatarUrl) =>
-            ClientScope.of(context).updateClient((client) => client.copyWith(avatarUrl: () => avatarUrl)),
-        err: (error, stackTrace) => handleError(error, stackTrace),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => changePhoto(context),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-        decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(16)),
-        child: Row(
-          spacing: 4,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppIcons.camera.icon(context, size: 16),
-            AppText('Добавить', style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.textSecondary)),
           ],
         ),
       ),

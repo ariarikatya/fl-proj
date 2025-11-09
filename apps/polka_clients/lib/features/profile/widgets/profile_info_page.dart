@@ -79,19 +79,19 @@ class _ProfileInfoPageState extends State<ProfileInfoPage> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Личные данные'),
+      appBar: const CustomAppBar(title: 'Личные данные'),
       child: Stack(
         children: [
           Form(
             autovalidateMode: AutovalidateMode.onUnfocus,
             key: _formKey,
             child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 12,
                 children: [
-                  AppText('Расскажи о себе', style: AppTextStyles.headingSmall),
+                  const AppText('Расскажи о себе', style: AppTextStyles.headingSmall),
                   AppTextFormField(
                     labelText: 'Имя Фамилия',
                     controller: _controllers[0],
@@ -106,12 +106,12 @@ class _ProfileInfoPageState extends State<ProfileInfoPage> {
                       readOnly: true,
                     ),
                   ),
-                  SizedBox(height: 16),
-                  AppText('Контактная информация', style: AppTextStyles.headingSmall),
+                  const SizedBox(height: 16),
+                  const AppText('Контактная информация', style: AppTextStyles.headingSmall),
                   _MockReadOnlyPhoneTextField(phoneNumber: phoneNumber),
                   AppTextFormField(labelText: 'E-mail', controller: _controllers[2], validator: Validators.email),
-                  SizedBox(height: 32),
-                  _DeleteAccountButton(),
+                  const SizedBox(height: 32),
+                  const _DeleteAccountButton(),
                 ],
               ),
             ),

@@ -4,7 +4,7 @@ import 'package:polka_clients/dependencies.dart';
 import 'package:shared/shared.dart';
 
 class FavoritesCubit extends Cubit<FavoritesState> {
-  FavoritesCubit() : super(FavoritesState(favorites: {})) {
+  FavoritesCubit() : super(const FavoritesState(favorites: {})) {
     loadFavorites();
   }
 

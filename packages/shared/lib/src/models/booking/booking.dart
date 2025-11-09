@@ -5,7 +5,7 @@ enum BookingStatus {
   pending('Ждет подтверждения'),
   confirmed('Подтверждено'),
   completed('Завершено'),
-  canceled('Отменено мастером'), // Canceled by master after confirmation
+  canceled('Отменено'), // Canceled by master after confirmation
   rejected('Отклонено');
 
   const BookingStatus(this.label);
@@ -43,28 +43,33 @@ class Booking extends JsonEquatable {
     super.json,
   });
 
-  factory Booking.fromJson(Map<String, dynamic> json) => Booking(
-    id: (json['id'] ?? json['booking_id']) as int,
-    clientId: json['client_id'] as int,
-    masterId: json['master_id'] as int,
-    serviceId: json['service_id'] as int,
-    serviceName: json['service_name'] as String? ?? '',
-    masterName: json['master_name'] as String? ?? '',
-    clientName: json['client_name'] as String? ?? '',
-    price: json['price'] as int,
-    status: BookingStatus.values.byName(json['status'] as String),
-    date: DateTime.parse(json['date'] as String),
-    createdAt: DateTime.parse(json['created_at'] as String),
-    startTime: DurationX.fromTimeString(json['start_time'] as String),
-    endTime: DurationX.fromTimeString(json['end_time'] as String),
-    serviceImageUrl: json['service_image_url'] as String?,
-    masterAvatarUrl: json['master_avatar_url'] as String?,
-    clientNotes: json['client_notes'] as String?,
-    masterNotes: json['master_notes'] as String?,
-    reviewSent: json['review_sent'] as bool? ?? false,
-    isTimeBlock: json['block_time'] as bool? ?? false,
-    json: json,
-  );
+  factory Booking.fromJson(Map<String, dynamic> json) {
+    final clientNotes = json['client_notes'] as String? ?? '';
+    final masterNotes = json['master_notes'] as String? ?? '';
+
+    return Booking(
+      id: (json['id'] ?? json['booking_id']) as int,
+      clientId: json['client_id'] as int,
+      masterId: json['master_id'] as int,
+      serviceId: json['service_id'] as int,
+      serviceName: json['service_name'] as String? ?? '',
+      masterName: json['master_name'] as String? ?? '',
+      clientName: json['client_name'] as String? ?? '',
+      price: json['price'] as int,
+      status: BookingStatus.values.byName(json['status'] as String),
+      date: DateTime.parse(json['date'] as String),
+      createdAt: DateTime.parse(json['created_at'] as String),
+      startTime: DurationX.fromTimeString(json['start_time'] as String),
+      endTime: DurationX.fromTimeString(json['end_time'] as String),
+      serviceImageUrl: json['service_image_url'] as String?,
+      masterAvatarUrl: json['master_avatar_url'] as String?,
+      clientNotes: clientNotes.isNotEmpty ? clientNotes : null,
+      masterNotes: masterNotes.isNotEmpty ? masterNotes : null,
+      reviewSent: json['review_sent'] as bool? ?? false,
+      isTimeBlock: json['block_time'] as bool? ?? false,
+      json: json,
+    );
+  }
 
   final int id, clientId, masterId, serviceId, price;
   final String serviceName, masterName, clientName;

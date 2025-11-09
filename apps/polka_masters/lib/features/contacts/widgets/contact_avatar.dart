@@ -2,17 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
 class ContactAvatar extends StatelessWidget {
-  const ContactAvatar(this.avatarUrl, {super.key});
+  const ContactAvatar(this.contact, {super.key, this.size = 64, this.fontSize});
 
-  final String? avatarUrl;
+  final Contact contact;
+  final double size;
+  final double? fontSize;
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    position: DecorationPosition.foreground,
-    decoration: BoxDecoration(
-      border: Border.all(color: context.ext.theme.borderStrong),
-      shape: BoxShape.circle,
-    ),
-    child: ImageClipped(width: 48, height: 48, borderRadius: 48, imageUrl: avatarUrl),
-  );
+  Widget build(BuildContext context) {
+    if (contact.avatarUrl != null) {
+      return ImageClipped(width: size, height: size, borderRadius: size, imageUrl: contact.avatarUrl);
+    }
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: context.ext.theme.iconsDefault, borderRadius: BorderRadius.circular(size)),
+      child: AppText(
+        contact.initials,
+        style: AppTextStyles.headingLarge.copyWith(
+          fontSize: fontSize,
+          height: 1,
+          color: context.ext.theme.backgroundDefault,
+        ),
+      ),
+    );
+  }
+}
+
+class ContactBlotAvatar extends StatelessWidget {
+  const ContactBlotAvatar({super.key, required this.contact, this.size = 160});
+  final Contact contact;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        AppIcons.blotBig.icon(context, size: size + 8, color: context.ext.theme.accent),
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            border: Border.all(color: context.ext.theme.backgroundHover, width: 1),
+            borderRadius: BorderRadius.circular(100),
+          ),
+          alignment: Alignment.center,
+          child: ContactAvatar(contact, size: size, fontSize: size / 4),
+        ),
+      ],
+    );
+  }
 }

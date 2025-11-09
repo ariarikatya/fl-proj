@@ -17,7 +17,7 @@ class CalendarMonthView extends StatelessWidget {
       onPageChange: (date, __) => scope.setDate(date),
       key: scope.monthViewKey,
       useAvailableVerticalSpace: true,
-      safeAreaOption: SafeAreaOption(bottom: false),
+      safeAreaOption: const SafeAreaOption(bottom: false),
       weekDayBuilder: (index) => WeekDayTile(
         dayIndex: index,
         displayBorder: false,
@@ -35,7 +35,7 @@ class CalendarMonthView extends StatelessWidget {
       ),
       borderColor: context.ext.theme.backgroundDisabled,
       borderSize: 0.5,
-      headerBuilder: (_) => SizedBox.shrink(),
+      headerBuilder: (_) => const SizedBox.shrink(),
       onCellTap: (events, date) => _openDate(scope, date),
     );
   }

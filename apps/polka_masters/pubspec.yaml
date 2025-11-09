@@ -1,7 +1,7 @@
 name: polka_masters
 description: "A new Flutter project."
 publish_to: 'none'
-version: 2.3.0+32
+version: 2.4.2+35
 
 environment:
   sdk: ^3.8.1
@@ -22,7 +22,12 @@ dependencies:
   calendar_view:
     path: ../../packages/calendar_view
   equatable: ^2.0.7
+  fast_contacts: ^5.0.1
+  permission_handler: ^12.0.1
 
+  appmetrica_plugin: ^3.3.0
+  infinite_scroll_pagination: ^5.1.1
+  webview_flutter: ^4.13.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

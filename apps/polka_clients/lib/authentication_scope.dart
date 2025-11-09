@@ -20,7 +20,7 @@ class AuthenticationScopeWidget extends StatelessWidget {
       child: child,
       builder: (context, value, child) {
         final navigator = switch (value) {
-          AuthStateUnauthenticated() => defaultNavigator([MaterialPage(child: WelcomePage())]),
+          AuthStateUnauthenticated() => defaultNavigator([const MaterialPage(child: WelcomePage())]),
           AuthStateOnboarding state => defaultNavigator([
             MaterialPage(child: OnboardingFlow(phoneNumber: state.authResult.phoneNumber)),
           ]),

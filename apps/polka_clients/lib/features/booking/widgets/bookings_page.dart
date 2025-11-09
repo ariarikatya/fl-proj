@@ -25,28 +25,15 @@ class _BookingsPageState extends State<BookingsPage> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Твои посещения'),
+      appBar: const CustomAppBar(title: 'Твои посещения'),
       safeAreaBuilder: (child) => SafeArea(bottom: false, child: child),
       child: Column(
         children: [
-          TabBar(
-            padding: EdgeInsets.zero,
-            labelPadding: EdgeInsets.symmetric(horizontal: 16),
-            splashFactory: NoSplash.splashFactory,
-            tabAlignment: TabAlignment.start,
-            dividerHeight: 1,
-            dividerColor: context.ext.theme.backgroundDisabled,
-            isScrollable: true,
-            labelStyle: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textPrimary, height: 2.5),
-            unselectedLabelColor: context.ext.theme.textPlaceholder,
-            indicatorAnimation: TabIndicatorAnimation.linear,
-            indicator: UnderlineTabIndicator(borderSide: BorderSide(color: context.ext.theme.textSecondary)),
-            indicatorSize: TabBarIndicatorSize.label,
-            indicatorPadding: EdgeInsets.zero,
+          AppTabBar(
             tabs: [
-              Tab(text: 'Ждут подтверждения'),
-              Tab(text: 'Предстоящие'),
-              Tab(text: 'Прошедшие'),
+              const Tab(text: 'Ждут подтверждения'),
+              const Tab(text: 'Предстоящие'),
+              const Tab(text: 'Прошедшие'),
             ],
             controller: _controller,
           ),
@@ -81,7 +68,7 @@ class _BookingsPageState extends State<BookingsPage> with TickerProviderStateMix
   }
 
   Widget _buildBookingsView(Map<int, Booking>? bookings) => switch (bookings?.length) {
-    null => Center(child: LoadingIndicator()),
+    null => const Center(child: LoadingIndicator()),
     > 0 => _BookingsView(bookings!, newBookingId: /* blocs.get<BookingsCubit>(context).newBookingId */ 28),
     _ => EmptyBookingView(action: blocs.get<HomeNavigationCubit>(context).openHome),
   };
@@ -138,7 +125,7 @@ class _BookingsViewState extends State<_BookingsView> {
     );
     _controller.animateTo(
       item?.localToGlobal(scrollOffset).dy ?? 0.0,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
   }

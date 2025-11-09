@@ -13,7 +13,7 @@ class FiltersPage extends StatefulWidget {
 }
 
 class _FiltersPageState extends State<FiltersPage> {
-  late var filter = widget.initFilter ?? SearchFilter();
+  late var filter = widget.initFilter ?? const SearchFilter();
   late final _now = DateTime.now();
   late final _minPriceController = TextEditingController(text: filter.price?.min?.toString());
   late final _maxPriceController = TextEditingController(text: filter.price?.max?.toString());
@@ -26,27 +26,27 @@ class _FiltersPageState extends State<FiltersPage> {
   }
 
   late final _dateRanges = [
-    ('Есть сегодня', DateTimeRange(start: _now, end: _now.add(Duration(days: 1)))),
-    ('Есть в течение 3 дней', DateTimeRange(start: _now, end: _now.add(Duration(days: 3)))),
+    ('Есть сегодня', DateTimeRange(start: _now, end: _now.add(const Duration(days: 1)))),
+    ('Есть в течение 3 дней', DateTimeRange(start: _now, end: _now.add(const Duration(days: 3)))),
   ];
 
-  void _clear() => setState(() => filter = SearchFilter());
+  void _clear() => setState(() => filter = const SearchFilter());
   void _updateFilter(SearchFilter Function() update) => setState(() => filter = update());
 
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: ModalAppBar(title: 'Фильтры'),
+      appBar: const ModalAppBar(title: 'Фильтры'),
       child: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: 40),
+              padding: const EdgeInsets.only(bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
+                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
                     child: AppText(
                       'Настрой под себя',
                       style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600),
@@ -64,8 +64,8 @@ class _FiltersPageState extends State<FiltersPage> {
                       ),
                       child: Row(
                         children: [
-                          AppEmojis.fromMasterService(category).icon(size: Size(14, 14)),
-                          SizedBox(width: 4),
+                          AppEmojis.fromMasterService(category).icon(size: const Size(14, 14)),
+                          const SizedBox(width: 4),
                           AppText(category.label, style: AppTextStyles.bodyMedium),
                         ],
                       ),
@@ -82,7 +82,7 @@ class _FiltersPageState extends State<FiltersPage> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.fromLTRB(24, 16, 24, 0),
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                     child: AppTextButtonSecondary.large(
                       text: filter.dateRange == null ? 'Выбрать дату' : filter.dateRange!.formatDMY(),
                       onTap: () async {
@@ -95,7 +95,7 @@ class _FiltersPageState extends State<FiltersPage> {
                   ),
                   _subtitle('Цена'),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
                       spacing: 8,
                       children: [
@@ -104,7 +104,7 @@ class _FiltersPageState extends State<FiltersPage> {
                             controller: _minPriceController,
                             keyboardType: TextInputType.number,
                             prefixIcon: Padding(
-                              padding: EdgeInsets.only(top: 4),
+                              padding: const EdgeInsets.only(top: 4),
                               child: AppText(
                                 'от',
                                 style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textPlaceholder),
@@ -125,7 +125,7 @@ class _FiltersPageState extends State<FiltersPage> {
                             controller: _maxPriceController,
                             keyboardType: TextInputType.number,
                             prefixIcon: Padding(
-                              padding: EdgeInsets.only(top: 4),
+                              padding: const EdgeInsets.only(top: 4),
                               child: AppText(
                                 'до',
                                 style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textPlaceholder),
@@ -188,14 +188,14 @@ class _FiltersPageState extends State<FiltersPage> {
 
   Padding _subtitle(String text) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       child: AppText(text, style: AppTextStyles.bodyLarge),
     );
   }
 
   Widget _optionsWrapper<T>(List<T> options, AppChip Function(T) child) {
     return Padding(
-      padding: EdgeInsets.only(left: 24),
+      padding: const EdgeInsets.only(left: 24),
       child: Wrap(spacing: 4, runSpacing: 8, children: [for (var option in options) child(option)]),
     );
   }
@@ -209,18 +209,18 @@ class _ClearButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 20, top: 20),
+      padding: const EdgeInsets.only(left: 20, top: 20),
       child: GestureDetector(
         onTap: onTap,
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.close, size: 16, color: context.ext.theme.textPrimary),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 AppText('Очистить все', style: AppTextStyles.bodyMedium.copyWith(decoration: TextDecoration.underline)),
               ],
             ),

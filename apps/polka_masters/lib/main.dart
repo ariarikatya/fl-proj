@@ -8,10 +8,10 @@ import 'package:shared/shared.dart';
 
 void main() => runZonedGuarded(
   () async {
-    runApp(SplashScreen());
+    runApp(const SplashScreen());
     WidgetsFlutterBinding.ensureInitialized();
     await Dependencies.init();
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     runApp(const App());
   },
   (error, stack) {

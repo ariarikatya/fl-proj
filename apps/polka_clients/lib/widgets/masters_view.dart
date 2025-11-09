@@ -13,8 +13,8 @@ class MastersView extends StatelessWidget {
     return GridView.builder(
       primary: !embedded,
       shrinkWrap: embedded,
-      padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 16,
         crossAxisSpacing: 4,

@@ -34,19 +34,19 @@ class MasterCard extends StatelessWidget {
                 Row(
                   children: [
                     AppText('⭐ ${master.ratingFixed}', style: AppTextStyles.bodyMedium),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                   ],
                 ),
               ],
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Row(
             children: [
               AppEmojis.fromMasterService(
                 master.categories.firstOrNull ?? ServiceCategories.nailService,
-              ).icon(size: Size(14, 14)),
-              SizedBox(width: 4),
+              ).icon(size: const Size(14, 14)),
+              const SizedBox(width: 4),
               Flexible(
                 child: AppText(
                   master.profession,
@@ -56,14 +56,14 @@ class MasterCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           SizedBox(
             height: 38,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(padding: const EdgeInsets.only(top: 2), child: AppIcons.location.icon(context, size: 16)),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Flexible(
                   child: AppText(
                     master.address,
@@ -75,7 +75,7 @@ class MasterCard extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           AppTextButton.medium(
             text: 'Записаться',
             onTap: () => context.ext.push(ServicesPage(masterId: master.id)),
@@ -105,7 +105,7 @@ class MasterCard extends StatelessWidget {
                       FavoriteStatus.notLiked => blocs.get<FavoritesCubit>(context).like(master.id),
                     },
                     child: Padding(
-                      padding: EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(4),
                       child: Icon(
                         Icons.favorite,
                         size: 24,

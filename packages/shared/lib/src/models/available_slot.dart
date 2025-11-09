@@ -1,38 +1,32 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared/shared.dart';
 
 class AvailableSlot extends Equatable {
-  const AvailableSlot({required this.id, required this.date, required this.startTime});
+  const AvailableSlot({required this.id, required this.datetime, required this.duration});
 
   factory AvailableSlot.fromJson(Map<String, dynamic> json) => AvailableSlot(
     id: json['id'] as int,
-    date: DateTimeX.fromDateString(json['date'] as String),
-    startTime: DurationX.fromTimeString(json['time_from'] as String),
+    datetime: DateTime.parse(json['date'] as String),
+    duration: Duration(minutes: json['duration_minutes'] as int),
   );
 
   final int id;
-  final DateTime date;
-  final Duration startTime;
-
-  DateTime get datetime => date.add(startTime);
+  final DateTime datetime;
+  final Duration duration;
 
   @override
-  List<Object?> get props => [id, date, startTime];
+  List<Object?> get props => [id, datetime, duration];
 
-  AvailableSlot copyWith({
-    ValueGetter<int>? id,
-    ValueGetter<DateTime>? date,
-    ValueGetter<Duration>? startTime,
-  }) => AvailableSlot(
-    id: id != null ? id() : this.id,
-    date: date != null ? date() : this.date,
-    startTime: startTime != null ? startTime() : this.startTime,
-  );
+  AvailableSlot copyWith({ValueGetter<int>? id, ValueGetter<DateTime>? datetime, ValueGetter<Duration>? duration}) =>
+      AvailableSlot(
+        id: id != null ? id() : this.id,
+        datetime: datetime != null ? datetime() : this.datetime,
+        duration: duration != null ? duration() : this.duration,
+      );
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'date': date.toJson(),
-    'startTime': startTime.toTimeString(),
+    'date': datetime.toUtc().toIso8601String(),
+    'duration': duration.inMinutes,
   };
 }

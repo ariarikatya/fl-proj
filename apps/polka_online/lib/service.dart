@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/shared.dart';
+import 'package:shared/shared.dart' hide launchUrl;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'menu.dart';
@@ -30,9 +30,7 @@ class _ServicePageState extends State<ServicePage> {
   void initState() {
     super.initState();
     _masterId = widget.masterId ?? '1';
-    logger.debug(
-      'Initializing ServicePage - masterId: $_masterId, phoneNumber: ${widget.phoneNumber}',
-    );
+    logger.debug('Initializing ServicePage - masterId: $_masterId, phoneNumber: ${widget.phoneNumber}');
     _loadMasterInfo();
   }
 
@@ -54,8 +52,6 @@ class _ServicePageState extends State<ServicePage> {
             category: ServiceCategories.nailService,
             title: 'Маникюр классический без педикюра',
             duration: const Duration(minutes: 60),
-            description: '',
-            location: ServiceLocation.studio,
             resultPhotos: [],
             price: 1200,
           ),
@@ -64,8 +60,6 @@ class _ServicePageState extends State<ServicePage> {
             category: ServiceCategories.nailService,
             title: 'Педикюр Spa',
             duration: const Duration(minutes: 90),
-            description: '',
-            location: ServiceLocation.studio,
             resultPhotos: [],
             price: 2000,
           ),
@@ -74,8 +68,6 @@ class _ServicePageState extends State<ServicePage> {
             category: ServiceCategories.other,
             title: 'Массаж спины',
             duration: const Duration(minutes: 45),
-            description: '',
-            location: ServiceLocation.studio,
             resultPhotos: [],
             price: 1500,
           ),
@@ -89,9 +81,7 @@ class _ServicePageState extends State<ServicePage> {
         );
       },
       err: (error, stackTrace) {
-        logger.error(
-          'Error loading master info for masterId $_masterId: $error',
-        );
+        logger.error('Error loading master info for masterId $_masterId: $error');
         setState(() {
           _error = error.toString();
           _isLoading = false;
@@ -108,8 +98,7 @@ class _ServicePageState extends State<ServicePage> {
     } else if (defaultTargetPlatform == TargetPlatform.macOS) {
       url = 'https://apps.apple.com/app/id6740820071';
     } else {
-      url =
-          'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
+      url = 'https://play.google.com/store/apps/details?id=com.mads.polkabeautymarketplace&hl=ru';
     }
 
     final uri = Uri.parse(url);
@@ -147,10 +136,7 @@ class _ServicePageState extends State<ServicePage> {
 
   void _goBack() {
     logger.debug('Navigating back to WelcomePage from ServicePage');
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const WelcomePage()),
-    );
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const WelcomePage()));
   }
 
   void _onServiceSelected(Service service) {
@@ -179,16 +165,9 @@ class _ServicePageState extends State<ServicePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Ошибка загрузки данных',
-                  style: AppTextStyles.headingMedium,
-                ),
+                Text('Ошибка загрузки данных', style: AppTextStyles.headingMedium),
                 const SizedBox(height: 16),
-                Text(
-                  _error ?? 'Неизвестная ошибка',
-                  style: AppTextStyles.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
+                Text(_error ?? 'Неизвестная ошибка', style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
@@ -208,10 +187,7 @@ class _ServicePageState extends State<ServicePage> {
     final height = MediaQuery.of(context).size.height;
     final isDesktop = LayoutHelper.isDesktopLayout(width);
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(
-      screenWidth: width,
-      showImage: showImage,
-    );
+    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
 
     logger.debug(
       'Building ServicePage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth, selectedService: ${_selectedService?.title}',
@@ -222,10 +198,7 @@ class _ServicePageState extends State<ServicePage> {
       showImage: showImage,
       onMenuTap: () {
         logger.debug('Opening menu page from ServicePage');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
       },
       onDownloadTap: () {
         logger.debug('Opening store from ServicePage header');
@@ -245,12 +218,7 @@ class _ServicePageState extends State<ServicePage> {
           ? SingleChildScrollView(
               child: SafeArea(
                 top: false,
-                child: _buildDesktopContent(
-                  width: width,
-                  height: height,
-                  showImage: showImage,
-                  imageWidth: imageWidth,
-                ),
+                child: _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth),
               ),
             )
           : _buildMobileContent(),
@@ -271,9 +239,7 @@ class _ServicePageState extends State<ServicePage> {
     );
 
     if (master.avatarUrl.isEmpty) {
-      logger.warning(
-        'Master avatar URL is empty for master: ${master.fullName}',
-      );
+      logger.warning('Master avatar URL is empty for master: ${master.fullName}');
     }
 
     return DesktopPageLayout(
@@ -293,9 +259,7 @@ class _ServicePageState extends State<ServicePage> {
           const SizedBox(height: 16),
           Text(
             'Здесь представлены все услуги мастера, выберите услугу и нажмите "Далее"',
-            style: AppTextStyles.bodyMedium500.copyWith(
-              color: AppColors.iconsDefault,
-            ),
+            style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
           ),
           const SizedBox(height: 32),
           ...services.map(
@@ -353,9 +317,7 @@ class _ServicePageState extends State<ServicePage> {
                 const SizedBox(height: 16),
                 Text(
                   'Здесь представлены все услуги мастера, выберите услугу и нажмите "Далее"',
-                  style: AppTextStyles.bodyMedium500.copyWith(
-                    color: AppColors.iconsDefault,
-                  ),
+                  style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
                 ),
                 const SizedBox(height: 32),
                 if (services.isNotEmpty)
@@ -394,12 +356,7 @@ class _ServicePageState extends State<ServicePage> {
 
 // Карточка услуги
 class ServiceCard extends StatelessWidget {
-  const ServiceCard({
-    super.key,
-    required this.service,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const ServiceCard({super.key, required this.service, required this.isSelected, required this.onTap});
 
   final Service service;
   final bool isSelected;
@@ -414,10 +371,7 @@ class ServiceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? AppColors.accentLight : AppColors.backgroundHover,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? AppColors.accent : Colors.transparent,
-            width: 2,
-          ),
+          border: Border.all(color: isSelected ? AppColors.accent : Colors.transparent, width: 2),
         ),
         child: Row(
           children: [
@@ -425,40 +379,22 @@ class ServiceCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    service.title,
-                    style: AppTextStyles.headingSmall.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  Text(service.title, style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      AppIcons.clock.icon(
-                        context,
-                        size: 16,
-                        color: AppColors.textSecondary,
-                      ),
+                      AppIcons.clock.icon(context, size: 16, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         service.duration.toDurationStringShort(),
-                        style: AppTextStyles.bodyLarge500.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                        style: AppTextStyles.bodyLarge500.copyWith(color: AppColors.textSecondary),
                       ),
                       const SizedBox(width: 16),
-                      Text(
-                        '|',
-                        style: AppTextStyles.bodyLarge500.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
+                      Text('|', style: AppTextStyles.bodyLarge500.copyWith(color: AppColors.textSecondary)),
                       const SizedBox(width: 16),
                       Text(
                         '₽${service.price}',
-                        style: AppTextStyles.bodyLarge500.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                        style: AppTextStyles.bodyLarge500.copyWith(color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -466,17 +402,9 @@ class ServiceCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            isSelected
-                ? AppIcons.radioChecked.icon(
-                    context,
-                    size: 24,
-                    color: AppColors.accent,
-                  )
-                : AppIcons.radioUnchecked.icon(
-                    context,
-                    size: 24,
-                    color: AppColors.borderDefault,
-                  ),
+            // isSelected
+            //     ? AppIcons.radioChecked.icon(context, size: 24, color: AppColors.accent)
+            //     : AppIcons.radioUnchecked.icon(context, size: 24, color: AppColors.borderDefault),
           ],
         ),
       ),

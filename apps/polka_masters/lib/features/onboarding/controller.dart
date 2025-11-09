@@ -10,7 +10,7 @@ typedef CategoryData = ServiceCategories;
 
 typedef WorkplaceData = ({ServiceLocation location, Address address, List<XFile> photos});
 
-typedef ServiceData = ({String serviceName, String description, int price, Duration duration, XFile image});
+typedef ServiceData = ({String serviceName, int price, Duration duration, XFile image});
 
 typedef ScheduleData = Schedule;
 
@@ -80,6 +80,7 @@ class OnboardingController extends $OnboardingController {
       reviewsCount: 0,
       latitude: onboardingData.workplaceData.address.latitude,
       longitude: onboardingData.workplaceData.address.longitude,
+      location: onboardingData.workplaceData.location,
     );
     final result = await profileRepo.createMasterProfile(phoneNumber, masterData);
 
@@ -88,8 +89,6 @@ class OnboardingController extends $OnboardingController {
       final service = Service(
         id: -1,
         category: onboardingData.categoryData,
-        description: data.description,
-        location: onboardingData.workplaceData.location,
         resultPhotos: [?images[data.image.name]],
         title: data.serviceName,
         duration: data.duration,

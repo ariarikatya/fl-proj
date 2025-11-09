@@ -15,7 +15,7 @@ class ServicesGridView extends StatelessWidget {
     return GridView.builder(
       primary: !embedded,
       shrinkWrap: embedded,
-      padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 24,
@@ -48,8 +48,8 @@ class ServiceWidget extends StatelessWidget {
           ),
           Row(
             children: [
-              AppEmojis.fromMasterService(service.category).icon(size: Size(14, 14)),
-              SizedBox(width: 4),
+              AppEmojis.fromMasterService(service.category).icon(size: const Size(14, 14)),
+              const SizedBox(width: 4),
               Expanded(
                 child: AppText(
                   service.category.label,
@@ -58,11 +58,11 @@ class ServiceWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Row(
             children: [
               AppIcons.clock.icon(context, size: 14),
-              SizedBox(width: 2),
+              const SizedBox(width: 2),
               Expanded(
                 child: AppText(
                   service.duration.toDurationString(),
@@ -71,7 +71,7 @@ class ServiceWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           AppTextButton.small(
             text: '₽${service.price} Записаться',
             onTap: () => blocs.get<BookingsCubit>(context).startAppointmentFlow(context, master, service),

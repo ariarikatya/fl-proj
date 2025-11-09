@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:polka_clients/app_links.dart';
-import 'package:polka_clients/features/profile/widgets/profile_button.dart';
 import 'package:shared/shared.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -12,40 +9,40 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: CustomAppBar(title: 'Настройки'),
+      appBar: const CustomAppBar(title: 'Настройки'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ProfileButton(
             icon: AppIcons.lock,
             title: 'Политика конфиденциальности',
-            onTap: () => _launchLink(AppLinks.privacyPolicy),
+            onTap: () => _launchLink(AppDocLinks.privacyPolicy),
           ),
           ProfileButton(
             icon: AppIcons.file,
             title: 'Пользовательское соглашение',
-            onTap: () => _launchLink(AppLinks.userAgreement),
+            onTap: () => _launchLink(AppDocLinks.termsOfUse),
           ),
           ProfileButton(
             icon: AppIcons.alertCircle,
-            title: 'Условия пользования',
-            onTap: () => _launchLink(AppLinks.termsOfUse),
+            title: 'Условия использования',
+            onTap: () => _launchLink(AppDocLinks.licenseAgreement),
           ),
           if (devMode) ...[
-            SizedBox(height: 24),
-            Padding(
+            const SizedBox(height: 24),
+            const Padding(
               padding: EdgeInsets.only(left: 24),
-              child: AppText('Themes', style: AppTextStyles.headingSmall),
+              child: AppText('Themes (dev only)', style: AppTextStyles.headingSmall),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             for (var MapEntry(:key, :value) in AppThemeWidget.of(context).themes.entries)
               Padding(
-                padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
                 child: Row(
                   children: [
                     AppText(key),
-                    Spacer(),
+                    const Spacer(),
                     AppSwitch(
                       value: context.ext.theme == value,
                       onChanged: (v) {

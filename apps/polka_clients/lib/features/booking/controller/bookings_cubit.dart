@@ -12,7 +12,7 @@ import 'package:shared/shared.dart';
 part 'bookings_state.dart';
 
 class BookingsCubit extends Cubit<BookingsState> {
-  BookingsCubit() : super(BookingsState()) {
+  BookingsCubit() : super(const BookingsState()) {
     load();
   }
 
@@ -121,7 +121,7 @@ class BookingsCubit extends Cubit<BookingsState> {
     final review = await context.ext.push<bool>(ReviewPage(booking: booking));
     if (review == true && context.mounted) {
       Navigator.popUntil(context, (route) => route.isFirst);
-      showModalBottomSheet(context: context, builder: (_) => ThanksForReviewBottomSheet());
+      showModalBottomSheet(context: context, builder: (_) => const ThanksForReviewBottomSheet());
     }
   }
 }

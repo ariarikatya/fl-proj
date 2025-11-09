@@ -14,11 +14,11 @@ class ServicesPage extends StatelessWidget {
     return LoadDataPage(
       future: () => Dependencies().clientRepository.getMasterInfo(masterId),
       builder: (data) => AppPage(
-        appBar: CustomAppBar(title: 'Услуги мастера'),
+        appBar: const CustomAppBar(title: 'Услуги мастера'),
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: MasterHeader(master: data.master),
             ),
             Expanded(

@@ -55,7 +55,7 @@ class _MasterHeader extends StatelessWidget {
       spacing: 24,
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 4),
+          padding: const EdgeInsets.only(top: 4),
           child: BlotAvatar(avatarUrl: master.avatarUrl),
         ),
         Expanded(

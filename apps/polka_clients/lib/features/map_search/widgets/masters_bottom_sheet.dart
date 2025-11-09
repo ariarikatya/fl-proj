@@ -32,7 +32,7 @@ class _MastersBottomSheetState extends State<MastersBottomSheet> {
         return Container(
           decoration: BoxDecoration(
             color: context.ext.theme.backgroundDefault,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: Column(
             children: [
@@ -43,8 +43,8 @@ class _MastersBottomSheetState extends State<MastersBottomSheet> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     grabber,
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 10, left: 24, right: 24),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8, bottom: 10, left: 24, right: 24),
                       child: AppText('Мастера рядом с тобой', style: AppTextStyles.headingSmall),
                     ),
                   ],
@@ -57,7 +57,7 @@ class _MastersBottomSheetState extends State<MastersBottomSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   itemBuilder: (context, index, item) => MasterMapCard(info: item),
                   emptyBuilder: (_) => EmptySearchView(onResetFilters: widget.onResetFilters),
-                  separatorBuilder: (_, __) => SizedBox(height: 16),
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
                 ),
               ),
             ],

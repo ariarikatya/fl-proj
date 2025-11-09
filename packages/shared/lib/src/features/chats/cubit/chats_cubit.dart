@@ -82,7 +82,7 @@ class ChatsCubit extends Cubit<int> with SocketListenerMixin {
         chats[chat.id] = _createChat(chat);
         return chat;
       },
-      err: (_, __) => null,
+      err: handleError,
     );
   }
 

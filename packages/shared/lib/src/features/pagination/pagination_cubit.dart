@@ -9,12 +9,12 @@ abstract class PaginationCubit<T> extends Cubit<PagingState<int, T>> {
 
   Future<Result<List<T>>> loadItems(int page, int limit);
 
-  void reset() {
+  Future<void> reset() {
     emit(state.reset());
-    load();
+    return load();
   }
 
-  void load() async {
+  Future<void> load() async {
     if (state.isLoading) return;
 
     emit(state.copyWith(isLoading: true, error: null));
@@ -32,6 +32,10 @@ abstract class PaginationCubit<T> extends Cubit<PagingState<int, T>> {
       err: (e, st) => state.copyWith(error: parseError(e, st), isLoading: false),
     );
 
-    emit(newState);
+    safeEmit(newState);
   }
+
+  int? get count => items?.length;
+
+  List<T>? get items => state.pages != null ? List.unmodifiable(state.pages!.expand((e) => e)) : null;
 }
