@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:polka_masters/dependencies.dart';
+import 'package:polka_masters/scopes/master_scope.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class ScheduleEditScreen extends StatefulWidget {
@@ -24,30 +27,55 @@ class _ScheduleEditScreenState extends State<ScheduleEditScreen> {
 
   // static const _defaultDuration = Duration(days: 7);
 
+  bool _saving = false;
+
   late final days = {
     for (var i in WeekDays.values)
       i: ValueNotifier(
-        ScheduleDay(start: const Duration(hours: 10), end: const Duration(hours: 18), active: i.isWorkday),
+        ScheduleDay(
+          start: widget.initialSchedule?.days[i]?.start ?? const Duration(hours: 10),
+          end: widget.initialSchedule?.days[i]?.end ?? const Duration(hours: 18),
+          active: widget.initialSchedule?.days[i]?.active ?? false,
+        ),
       ),
   };
-  late final startTime = ValueNotifier(const Duration(hours: 10));
-  late final endTime = ValueNotifier(const Duration(hours: 18));
-  late final startDate = ValueNotifier(DateTime.now());
-  late final endDate = ValueNotifier(startDate.value.add(const Duration(days: 30)));
+  late final startTime = ValueNotifier(
+    widget.initialSchedule?.days.entries.firstOrNull?.value.start ?? const Duration(hours: 10),
+  );
+  late final endTime = ValueNotifier(
+    widget.initialSchedule?.days.entries.firstOrNull?.value.end ?? const Duration(hours: 18),
+  );
+  late final startDate = ValueNotifier(widget.initialSchedule?.periodStart ?? DateTime.now());
+  late final endDate = ValueNotifier(
+    widget.initialSchedule?.periodEnd ?? startDate.value.add(const Duration(days: 30)),
+  );
 
-  void _save() {
+  void _save() async {
     if (days.values.every((n) => !n.value.active)) {
       return showErrorSnackbar('Хотя бы один день должен быть активным');
     } else if (startDate.value.isAfter(endDate.value)) {
       return showErrorSnackbar('Дата начала не может быть позже даты конца');
     }
 
+    setState(() => _saving = true);
+
     final schedule = Schedule(
       periodStart: startDate.value,
       periodEnd: endDate.value,
       days: {for (var i in days.entries.where((e) => e.value.value.active)) i.key: i.value.value},
     );
-    // TODO: Save schedule to API
+    final result = await Dependencies().masterRepository.createMasterSchedule(schedule);
+    result.when(
+      ok: (data) {
+        if (mounted) {
+          context.read<MasterScope>().updateSchedule(data);
+          showInfoSnackbar('Расписание успешно обновлено');
+          context.ext.pop();
+        }
+      },
+      err: handleError,
+    );
+    setState(() => _saving = false);
   }
 
   @override
@@ -242,7 +270,7 @@ class _ScheduleEditScreenState extends State<ScheduleEditScreen> {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-              child: AppTextButton.large(text: 'Сохранить изменения', onTap: _save),
+              child: AppTextButton.large(text: 'Сохранить изменения', onTap: _save, enabled: !_saving),
             ),
           ),
         ],

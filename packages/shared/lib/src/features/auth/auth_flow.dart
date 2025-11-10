@@ -1,58 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/models/auth_result.dart';
-import 'package:shared/src/data/repositories/auth_repository.dart';
+import 'package:shared/src/models/user.dart';
+import 'package:shared/src/result.dart';
 
 import 'presentation/code_verification_page.dart';
 import 'presentation/phone_number_page.dart';
 
-abstract class AuthRoute {
-  static const phoneNumber = '/phone-number';
-  static const codeVerification = '/code-verification';
-}
+class AuthFlow<T extends User> extends StatefulWidget {
+  const AuthFlow({super.key, required this.sendCode, required this.verifyCode, required this.onSuccess});
 
-class AuthFlow extends StatefulWidget {
-  const AuthFlow({super.key, required this.role, required this.udid, required this.authRepository});
-
-  final AuthRole role;
-  final String udid;
-  final AuthRepository authRepository;
+  final Future<Result<bool>> Function(String phone) sendCode;
+  final Future<Result<AuthResult<T>>> Function(String phone, String code) verifyCode;
+  final void Function(AuthResult<T> result) onSuccess;
 
   @override
-  State<AuthFlow> createState() => _AuthFlowState();
+  State<AuthFlow<T>> createState() => _AuthFlowState<T>();
 }
 
-class _AuthFlowState extends State<AuthFlow> {
-  final _navigatorKey = GlobalKey<NavigatorState>();
-
+class _AuthFlowState<T extends User> extends State<AuthFlow<T>> {
   void _onCodeSended(String phoneNumber) {
-    _navigatorKey.currentState?.pushNamed(AuthRoute.codeVerification, arguments: phoneNumber);
-  }
-
-  void _onCodeVerified(AuthResult result) {
-    Navigator.of(context).pop(result);
+    context.ext.replace(
+      PhoneVerificationCodePage<T>(
+        phoneNumber: phoneNumber,
+        onCodeVerified: widget.onSuccess,
+        sendCode: widget.sendCode,
+        verifyCode: widget.verifyCode,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Navigator(
-      key: _navigatorKey,
-      onGenerateRoute: (settings) {
-        final page = switch (settings.name) {
-          AuthRoute.phoneNumber || Navigator.defaultRouteName => PhoneNumberPage(
-            onCodeSended: _onCodeSended,
-            sendCode: widget.authRepository.sendCode,
-          ),
-          AuthRoute.codeVerification => PhoneVerificationCodePage(
-            phoneNumber: settings.arguments as String,
-            onCodeVerified: _onCodeVerified,
-            repository: widget.authRepository,
-            udid: widget.udid,
-            role: widget.role,
-          ),
-          _ => throw Exception('Unknown route: ${settings.name}'),
-        };
-        return MaterialPageRoute(builder: (context) => page, settings: settings);
-      },
-    );
+    return PhoneNumberPage(onCodeSended: _onCodeSended, sendCode: widget.sendCode);
   }
 }

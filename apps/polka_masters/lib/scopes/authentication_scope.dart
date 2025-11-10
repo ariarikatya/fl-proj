@@ -5,9 +5,6 @@ import 'package:polka_masters/scopes/master_scope.dart';
 import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
-Navigator defaultNavigator(List<Page> pages) =>
-    Navigator(pages: pages, onDidRemovePage: (page) => logger.info('page removed: ${page.runtimeType}'));
-
 class AuthenticationScopeWidget extends StatelessWidget {
   const AuthenticationScopeWidget({required this.controller, required this.child, super.key});
 
@@ -21,10 +18,17 @@ class AuthenticationScopeWidget extends StatelessWidget {
       child: child,
       builder: (context, value, child) {
         final navigator = switch (value) {
-          AuthStateUnauthenticated() => defaultNavigator([const MaterialPage(child: WelcomePage())]),
-          AuthStateOnboarding state => defaultNavigator([
-            MaterialPage(child: OnboardingFlow(phoneNumber: state.authResult.phoneNumber)),
-          ]),
+          AuthStateUnauthenticated() => AppNavigator(
+            initialPages: [
+              MaterialPage(
+                child: const WelcomePage(),
+                onPopInvoked: (didPop, result) => logger.warning('$didPop, $result'),
+              ),
+            ],
+          ),
+          AuthStateOnboarding state => AppNavigator(
+            initialPages: [MaterialPage(child: OnboardingFlow(phoneNumber: state.authResult.phoneNumber))],
+          ),
           AuthStateAuthenticated<Master> state => ChangeNotifierProvider<MasterScope>(
             create: (context) => MasterScope(
               master: state.user.value,

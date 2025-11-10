@@ -4,9 +4,6 @@ import 'package:polka_clients/features/auth/widgets/welcome_page.dart';
 import 'package:polka_clients/features/onboarding/pages/onboarding_flow.dart';
 import 'package:shared/shared.dart';
 
-Navigator defaultNavigator(List<Page> pages) =>
-    Navigator(pages: pages, onDidRemovePage: (page) => logger.info('page removed: ${page.runtimeType}'));
-
 class AuthenticationScopeWidget extends StatelessWidget {
   const AuthenticationScopeWidget({required this.controller, required this.child, super.key});
 
@@ -20,10 +17,10 @@ class AuthenticationScopeWidget extends StatelessWidget {
       child: child,
       builder: (context, value, child) {
         final navigator = switch (value) {
-          AuthStateUnauthenticated() => defaultNavigator([const MaterialPage(child: WelcomePage())]),
-          AuthStateOnboarding state => defaultNavigator([
-            MaterialPage(child: OnboardingFlow(phoneNumber: state.authResult.phoneNumber)),
-          ]),
+          AuthStateUnauthenticated() => const AppNavigator(initialPages: [MaterialPage(child: WelcomePage())]),
+          AuthStateOnboarding state => AppNavigator(
+            initialPages: [MaterialPage(child: OnboardingFlow(phoneNumber: state.authResult.phoneNumber))],
+          ),
           AuthStateAuthenticated<Client> state => ValueListenableBuilder(
             valueListenable: state.user,
             builder: (_, user, __) => ClientScope(

@@ -14,7 +14,7 @@ class CalendarDayView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scope = context.read<CalendarScope>();
+    final scope = context.watch<CalendarScope>();
     final scheduleDay = context.watch<MasterScope>().schedule.days[WeekDays.fromDateTime(scope.date)];
     final offset = (DateTime.now().hour - 1.5) * CalendarScope.heigthPerMinuteRatio * 60;
 

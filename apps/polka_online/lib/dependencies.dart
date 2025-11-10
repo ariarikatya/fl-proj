@@ -1,33 +1,54 @@
-import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:shared/shared.dart';
-
-const bool useMockData = false;
 
 class Dependencies {
   Dependencies._();
 
   static final Dependencies instance = Dependencies._();
 
+  late final Dio dio;
   late final MasterRepository masterRepository;
   late final AuthRepository authRepository;
   late final ProfileRepository profileRepository;
-  late final Dio dio;
+  late final BookingsRepository bookingsRepository;
+  TokensPair? _tokens;
+
+  String? get accessToken => _tokens?.accessToken;
+
+  void setTokens(TokensPair tokens) {
+    _tokens = tokens;
+    logger.info('[Dependencies] Tokens updated');
+  }
 
   void init() {
-    if (useMockData) {
-      logger.info('[Dependencies] 🎭 Using MOCK data (set useMockData = false to use real API)');
-      dio = _createMockDio();
-      masterRepository = MockMasterRepository();
-      authRepository = RestAuthRepository(dio);
-      profileRepository = RestProfileRepository(dio);
-    } else {
-      logger.info('[Dependencies] 🌐 Using REAL API');
-      dio = DioFactory.createDio();
-      masterRepository = RestMasterRepository(dio);
-      authRepository = RestAuthRepository(dio);
-      profileRepository = RestProfileRepository(dio);
-    }
+    logger.info('[Dependencies] 🌐 Initializing API');
+    dio = DioFactory.createDio();
+
+    // Add auth interceptor
+    dio.interceptors.add(
+      AuthInterceptor(
+        getAccessToken: () async => accessToken,
+        refreshTokens: () async {
+          if (_tokens?.refreshToken == null) return false;
+          final result = await RestAuthRepository(
+            dio,
+          ).refreshTokens<Client>(_tokens!.refreshToken, 'web_polka_online');
+          return result.when(
+            ok: (newTokens) {
+              setTokens(newTokens);
+              return true;
+            },
+            err: (_, __) => false,
+          );
+        },
+        dio: dio,
+      ),
+    );
+
+    masterRepository = RestMasterRepository(dio);
+    authRepository = RestAuthRepository(dio);
+    profileRepository = RestProfileRepository(dio);
+    bookingsRepository = RestBookingsRepository(dio);
   }
 
   /// Извлекает masterId из текущего URL
@@ -56,12 +77,12 @@ class Dependencies {
     logger.warning('[Dependencies] No masterId found in URL, using default: 1');
     return null;
   }
+}
 
-  Dio _createMockDio() {
-    final mockDio = Dio(BaseOptions(baseUrl: 'https://mock.api', contentType: 'application/json'));
-    mockDio.interceptors.add(_MockApiInterceptor());
-    return mockDio;
-  }
+// Repository для работы с мастерами
+abstract class MasterRepository {
+  Future<Result<MasterInfo>> getMasterInfo(int masterId);
+  Future<Result<List<AvailableSlot>>> getSlots(int masterId, int serviceId);
 }
 
 class RestMasterRepository extends MasterRepository {
@@ -76,132 +97,98 @@ class RestMasterRepository extends MasterRepository {
     final response = await dio.get('/masters/$masterId');
 
     logger.debug('[MasterRepository] Response status: ${response.statusCode}');
+    logger.debug(
+      '[MasterRepository] Response data keys: ${response.data.keys}',
+    );
 
     final masterInfo = MasterInfo.fromJson(response.data);
 
-    logger.info('[MasterRepository] Successfully loaded master: ${masterInfo.master.fullName}');
+    logger.info(
+      '[MasterRepository] Successfully loaded master: ${masterInfo.master.fullName}',
+    );
+    logger.info(
+      '[MasterRepository] Avatar URL: "${masterInfo.master.avatarUrl}"',
+    );
 
     return masterInfo;
   });
-}
 
-abstract class MasterRepository {
-  Future<Result<MasterInfo>> getMasterInfo(int masterId);
-}
-
-class _MockApiInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    logger.info('[Mock API] ${options.method} ${options.path}');
+  Future<Result<List<AvailableSlot>>> getSlots(
+    int masterId,
+    int serviceId,
+  ) => tryCatch(() async {
+    logger.debug(
+      '[MasterRepository] Fetching slots for masterId: $masterId, serviceId: $serviceId',
+    );
 
-    await Future.delayed(const Duration(milliseconds: 300));
+    final response = await dio.get(
+      '/masters/$masterId/calendar',
+      queryParameters: {
+        'service_id': serviceId,
+        'date_from': DateTime.now().toJson(),
+        'date_to': DateTime.now().add(const Duration(days: 10)).toJson(),
+      },
+    );
 
-    if (options.path.contains('/send_code')) {
-      handler.resolve(Response(requestOptions: options, statusCode: 200, data: {'message': 'Код отправлен'}));
-      return;
+    if (response.data is! Map<String, dynamic>) {
+      throw Exception('Invalid response format');
     }
 
-    if (options.path.contains('/auth/verify_code')) {
-      final code = options.data['code'] as String?;
-      if (code != null && code.length == 4) {
-        handler.resolve(
-          Response(
-            requestOptions: options,
-            statusCode: 200,
-            data: {
-              'phone': options.data['phone'],
-              'token': 'mock_token_${DateTime.now().millisecondsSinceEpoch}',
-              'refresh_token': 'mock_refresh_${DateTime.now().millisecondsSinceEpoch}',
-              'client_profile': {
-                'id': 1,
-                'first_name': 'Тест',
-                'last_name': 'Пользователь',
-                'city': 'Москва',
-                'preferred_services': [],
-                'avatar_url': '',
-              },
-            },
-          ),
-        );
-      } else {
-        handler.reject(
-          DioException(
-            requestOptions: options,
-            type: DioExceptionType.badResponse,
-            response: Response(requestOptions: options, statusCode: 400, data: {'error': 'Неверный код'}),
-          ),
-        );
-      }
-      return;
-    }
+    final slotsData = (response.data['slots'] as List)
+        .cast<Map<String, dynamic>>();
+    final slots = parseJsonList(slotsData, AvailableSlot.fromJson);
 
-    handler.reject(
-      DioException(
-        requestOptions: options,
-        type: DioExceptionType.badResponse,
-        response: Response(requestOptions: options, statusCode: 404, data: {'error': 'Mock endpoint not found'}),
-      ),
-    );
-  }
+    logger.info('[MasterRepository] Successfully loaded ${slots.length} slots');
+
+    return slots;
+  });
 }
 
-class MockMasterRepository extends MasterRepository {
+// Repository для бронирований
+abstract class BookingsRepository {
+  Future<Result<int>> makeAppointment({
+    required int masterId,
+    required int serviceId,
+    required int slotId,
+    required String clientName,
+    String? clientNotes,
+  });
+}
+
+class RestBookingsRepository extends BookingsRepository {
+  RestBookingsRepository(this.dio);
+
+  final Dio dio;
+
   @override
-  Future<Result<MasterInfo>> getMasterInfo(int masterId) async {
-    logger.info('[MockMasterRepository] Loading mock data for master $masterId');
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    final master = Master(
-      id: masterId,
-      firstName: 'Мария',
-      lastName: 'Абрамова',
-      profession: 'Стилист по волосам',
-      city: 'Екатеринбург',
-      experience: '6 лет',
-      about: 'Профессиональный стилист с большим опытом работы',
-      address: 'ул. Ленина, 50',
-      avatarUrl: 'https://i.pravatar.cc/300?img=47',
-      portfolio: const [],
-      workplace: const [],
-      categories: const [ServiceCategories.hairStyling],
-      rating: 4.9,
-      reviewsCount: 58,
-      latitude: 56.838011,
-      longitude: 60.597474,
-      location: ServiceLocation.home,
-      json: const {},
+  Future<Result<int>> makeAppointment({
+    required int masterId,
+    required int serviceId,
+    required int slotId,
+    required String clientName,
+    String? clientNotes,
+  }) => tryCatch(() async {
+    logger.info(
+      '[BookingsRepository] Making appointment - masterId: $masterId, serviceId: $serviceId, slotId: $slotId, clientName: $clientName',
     );
 
-    final mockServices = [
-      Service(
-        id: 1,
-        category: ServiceCategories.hairStyling,
-        title: 'Стрижка женская',
-        duration: const Duration(minutes: 60),
-        resultPhotos: [],
-        price: 1500,
-      ),
-      Service(
-        id: 2,
-        category: ServiceCategories.hairStyling,
-        title: 'Окрашивание',
-        duration: const Duration(minutes: 120),
-        resultPhotos: [],
-        price: 3500,
-      ),
-    ];
-
-    final schedule = Schedule(
-      periodStart: DateTime.now(),
-      periodEnd: DateTime.now().add(const Duration(days: 30)),
-      days: const {},
+    final response = await dio.post(
+      '/appointments/from-slot',
+      data: {
+        'master_id': masterId,
+        'service_id': serviceId,
+        'slot_id': slotId,
+        'client_name': clientName,
+        'client_notes': clientNotes,
+      },
     );
 
-    logger.info('[MockMasterRepository] Mock data loaded successfully');
-
-    return Result.ok(
-      MasterInfo(master: master, services: mockServices, schedule: schedule, reviews: const [], json: const {}),
+    final appointmentId = response.data['appointment']['id'] as int;
+    logger.info(
+      '[BookingsRepository] Appointment created successfully with id: $appointmentId',
     );
-  }
+
+    return appointmentId;
+  });
 }

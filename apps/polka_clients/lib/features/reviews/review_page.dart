@@ -88,7 +88,7 @@ class _ReviewPageState extends State<ReviewPage> {
             MultiImagePickerWidget(count: 5, onImagesChanged: (images) => _images.value = images),
 
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
               child: ValueListenableBuilder(
                 valueListenable: _continueNotifier,
                 builder: (context, enabled, child) {
@@ -97,7 +97,7 @@ class _ReviewPageState extends State<ReviewPage> {
               ),
             ),
 
-            const _Disclaimer(),
+            // const _Disclaimer(),
           ],
         ),
       ),

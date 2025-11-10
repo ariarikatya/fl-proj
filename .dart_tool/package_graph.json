@@ -16,7 +16,7 @@
     },
     {
       "name": "polka_clients",
-      "version": "3.3.3+225",
+      "version": "3.4.0+226",
       "dependencies": [
         "add_2_calendar",
         "cached_network_image",
@@ -25,6 +25,7 @@
         "equatable",
         "flutter",
         "flutter_bloc",
+        "flutter_launcher_icons",
         "flutter_localizations",
         "flutter_secure_storage",
         "flutter_svg",
@@ -35,6 +36,7 @@
         "permission_handler",
         "shared",
         "web_socket_channel",
+        "webview_flutter",
         "yandex_maps_mapkit_lite"
       ],
       "devDependencies": [
@@ -71,10 +73,12 @@
       "name": "polka_online",
       "version": "1.0.0+1",
       "dependencies": [
+        "cached_network_image",
         "cupertino_icons",
         "dio",
         "flutter",
         "flutter_svg",
+        "image_picker",
         "intl",
         "pinput",
         "shared",
@@ -515,6 +519,19 @@
         "flutter",
         "intl",
         "path"
+      ]
+    },
+    {
+      "name": "flutter_launcher_icons",
+      "version": "0.14.4",
+      "dependencies": [
+        "args",
+        "checked_yaml",
+        "cli_util",
+        "image",
+        "json_annotation",
+        "path",
+        "yaml"
       ]
     },
     {
@@ -1357,6 +1374,32 @@
       ]
     },
     {
+      "name": "image",
+      "version": "4.5.4",
+      "dependencies": [
+        "archive",
+        "meta",
+        "xml"
+      ]
+    },
+    {
+      "name": "cli_util",
+      "version": "0.4.2",
+      "dependencies": [
+        "meta",
+        "path"
+      ]
+    },
+    {
+      "name": "checked_yaml",
+      "version": "2.0.4",
+      "dependencies": [
+        "json_annotation",
+        "source_span",
+        "yaml"
+      ]
+    },
+    {
       "name": "geolocator_linux",
       "version": "0.2.3",
       "dependencies": [
@@ -1520,15 +1563,6 @@
         "collection",
         "json_annotation",
         "pub_semver",
-        "yaml"
-      ]
-    },
-    {
-      "name": "checked_yaml",
-      "version": "2.0.4",
-      "dependencies": [
-        "json_annotation",
-        "source_span",
         "yaml"
       ]
     },
@@ -1709,6 +1743,15 @@
       ]
     },
     {
+      "name": "archive",
+      "version": "4.0.7",
+      "dependencies": [
+        "crypto",
+        "path",
+        "posix"
+      ]
+    },
+    {
       "name": "package_info_plus",
       "version": "8.3.1",
       "dependencies": [
@@ -1820,6 +1863,15 @@
       "dependencies": [
         "collection",
         "meta"
+      ]
+    },
+    {
+      "name": "posix",
+      "version": "6.0.3",
+      "dependencies": [
+        "ffi",
+        "meta",
+        "path"
       ]
     },
     {

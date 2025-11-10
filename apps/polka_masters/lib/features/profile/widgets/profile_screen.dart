@@ -5,7 +5,6 @@ import 'package:polka_masters/features/profile/widgets/profile_edit_screen.dart'
 import 'package:polka_masters/features/profile/widgets/schedule_edit_screen.dart';
 import 'package:polka_masters/features/profile/widgets/services_edit_screen.dart';
 import 'package:polka_masters/features/profile/widgets/settings_screen.dart';
-import 'package:polka_masters/features/profile/widgets/support_screen.dart';
 import 'package:polka_masters/scopes/master_scope.dart';
 import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
@@ -40,7 +39,8 @@ class ProfileScreen extends StatelessWidget {
               icon: AppIcons.chat,
               title: 'Поддержка',
               onTap: () {
-                context.ext.push(const SupportScreen());
+                final master = context.read<MasterScope>().master;
+                context.ext.push(SupportScreen(name: master.fullName, email: 'master-${master.id}@polka.com'));
               },
             ),
             ProfileButton(

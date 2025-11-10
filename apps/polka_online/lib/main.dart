@@ -8,6 +8,11 @@ void main() async {
 
   await initializeFormatting();
 
+  // Initialize image cache config
+  PaintingBinding.instance.imageCache.maximumSize = 1000;
+  PaintingBinding.instance.imageCache.maximumSizeBytes =
+      1024 * 1024 * 100; // 100 MB
+
   Dependencies.instance.init();
 
   final masterId = Dependencies.getMasterIdFromUrl();
@@ -21,52 +26,46 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lightTheme = AppTheme(
-      textPrimary: Colors.black,
-      textSecondary: Colors.grey[700]!,
-      textPlaceholder: Colors.grey[500]!,
-      textDisabled: Colors.grey[400]!,
-      borderSubtle: Colors.grey[200]!,
-      borderDefault: Colors.grey[300]!,
-      borderStrong: Colors.grey[400]!,
-      backgroundDefault: Colors.white,
-      backgroundSubtle: Colors.grey[50]!,
-      backgroundHover: Colors.grey[100]!,
-      backgroundDisabled: Colors.grey[200]!,
-      iconsDefault: Colors.grey[700]!,
-      iconsMuted: Colors.grey[400]!,
-      error: Colors.red,
-      success: Colors.green,
-      successLight: Colors.green[100]!,
-      accent: const Color(0xFFFFB9CD),
-      accentLight: const Color(0xFFFFF0F4),
+    const theme = AppTheme(
+      textPrimary: AppColors.textPrimary,
+      textSecondary: AppColors.textSecondary,
+      textPlaceholder: AppColors.textPlaceholder,
+      textDisabled: AppColors.textDisabled,
+      borderSubtle: AppColors.borderSubtle,
+      borderDefault: AppColors.borderDefault,
+      borderStrong: AppColors.borderStrong,
+      backgroundDefault: AppColors.backgroundDefault,
+      backgroundSubtle: AppColors.backgroundSubtle,
+      backgroundHover: AppColors.backgroundHover,
+      backgroundDisabled: AppColors.backgroundDisabled,
+      iconsDefault: AppColors.iconsDefault,
+      iconsMuted: AppColors.iconsMuted,
+      error: AppColors.error,
+      errorLight: AppColors.error,
+      success: AppColors.success,
+      successLight: AppColors.successLight,
+      accent: AppColors.accent,
+      accentLight: AppColors.accentLight,
       buttonPrimary: Colors.black,
-      errorLight: Colors.red.shade300,
     );
 
     return AppThemeScope(
-      initialTheme: lightTheme,
-      themes: {'light': lightTheme},
+      initialTheme: theme,
+      themes: const {'default': theme},
       child: MaterialApp(
         title: 'Polka Online',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFB9CD)), useMaterial3: true),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.accent),
+          useMaterial3: true,
+        ),
         navigatorKey: navigatorKey,
         initialRoute: '/',
         onGenerateRoute: (settings) {
-          final uri = Uri.base;
           final masterId = Dependencies.getMasterIdFromUrl() ?? '1';
-
-          logger.info('[Router] Routing to: ${settings.name}');
-          logger.info('[Router] URI path: ${uri.path}');
-          logger.info('[Router] MasterId: $masterId');
-
-          if (uri.pathSegments.isEmpty || (uri.pathSegments.length >= 2 && uri.pathSegments[0] == 'masters')) {
-            return MaterialPageRoute(
-              builder: (context) => AuthorizationPage(masterId: masterId),
-              settings: settings,
-            );
-          }
+          logger.info(
+            '[Router] Routing to: ${settings.name}, masterId: $masterId',
+          );
 
           return MaterialPageRoute(
             builder: (context) => AuthorizationPage(masterId: masterId),

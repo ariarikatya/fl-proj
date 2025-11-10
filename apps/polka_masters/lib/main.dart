@@ -10,8 +10,7 @@ void main() => runZonedGuarded(
   () async {
     runApp(const SplashScreen());
     WidgetsFlutterBinding.ensureInitialized();
-    await Dependencies.init();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.wait([Dependencies.init(), Future.delayed(const Duration(milliseconds: 2500))]);
     runApp(const App());
   },
   (error, stack) {

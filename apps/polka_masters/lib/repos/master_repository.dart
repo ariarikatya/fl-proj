@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 sealed class MasterRepository {
   Future<Result<Service>> createMasterService(Service service);
   Future<Result<Schedule>> createMasterSchedule(Schedule schedule);
+  Future<Result<bool>> updateMaster(Master master);
+
   Future<Result<MasterInfo>> getMasterInfo(int id);
   Future<Result<OnlineBookingConfig>> getMasterLink(int id);
 
@@ -78,4 +80,12 @@ class RestMasterRepository extends MasterRepository {
       ),
     );
   }
+
+  @override
+  Future<Result<bool>> updateMaster(Master master) async => tryCatch(() async {
+    final response = await dio.put('/master/profile', data: master.toJson()..remove('id'));
+    return response.data['success'] == true;
+
+    // return Master.fromJson(response.data['profile']); // Потому что поля блять живут своей жизнью на бэке х2
+  });
 }

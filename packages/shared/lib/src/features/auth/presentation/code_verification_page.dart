@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared/src/app_text_styles.dart';
+import 'package:shared/src/features/auth/presentation/support_button.dart';
 import 'package:shared/src/models/auth_result.dart';
-import 'package:shared/src/models/client.dart';
-import 'package:shared/src/models/master/master.dart';
 import 'package:shared/src/models/user.dart';
-import 'package:shared/src/data/repositories/auth_repository.dart';
 import 'package:shared/src/result.dart';
 import 'package:shared/src/utils.dart';
 import 'package:shared/src/widgets/app_link_button.dart';
@@ -15,29 +13,22 @@ import 'package:shared/src/widgets/app_text.dart';
 
 import 'app_pin_form.dart';
 
-class PhoneVerificationCodePage extends StatelessWidget {
+class PhoneVerificationCodePage<T extends User> extends StatelessWidget {
   const PhoneVerificationCodePage({
     super.key,
     required this.phoneNumber,
-    required this.udid,
+    required this.sendCode,
+    required this.verifyCode,
     required this.onCodeVerified,
-    required this.repository,
-    required this.role,
   });
 
   final String phoneNumber;
-  final String udid;
-  final void Function(AuthResult) onCodeVerified;
-  final AuthRepository repository;
-  final AuthRole role;
+  final Future<Result<bool>> Function(String phone) sendCode;
+  final Future<Result<AuthResult<T>>> Function(String phone, String code) verifyCode;
+  final void Function(AuthResult<T> authResult) onCodeVerified;
 
   Future<String?> _verifyCode(String code) async {
-    final Result<AuthResult<User>> result = switch (role) {
-      AuthRole.client => await repository.verifyCode<Client>(phoneNumber, code, udid),
-      AuthRole.master => await repository.verifyCode<Master>(phoneNumber, code, udid),
-    };
-
-    return result.when(
+    return (await verifyCode(phoneNumber, code)).when(
       ok: (data) {
         onCodeVerified(data);
         return null;
@@ -64,22 +55,12 @@ class PhoneVerificationCodePage extends StatelessWidget {
                   SizedBox(height: 38),
                   AppPinForm(validateCode: _verifyCode),
                   SizedBox(height: 16),
-                  _ResendCodeButton(phoneNumber: phoneNumber, repository: repository),
+                  _ResendCodeButton(phoneNumber: phoneNumber, sendCode: sendCode),
                 ],
               ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 24),
-            child: AppText(
-              'Нужна помощь? (Чат поддержки)',
-              style: AppTextStyles.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
-                decorationThickness: 1,
-              ),
-            ),
-          ),
+          Padding(padding: EdgeInsets.only(left: 24), child: SupportButton()),
         ],
       ),
     );
@@ -87,10 +68,10 @@ class PhoneVerificationCodePage extends StatelessWidget {
 }
 
 class _ResendCodeButton extends StatefulWidget {
-  const _ResendCodeButton({required this.phoneNumber, required this.repository});
+  const _ResendCodeButton({required this.phoneNumber, required this.sendCode});
 
   final String phoneNumber;
-  final AuthRepository repository;
+  final Future<Result<bool>> Function(String phone) sendCode;
 
   @override
   State<_ResendCodeButton> createState() => _ResendCodeButtonState();
@@ -126,7 +107,7 @@ class _ResendCodeButtonState extends State<_ResendCodeButton> {
 
     setState(() => _isLoading = true);
 
-    final result = await widget.repository.sendCode(widget.phoneNumber);
+    final result = await widget.sendCode(widget.phoneNumber);
 
     setState(() => _isLoading = false);
 

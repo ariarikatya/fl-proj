@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
+import 'package:shared/src/features/auth/presentation/support_button.dart';
 import 'package:shared/src/result.dart';
 import 'package:shared/src/widgets/app_page.dart';
 import 'package:shared/src/widgets/app_phone_text_field.dart';
@@ -25,23 +26,27 @@ class PhoneNumberPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 48),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppText('Введи номер телефона', style: AppTextStyles.headingLarge),
-                SizedBox(height: 8),
-                AppText(
-                  'Мы отправим вам SMS с кодом\nдля входа',
-                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
-                ),
-                SizedBox(height: 24),
-                AppPhoneForm(onSubmit: _onSubmit),
-              ],
+          SizedBox(
+            height: 330,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppText('Введи номер телефона', style: AppTextStyles.headingLarge),
+                  SizedBox(height: 8),
+                  AppText(
+                    'Мы отправим вам SMS с кодом\nдля входа',
+                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                  ),
+                  SizedBox(height: 24),
+                  AppPhoneForm(onSubmit: _onSubmit),
+                ],
+              ),
             ),
           ),
+          Padding(padding: EdgeInsets.only(left: 24), child: SupportButton()),
         ],
       ),
     );

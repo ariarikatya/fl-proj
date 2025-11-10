@@ -5,7 +5,7 @@ import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/favorites/widgets/favorites_page.dart';
 import 'package:polka_clients/features/profile/widgets/categories_page.dart';
 import 'package:polka_clients/features/profile/widgets/profile_info_page.dart';
-import 'package:polka_clients/features/profile/widgets/settings_page.dart';
+import 'package:polka_clients/features/profile/widgets/settings_screen.dart';
 import 'package:shared/shared.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -58,11 +58,18 @@ class ProfilePage extends StatelessWidget {
               onTap: () => context.ext.push(const FavoritesPage()),
             ),
             ProfileButton(icon: AppIcons.chats, title: 'Чаты', onTap: () => context.ext.push(const ChatsPage())),
-            ProfileButton(icon: AppIcons.chat, title: 'Поддержка', onTap: () => logger.debug('tap')),
+            ProfileButton(
+              icon: AppIcons.chat,
+              title: 'Поддержка',
+              onTap: () {
+                final client = ClientScope.of(context, listen: false).client;
+                context.ext.push(SupportScreen(name: client.fullName, email: 'client-${client.id}@polka.com'));
+              },
+            ),
             ProfileButton(
               icon: AppIcons.settings,
               title: 'Настройки',
-              onTap: () => context.ext.push(const SettingsPage()),
+              onTap: () => context.ext.push(const SettingsScreen()),
             ),
             if (devMode) ...[
               ProfileButton(

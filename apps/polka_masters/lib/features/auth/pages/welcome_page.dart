@@ -33,16 +33,16 @@ class WelcomePage extends StatelessWidget {
             child: AppTextButton.large(
               text: 'Начать',
               onTap: () async {
-                final result = await context.ext.push(
-                  AuthFlow(
-                    role: AuthRole.master,
-                    authRepository: Dependencies().authRepository,
-                    udid: Dependencies().udid,
+                final deps = Dependencies();
+                context.ext.push(
+                  AuthFlow<Master>(
+                    sendCode: (phone) => deps.authRepository.sendCode(phone),
+                    verifyCode: (phone, code) => deps.authRepository.verifyCode<Master>(phone, code, deps.udid),
+                    onSuccess: (result) {
+                      AuthenticationScope.of(context).setAuth(result);
+                    },
                   ),
                 );
-                if (result is AuthResult<Master> && context.mounted) {
-                  AuthenticationScope.of(context).setAuth(result);
-                }
               },
             ),
           ),

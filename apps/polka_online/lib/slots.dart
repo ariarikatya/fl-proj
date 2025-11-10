@@ -25,61 +25,84 @@ extension DateTimeIntl on DateTime {
 }
 
 class SlotsPage extends StatefulWidget {
-  final String? masterId;
+  final MasterInfo masterInfo;
   final Service service;
   final String? phoneNumber;
 
-  const SlotsPage({super.key, this.masterId, required this.service, this.phoneNumber});
+  const SlotsPage({
+    super.key,
+    required this.masterInfo,
+    required this.service,
+    this.phoneNumber,
+  });
 
   @override
   State<SlotsPage> createState() => _SlotsPageState();
 }
 
 class _SlotsPageState extends State<SlotsPage> {
-  MasterInfo? _masterInfo;
+  List<AvailableSlot>? _slots;
   bool _isLoading = true;
   String? _error;
-  late String _masterId;
 
   AvailableSlot? _selectedSlot;
   Map<DateTime, List<AvailableSlot>> _groupedSlots = {};
 
+  MasterInfo get masterInfo => widget.masterInfo;
   Service get service => widget.service;
+  int get masterId => masterInfo.master.id;
+  int get serviceId => service.id;
 
   @override
   void initState() {
     super.initState();
-    _masterId = widget.masterId ?? '1';
     logger.debug(
-      'Initializing SlotsPage - masterId: $_masterId, service: ${service.title}, phoneNumber: ${widget.phoneNumber}',
+      'Initializing SlotsPage - masterId: $masterId, serviceId: $serviceId, serviceName: ${service.title}, phoneNumber: ${widget.phoneNumber}',
     );
+    _loadSlots();
+  }
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final tomorrow = today.add(const Duration(days: 1));
-    final dayAfter = today.add(const Duration(days: 2));
+  Future<void> _loadSlots() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
-    final List<AvailableSlot> mockSlots = [
-      AvailableSlot(
-        id: 1,
-        datetime: today.add(Duration(hours: 10, minutes: 0)),
-        duration: const Duration(hours: 1, minutes: 0),
-      ),
-      AvailableSlot(
-        id: 2,
-        datetime: today.add(Duration(hours: 11, minutes: 0)),
-        duration: const Duration(hours: 1, minutes: 0),
-      ),
-      AvailableSlot(
-        id: 3,
-        datetime: today.add(Duration(hours: 12, minutes: 0)),
-        duration: const Duration(hours: 1, minutes: 0),
-      ),
-    ];
+    try {
+      final repository = Dependencies.instance.masterRepository;
 
-    logger.debug('Generated ${mockSlots.length} mock slots for dates: today, tomorrow, day after tomorrow');
-    _groupSlots(mockSlots);
-    _loadMasterInfo();
+      // Загружаем слоты с бэка
+      logger.debug(
+        '[SlotsPage] Loading slots for masterId: $masterId, serviceId: $serviceId',
+      );
+      final slotsResult = await repository.getSlots(masterId, serviceId);
+
+      final slots = await slotsResult.when(
+        ok: (List<AvailableSlot> slots) => slots,
+        err: (error, stackTrace) {
+          throw Exception('Failed to load slots: $error');
+        },
+      );
+
+      logger.info(
+        '[SlotsPage] Successfully loaded ${slots.length} slots for service: ${service.title}',
+      );
+
+      setState(() {
+        _slots = slots;
+        _isLoading = false;
+      });
+
+      if (slots.isNotEmpty) {
+        _groupSlots(slots);
+      }
+    } catch (e, st) {
+      logger.error('[SlotsPage] Error loading slots: $e', e, st);
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
   void _groupSlots(List<AvailableSlot> slots) {
@@ -90,41 +113,9 @@ class _SlotsPageState extends State<SlotsPage> {
       map[slot.datetime.dateOnly]!.add(slot);
     }
     setState(() => _groupedSlots = map);
-    logger.debug('Grouped slots by date: ${map.keys.length} days, total slots: ${slots.length}');
-  }
-
-  Future<void> _loadMasterInfo() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    final repository = Dependencies.instance.masterRepository;
-    try {
-      final result = await repository.getMasterInfo(int.parse(_masterId));
-      result.when(
-        ok: (data) {
-          setState(() {
-            _masterInfo = data;
-            _isLoading = false;
-          });
-          logger.debug('Master info loaded successfully for masterId: $_masterId');
-        },
-        err: (error, stackTrace) {
-          logger.error('Error loading master info for masterId $_masterId: $error');
-          setState(() {
-            _error = error.toString();
-            _isLoading = false;
-          });
-        },
-      );
-    } catch (e) {
-      logger.error('Unexpected error loading master info for masterId $_masterId: $e');
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
+    logger.debug(
+      'Grouped slots by date: ${map.keys.length} days, total slots: ${slots.length}',
+    );
   }
 
   void _goBack() {
@@ -134,12 +125,14 @@ class _SlotsPageState extends State<SlotsPage> {
 
   void _selectSlot() {
     if (_selectedSlot != null) {
-      logger.debug('Navigating to EndBookingPage - slot: ${_selectedSlot!.datetime}, service: ${service.title}');
+      logger.debug(
+        'Navigating to EndBookingPage - slotId: ${_selectedSlot!.id}, datetime: ${_selectedSlot!.datetime}, serviceId: $serviceId, serviceName: ${service.title}, masterId: $masterId',
+      );
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => EndBookingPage(
-            masterInfo: _masterInfo!,
+            masterInfo: masterInfo,
             selectedSlot: _selectedSlot!,
             service: service,
             phoneNumber: widget.phoneNumber,
@@ -159,19 +152,22 @@ class _SlotsPageState extends State<SlotsPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) return const LoadingWidget();
-    if (_error != null || _masterInfo == null) {
+    if (_error != null) {
       logger.error('Error displaying SlotsPage: $_error');
-      return ErrorStateWidget(error: _error, onRetry: _loadMasterInfo);
+      return ErrorStateWidget(error: _error, onRetry: _loadSlots);
     }
 
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final isDesktop = LayoutHelper.isDesktopLayout(width);
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
+    final imageWidth = LayoutHelper.calculateImageWidth(
+      screenWidth: width,
+      showImage: showImage,
+    );
 
     logger.debug(
-      'Building SlotsPage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth, selectedSlot: ${_selectedSlot?.datetime}',
+      'Building SlotsPage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth, selectedSlot: ${_selectedSlot?.datetime}, slotsCount: ${_slots?.length ?? 0}',
     );
 
     return PageScaffold(
@@ -179,7 +175,10 @@ class _SlotsPageState extends State<SlotsPage> {
       showImage: showImage,
       onMenuTap: () {
         logger.debug('Opening menu page from SlotsPage');
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MenuPage()),
+        );
       },
       onDownloadTap: () {
         logger.debug('Opening store from SlotsPage header');
@@ -199,7 +198,12 @@ class _SlotsPageState extends State<SlotsPage> {
           ? SingleChildScrollView(
               child: SafeArea(
                 top: false,
-                child: _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth),
+                child: _buildDesktopContent(
+                  width: width,
+                  height: height,
+                  showImage: showImage,
+                  imageWidth: imageWidth,
+                ),
               ),
             )
           : _buildMobileContent(),
@@ -212,14 +216,16 @@ class _SlotsPageState extends State<SlotsPage> {
     required bool showImage,
     required double imageWidth,
   }) {
-    final master = _masterInfo!.master;
+    final master = masterInfo.master;
 
     logger.debug(
       'Building desktop content for SlotsPage - master: ${master.fullName}, groupedSlots: ${_groupedSlots.keys.length} days, avatarUrl: ${master.avatarUrl}',
     );
 
     if (master.avatarUrl.isEmpty) {
-      logger.warning('Master avatar URL is empty for master: ${master.fullName}');
+      logger.warning(
+        'Master avatar URL is empty for master: ${master.fullName}',
+      );
     }
 
     return DesktopPageLayout(
@@ -239,7 +245,9 @@ class _SlotsPageState extends State<SlotsPage> {
           const SizedBox(height: 16),
           Text(
             'Жмите на удобный для вас слот у мастера',
-            style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
+            style: AppTextStyles.bodyMedium500.copyWith(
+              color: AppColors.iconsDefault,
+            ),
           ),
           const SizedBox(height: 16),
           Flexible(child: _buildSlotsPicker()),
@@ -268,7 +276,9 @@ class _SlotsPageState extends State<SlotsPage> {
   }
 
   Widget _buildMobileContent() {
-    logger.debug('Building mobile content for SlotsPage - groupedSlots: ${_groupedSlots.keys.length} days');
+    logger.debug(
+      'Building mobile content for SlotsPage - groupedSlots: ${_groupedSlots.keys.length} days',
+    );
 
     return Column(
       children: [
@@ -281,7 +291,9 @@ class _SlotsPageState extends State<SlotsPage> {
                 const SizedBox(height: 16),
                 Text(
                   'Жмите на удобный для вас слот у мастера',
-                  style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
+                  style: AppTextStyles.bodyMedium500.copyWith(
+                    color: AppColors.iconsDefault,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _buildSlotsPicker(),
@@ -299,8 +311,27 @@ class _SlotsPageState extends State<SlotsPage> {
       logger.warning('No slots available for booking');
       return Container(
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: AppColors.backgroundHover, borderRadius: BorderRadius.circular(14)),
-        child: Text('Нет доступных слотов для записи', style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundHover,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          children: [
+            Text(
+              'Нет доступных слотов для записи',
+              style: AppTextStyles.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Попробуйте выбрать другую услугу или свяжитесь с мастером напрямую',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       );
     }
 
@@ -314,7 +345,9 @@ class _SlotsPageState extends State<SlotsPage> {
             children: [
               Text(
                 DateTimeIntl(entry.key).formatDateOnly(),
-                style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 8),
               Align(
@@ -348,7 +381,12 @@ class TimeSlotButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const TimeSlotButton({super.key, required this.time, required this.isSelected, required this.onTap});
+  const TimeSlotButton({
+    super.key,
+    required this.time,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -358,12 +396,20 @@ class TimeSlotButton extends StatelessWidget {
         width: 75,
         height: 48,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFFE6F3) : const Color(0xFFFAFAFA),
+          color: isSelected ? AppColors.accentLight : AppColors.backgroundHover,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? const Color(0xFFFF85C5) : Colors.transparent, width: 1),
+          border: Border.all(
+            color: isSelected ? AppColors.accent : Colors.transparent,
+            width: 1,
+          ),
         ),
         child: Center(
-          child: Text(time, style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+          child: Text(
+            time,
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     );

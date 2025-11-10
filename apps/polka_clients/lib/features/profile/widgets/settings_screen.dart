@@ -1,10 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
 
   void _launchLink(String link) => launchUrl(Uri.parse(link));
+
+  void _maybeDeleteProfile(BuildContext context) async {
+    final delete = await showConfirmBottomSheet(
+      context: context,
+      title: 'Ты уверена, что хочешь удалить профиль?',
+      description:
+          'Это действие нельзя будет отменить. Все твои данные, настройки и история будут безвозвратно удалены.',
+      acceptText: 'Да, удалить',
+      declineText: 'Нет, я передумала',
+    );
+    if (delete == true && context.mounted) {
+      await AuthenticationScope.of(context).authRepository.deleteAccount();
+      if (context.mounted) AuthenticationScope.of(context).logout();
+    }
+  }
+
+  void _maybeLogout(BuildContext context) async {
+    final delete = await showConfirmBottomSheet(
+      context: context,
+      title: 'Ты уверена, что хочешь выйти из профиля?',
+      acceptText: 'Да, выйти',
+      declineText: 'Нет, я передумала',
+    );
+    if (delete == true && context.mounted) {
+      AuthenticationScope.of(context).logout();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +79,17 @@ class SettingsPage extends StatelessWidget {
                   ],
                 ),
               ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+              child: AppTextButtonDangerous.large(text: 'Удалить профиль', onTap: () => _maybeDeleteProfile(context)),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+              child: Center(
+                child: AppLinkButton(text: 'Выйти', onTap: () => _maybeLogout(context)),
+              ),
+            ),
           ],
         ],
       ),

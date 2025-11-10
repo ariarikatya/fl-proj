@@ -1,7 +1,7 @@
 name: polka_clients
 description: "A new Flutter project."
 publish_to: 'none'
-version: 3.3.3+225
+version: 3.4.0+226
 
 environment:
   sdk: ^3.8.1
@@ -29,6 +29,8 @@ dependencies:
   infinite_scroll_pagination: ^5.1.1
   geolocator: ^14.0.2
   equatable: ^2.0.7
+  flutter_launcher_icons: ^0.14.4
+  webview_flutter: ^4.13.0
 
 dev_dependencies:
   flutter_test:

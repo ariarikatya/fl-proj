@@ -1,39 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:polka_masters/scopes/master_scope.dart';
-import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 const _title = 'Поддержка';
 
 class SupportScreen extends StatelessWidget {
-  const SupportScreen({super.key});
+  const SupportScreen({super.key, required this.email, required this.name});
+
+  final String email;
+  final String name;
 
   @override
   Widget build(BuildContext context) {
     return LoadDataPage(
       title: _title,
       future: () async {
+        logger.info('Opening support screen with credentials: email=$email, name=$name');
         final dio = DioFactory.createDio(baseUrl: 'https://polka.helpdeskeddy.com/api')
           ..options.headers['Authorization'] =
               'Basic ${'YmFiYXJ5a2luMjAwM0B5YW5kZXgucnU6YWQ4ZDRiOGItZjQwZi00NDRmLTlhOGUtNjhiNTM0MTgwMTU1'}';
         try {
-          final body = {'email': 'babarykin2003@yandex.ru', 'name': 'Никита Бабарыкин'};
+          final body = {'email': email, 'name': name};
           final response = await dio.post('/v2/chat/visitor/id', data: body);
           return Result.ok(response.data['data']['id'] as String);
         } catch (e, st) {
           return Result<String>.err(e, st);
         }
       },
-      builder: (sessionId) => _View(
-        sessionId: sessionId,
-        name: context.read<MasterScope>().master.fullName,
-        email: _buildMockEmail(context.read<MasterScope>().master),
-      ),
+      builder: (sessionId) => _View(sessionId: sessionId, name: name, email: email),
     );
   }
-
-  String _buildMockEmail(Master master) => 'master-${master.id}@polka.com';
 }
 
 class _View extends StatefulWidget {
