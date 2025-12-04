@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/widgets/app_text.dart';
 
-typedef AppButtonStyle = ({EdgeInsets padding, double radius, TextStyle textStyle, TextOverflow? overflow});
+typedef AppButtonStyle = ({EdgeInsets padding, double radius, TextOverflow? overflow});
 
-final AppButtonStyle _largeStyle = (
-  padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
-  radius: 14,
-  textStyle: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w700),
-  overflow: null,
-);
+final AppButtonStyle _largeStyle = (padding: const EdgeInsets.fromLTRB(8, 12, 8, 12), radius: 14, overflow: null);
 
 final AppButtonStyle _mediumStyle = (
-  padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
+  padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
   radius: 10,
-  textStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700),
   overflow: TextOverflow.ellipsis,
 );
 
 final AppButtonStyle _smallStyle = (
   radius: 8,
-  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-  textStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700),
+  padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
   overflow: TextOverflow.ellipsis,
 );
 
@@ -65,6 +57,7 @@ class AppTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = context.ext.textTheme.bodyLarge?.copyWith();
     return GestureDetector(
       onTap: enabled ? onTap : null,
       child: Container(
@@ -72,14 +65,11 @@ class AppTextButton extends StatelessWidget {
         width: shrinkWrap ? null : double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(style.radius),
-          color: enabled ? context.ext.theme.buttonPrimary : context.ext.theme.backgroundDisabled,
+          color: enabled ? context.ext.colors.primary : context.ext.colors.white[300],
         ),
         child: AppText(
           text,
-          style: style.textStyle.copyWith(
-            color: enabled ? context.ext.theme.backgroundHover : context.ext.theme.backgroundSubtle,
-            overflow: style.overflow,
-          ),
+          style: textStyle?.copyWith(color: context.ext.colors.white[100], overflow: style.overflow),
           textAlign: TextAlign.center,
         ),
       ),
@@ -114,6 +104,7 @@ class AppTextButtonSecondary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = context.ext.textTheme.bodyLarge?.copyWith();
     return GestureDetector(
       onTap: enabled ? onTap : null,
       child: Container(
@@ -121,12 +112,13 @@ class AppTextButtonSecondary extends StatelessWidget {
         width: shrinkWrap ? null : double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          color: enabled ? context.ext.theme.backgroundHover : context.ext.theme.backgroundDisabled,
+          color: enabled ? context.ext.colors.white[100] : context.ext.colors.white[200],
+          border: Border.all(color: context.ext.colors.black[enabled ? 500 : 100]),
         ),
         child: AppText(
           text,
-          style: style.textStyle.copyWith(
-            color: enabled ? context.ext.theme.textPrimary : context.ext.theme.backgroundSubtle,
+          style: textStyle?.copyWith(
+            color: enabled ? context.ext.colors.black[900] : context.ext.colors.black[100],
             overflow: style.overflow,
           ),
           textAlign: TextAlign.center,
@@ -163,6 +155,7 @@ class AppTextButtonDangerous extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = context.ext.textTheme.bodyLarge?.copyWith();
     return GestureDetector(
       onTap: enabled ? onTap : null,
       child: Container(
@@ -170,12 +163,12 @@ class AppTextButtonDangerous extends StatelessWidget {
         width: shrinkWrap ? null : double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          color: enabled ? context.ext.theme.backgroundHover : context.ext.theme.backgroundDisabled,
+          color: enabled ? context.ext.colors.white[300] : context.ext.colors.white[200],
         ),
         child: AppText(
           text,
-          style: style.textStyle.copyWith(
-            color: enabled ? context.ext.theme.error : context.ext.theme.errorLight,
+          style: textStyle?.copyWith(
+            color: enabled ? context.ext.colors.error : context.ext.colors.white[100],
             overflow: style.overflow,
           ),
           textAlign: TextAlign.center,
@@ -212,6 +205,7 @@ class AppTextButtonTertiary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = context.ext.textTheme.bodyLarge?.copyWith();
     return GestureDetector(
       onTap: enabled ? onTap : null,
       child: Container(
@@ -219,12 +213,12 @@ class AppTextButtonTertiary extends StatelessWidget {
         width: shrinkWrap ? null : double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          color: enabled ? context.ext.theme.accent : context.ext.theme.backgroundDisabled,
+          color: enabled ? context.ext.colors.pink[500] : context.ext.colors.white[200],
         ),
         child: AppText(
           text,
-          style: style.textStyle.copyWith(
-            color: enabled ? context.ext.theme.backgroundHover : context.ext.theme.backgroundSubtle,
+          style: textStyle?.copyWith(
+            color: enabled ? context.ext.colors.white[300] : context.ext.colors.white[200],
             overflow: style.overflow,
           ),
           textAlign: TextAlign.center,

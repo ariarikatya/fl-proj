@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/widgets/app_text_form_field.dart';
 
 MaskTextInputFormatter phoneFormatter = MaskTextInputFormatter(
@@ -51,30 +50,35 @@ class _AppPhoneTextFieldState extends State<AppPhoneTextField> {
     super.dispose();
   }
 
+  void onChanged(val) {
+    // ignore: deprecated_member_use_from_same_package
+    widget.notifier?.value = maskFormatter.getUnmaskedText();
+    widget.onNumberChanged?.call(maskFormatter.getUnmaskedText());
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppTextFormField(
       key: widget.fieldKey,
       controller: _controller,
-      onChanged: (val) {
-        // ignore: deprecated_member_use_from_same_package
-        widget.notifier?.value = maskFormatter.getUnmaskedText();
-        widget.onNumberChanged?.call(maskFormatter.getUnmaskedText());
-      },
+      onChanged: onChanged,
       onFieldSubmitted: (_) {
         final number = maskFormatter.getUnmaskedText();
         if (number.length == 10) widget.onNumberSubmitted?.call(number);
       },
-      clearButton: false,
+      clearButton: true,
       validator: (_) {
         final number = maskFormatter.getUnmaskedText();
         if (number.length == 10) return null;
-        return 'Пожалуйста, введи корректный номер';
+        return 'Введи корректный номер, пожалуйста';
       },
       hintText: '(+7)',
       labelText: widget.labelText ?? 'Номер телефона',
-      fillColor: context.ext.theme.backgroundHover,
       keyboardType: TextInputType.phone,
+      onClear: () {
+        maskFormatter.clear();
+        onChanged('');
+      },
       inputFormatters: [maskFormatter],
     );
   }

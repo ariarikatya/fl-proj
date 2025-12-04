@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:polka_clients/client_scope.dart';
 import 'package:polka_clients/dependencies.dart';
+import 'package:polka_clients/features/feed/controller/feed_cubit.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -11,7 +13,9 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  late final _selectedCategories = List<ServiceCategories>.from(ClientScope.of(context).client.preferredServices);
+  late final _selectedCategories = List<ServiceCategories>.from(
+    context.read<ClientViewModel>().client.preferredServices,
+  );
   bool _saving = false;
 
   void _save() async {
@@ -22,7 +26,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
     final result = await clientRepo.updatePreferredServices(_selectedCategories.toSet().toList());
     result.when(
       ok: (newCategories) {
-        ClientScope.of(context).updateClient((client) => client.copyWith(preferredServices: () => newCategories));
+        final viewModel = context.read<ClientViewModel>();
+        viewModel.updateClient(viewModel.client.copyWith(preferredServices: () => newCategories));
+        context.read<FeedCubit>().reset();
         showSuccessSnackbar('Категории успешно обновлены');
         if (mounted) context.ext.pop();
       },
@@ -50,7 +56,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                   child: AppText(
                     'На основе твоего выбора мы показываем мастеров на "Главной"',
-                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
                   ),
                 ),
                 Padding(

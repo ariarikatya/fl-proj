@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared/src/app_links.dart';
 import 'package:shared/src/extensions/context.dart';
-import 'package:shared/src/app_text_styles.dart';
 import 'package:shared/src/features/auth/presentation/support_button.dart';
 import 'package:shared/src/result.dart';
+import 'package:shared/src/utils.dart';
+import 'package:shared/src/widgets/app_link_button.dart';
 import 'package:shared/src/widgets/app_page.dart';
 import 'package:shared/src/widgets/app_phone_text_field.dart';
 import 'package:shared/src/widgets/app_text.dart';
@@ -27,18 +29,21 @@ class PhoneNumberPage extends StatelessWidget {
         children: [
           SizedBox(height: 48),
           SizedBox(
-            height: 330,
+            height: 360,
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AppText('Введи номер телефона', style: AppTextStyles.headingLarge),
+                  AppText(
+                    'Введи номер телефона',
+                    style: context.ext.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                   SizedBox(height: 8),
                   AppText(
-                    'Мы отправим вам SMS с кодом\nдля входа',
-                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                    'Мы пришлём тебе код для входа, чтобы POLKA могла тебя узнать',
+                    style: context.ext.textTheme.bodyMedium?.copyWith(color: context.ext.colors.black[700]),
                   ),
                   SizedBox(height: 24),
                   AppPhoneForm(onSubmit: _onSubmit),
@@ -46,7 +51,7 @@ class PhoneNumberPage extends StatelessWidget {
               ),
             ),
           ),
-          Padding(padding: EdgeInsets.only(left: 24), child: SupportButton()),
+          Align(child: SupportButton()),
         ],
       ),
     );
@@ -90,6 +95,35 @@ class _AppPhoneFormState extends State<AppPhoneForm> {
                 },
               );
             },
+          ),
+          SizedBox(height: 16),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: AppText.rich(
+              [
+                TextSpan(
+                  text: 'Нажимая “Получить код”, вы подтверждаете свое согласие с обработкой ',
+                  style: context.ext.textTheme.bodySmall?.copyWith(color: context.ext.colors.black[700]),
+                ),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.baseline,
+                  baseline: TextBaseline.alphabetic,
+                  child: AppLinkButton(
+                    text: 'персональных данных',
+                    padding: EdgeInsets.zero,
+                    style: context.ext.textTheme.bodySmall?.copyWith(
+                      color: context.ext.colors.black[900],
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                    underlineOffset: .5,
+                    onTap: () => launchUrl(Uri.parse(AppLinks.docs.privacyPolicy)),
+                  ),
+                ),
+              ],
+              overflow: TextOverflow.visible,
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),

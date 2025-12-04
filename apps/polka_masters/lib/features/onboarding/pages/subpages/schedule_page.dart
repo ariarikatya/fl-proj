@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:polka_masters/features/onboarding/controller.dart';
+import 'package:polka_masters/features/schedules/widgets/schedule_edit_screen.dart';
+import 'package:polka_masters/features/schedules/widgets/schedule_mbs.dart';
 import 'package:shared/shared.dart';
 
 class SchedulePage extends StatefulWidget {
@@ -10,17 +12,11 @@ class SchedulePage extends StatefulWidget {
 }
 
 class _SchedulePageState extends OnboardingPageState<SchedulePage, OnboardingController, ScheduleData?> {
-  late final days = {
-    for (var i in WeekDays.values)
-      i: useNotifier('day-$i', ScheduleDay(start: const Duration(hours: 10), end: const Duration(hours: 18), active: i.isWorkday)),
-  };
-  late final startTime = useNotifier('start', const Duration(hours: 10));
-  late final endTime = useNotifier('end', const Duration(hours: 18));
-  late final startDate = useNotifier('start-date', DateTime.now());
-  late final endDate = useNotifier('end-date', startDate.value.add(const Duration(days: 30)));
+  late final scheduleNotifier = useNotifier<Schedule?>('schedule', null);
+  late final breaksNotifier = useNotifier<List<ScheduleBreak>>('breaks', []);
 
   @override
-  List<Listenable> get dependencies => [...days.values];
+  List<Listenable> get dependencies => [scheduleNotifier, breaksNotifier];
 
   @override
   String? get continueLabel => 'Создать расписание';
@@ -30,229 +26,27 @@ class _SchedulePageState extends OnboardingPageState<SchedulePage, OnboardingCon
 
   @override
   ScheduleData? validateContinue() {
-    // At least one weekday should be enabled
-    if (days.values.every((n) => !n.value.active)) return null;
-
-    final schedule = Schedule(
-      periodStart: startDate.value,
-      periodEnd: endDate.value,
-      days: {for (var i in days.entries.where((e) => e.value.value.active)) i.key: i.value.value},
-    );
-    return schedule;
+    if (scheduleNotifier.value != null) {
+      return (schedule: scheduleNotifier.value!, breaks: breaksNotifier.value);
+    }
+    return null;
   }
 
   @override
   List<Widget> content() => [
-    const AppText('Создай расписание', style: AppTextStyles.headingLarge),
+    AppText('Настрой, когда ты принимаешь клиентов', style: context.ext.textTheme.headlineMedium),
     const SizedBox(height: 16),
-    const AppText('Выбери период', style: AppTextStyles.headingSmall),
-    const SizedBox(height: 8),
-    Row(
-      spacing: 16,
-      children: [
-        Expanded(
-          child: ValueListenableBuilder(
-            valueListenable: startDate,
-            builder: (context, value, child) {
-              return AppTextButtonSecondary.large(
-                text: value.formatDMY(),
-                onTap: () async {
-                  final date = await DateTimePickerMBS.pickDate(context, initValue: value);
-                  if (date != null) {
-                    if (date.isAfter(DateTime.now())) {
-                      startDate.value = date;
-                    } else {
-                      startDate.value = DateTime.now();
-                    }
-                  }
-                },
-              );
-            },
-          ),
-        ),
-        Expanded(
-          child: ValueListenableBuilder(
-            valueListenable: endDate,
-            builder: (context, value, child) {
-              return AppTextButtonSecondary.large(
-                text: value.formatDMY(),
-                onTap: () async {
-                  final date = await DateTimePickerMBS.pickDate(context, initValue: value);
-                  if (date != null) {
-                    if (date.isAfter(DateTime.now())) {
-                      endDate.value = date;
-                    } else {
-                      endDate.value = startDate.value.add(const Duration(days: 1));
-                    }
-                  }
-                },
-              );
-            },
-          ),
-        ),
-      ],
+    AppText(
+      'Укажи дни и время, когда ты работаешь. Так ты контролируешь свой график и избегaешь накладок',
+      style: context.ext.textTheme.bodyMedium?.copyWith(color: context.ext.colors.black[700]),
     ),
-    const SizedBox(height: 16),
-    const AppText('Выбери время', style: AppTextStyles.headingSmall),
-    const SizedBox(height: 8),
-    Row(
-      spacing: 16,
-      children: [
-        Expanded(
-          child: ValueListenableBuilder(
-            valueListenable: startTime,
-            builder: (context, value, child) {
-              return AppTextButtonSecondary.large(
-                text: 'c ${value.toTimeString()}',
-                onTap: () async {
-                  final duration = await DateTimePickerMBS.pickDuration(context, initValue: value);
-                  if (duration != null && duration < endTime.value) {
-                    startTime.value = duration;
-                    for (var i in days.values) {
-                      i.value = i.value.copyWith(start: () => duration);
-                    }
-                  }
-                },
-              );
-            },
-          ),
-        ),
-        Expanded(
-          child: ValueListenableBuilder(
-            valueListenable: endTime,
-            builder: (context, value, child) {
-              return AppTextButtonSecondary.large(
-                text: 'до ${value.toTimeString()}',
-                onTap: () async {
-                  final duration = await DateTimePickerMBS.pickDuration(context, initValue: value);
-                  if (duration != null && duration > startTime.value) {
-                    endTime.value = duration;
-                    for (var i in days.values) {
-                      i.value = i.value.copyWith(end: () => duration);
-                    }
-                  }
-                },
-              );
-            },
-          ),
-        ),
-      ],
+    const SizedBox(height: 24),
+    ScheduleEditView(
+      initialSchedule: null,
+      onStateUpdates: (schedule, breaks) {
+        scheduleNotifier.value = schedule;
+        breaksNotifier.value = List.from(breaks);
+      },
     ),
-    const SizedBox(height: 16),
-    const AppText('Выбери время', style: AppTextStyles.headingSmall),
-    const SizedBox(height: 8),
-    const AppText('Отключая день, ты делаешь \nего выходным', style: AppTextStyles.bodyMedium),
-    const SizedBox(height: 16),
-    for (var i in days.entries) _DayToggle(name: i.key.short, notifier: i.value),
   ];
-}
-
-class _DayToggle extends StatelessWidget {
-  const _DayToggle({required this.notifier, required this.name});
-
-  final ValueNotifier<ScheduleDay> notifier;
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        ValueListenableBuilder(
-          valueListenable: notifier,
-          builder: (context, day, child) {
-            return Material(
-              color: Colors.transparent,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
-                child: RichText(
-                  text: TextSpan(
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: context.ext.theme.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    children: [
-                      // We use WidgetSpan because every weekday text has to have exact same width
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.bottom,
-                        child: SizedBox(
-                          width: 30,
-                          height: 22,
-                          child: AppText(
-                            name,
-                            style: AppTextStyles.bodyLarge.copyWith(
-                              color: context.ext.theme.textPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.bottom,
-                        child: GestureDetector(
-                          onTap: () async {
-                            final duration = await DateTimePickerMBS.pickDuration(
-                              context,
-                              initValue: day.start,
-                              title: 'Выбери время начала',
-                            );
-                            if (duration != null) notifier.value = notifier.value.copyWith(start: () => duration);
-                          },
-                          child: SizedBox(
-                            height: 22,
-                            child: AppText(
-                              day.start.toTimeString(),
-                              style: AppTextStyles.bodyLarge.copyWith(
-                                color: context.ext.theme.textPrimary,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const TextSpan(text: ' - '),
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.bottom,
-                        child: GestureDetector(
-                          onTap: () async {
-                            final duration = await DateTimePickerMBS.pickDuration(
-                              context,
-                              initValue: day.end,
-                              title: 'Выбери время конца',
-                            );
-                            if (duration != null) notifier.value = notifier.value.copyWith(end: () => duration);
-                          },
-                          child: SizedBox(
-                            height: 22,
-                            child: AppText(
-                              day.end.toTimeString(),
-                              style: AppTextStyles.bodyLarge.copyWith(
-                                color: context.ext.theme.textPrimary,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-        ValueListenableBuilder(
-          valueListenable: notifier,
-          builder: (context, value, child) {
-            return AppSwitch(
-              value: value.active,
-              onChanged: (value0) => notifier.value = notifier.value.copyWith(active: () => value0),
-            );
-          },
-        ),
-      ],
-    );
-  }
 }

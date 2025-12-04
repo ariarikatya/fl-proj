@@ -37,8 +37,8 @@ class ContactTile extends StatelessWidget {
                               '${contact.group!.blob} ${contact.group!.labelSingleVariant}',
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: contact.group == ContactGroup.neW
-                                    ? context.ext.theme.success
-                                    : context.ext.theme.iconsDefault,
+                                    ? context.ext.colors.success
+                                    : context.ext.colors.black[700],
                               ),
                             ),
                         ],

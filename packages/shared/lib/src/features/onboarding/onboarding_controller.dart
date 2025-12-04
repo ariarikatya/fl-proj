@@ -1,9 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 abstract class $OnboardingController extends InheritedWidget {
-  const $OnboardingController(this.pageController, {super.key, required super.child});
+  const $OnboardingController(this.pageController, {super.key, required this.stepsCount, required super.child});
 
   final PageController pageController;
+  final int stepsCount;
+
+  double get progress => ((pageController.page ?? 0.0) + 0.0) / (max(stepsCount - 1, 1));
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;

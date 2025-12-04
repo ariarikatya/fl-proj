@@ -6,7 +6,7 @@ import 'package:shared/shared.dart';
 class PaginationBuilder<C extends PaginationCubit<T>, T extends Object> extends StatelessWidget {
   const PaginationBuilder({
     super.key,
-    required this.cubit,
+    this.cubit,
     this.reverse = false,
     required this.emptyBuilder,
     required this.itemBuilder,
@@ -16,7 +16,7 @@ class PaginationBuilder<C extends PaginationCubit<T>, T extends Object> extends 
     this.invisibleItemsThreshold = 3,
   });
 
-  final C cubit;
+  final C? cubit;
   final bool reverse;
   final int invisibleItemsThreshold;
   final EdgeInsets? padding;
@@ -29,27 +29,30 @@ class PaginationBuilder<C extends PaginationCubit<T>, T extends Object> extends 
   Widget build(BuildContext context) {
     return BlocBuilder<C, PagingState<int, T>>(
       bloc: cubit,
-      builder: (context, state) => RefreshWidget(
-        refresh: cubit.reset,
-        child: PagedListView<int, T>.separated(
-          state: state,
-          fetchNextPage: cubit.load,
-          scrollController: scrollController,
-          padding: padding,
-          separatorBuilder: separatorBuilder ?? (_, __) => SizedBox.shrink(),
-          reverse: reverse,
-          builderDelegate: PagedChildBuilderDelegate(
-            animateTransitions: true,
-            invisibleItemsThreshold: invisibleItemsThreshold,
-            itemBuilder: (context, item, index) => itemBuilder(context, index, item),
-            noItemsFoundIndicatorBuilder: (_) => emptyBuilder(context),
-            firstPageProgressIndicatorBuilder: (_) => _buildLoading(),
-            newPageProgressIndicatorBuilder: (_) => _buildLoading(),
-            firstPageErrorIndicatorBuilder: (_) => _buildError(),
-            newPageErrorIndicatorBuilder: (_) => _buildError(),
+      builder: (context, state) {
+        final $cubit = cubit ?? context.read<C>();
+        return RefreshWidget(
+          refresh: $cubit.reset,
+          child: PagedListView<int, T>.separated(
+            state: state,
+            fetchNextPage: $cubit.load,
+            scrollController: scrollController,
+            padding: padding,
+            separatorBuilder: separatorBuilder ?? (_, __) => SizedBox.shrink(),
+            reverse: reverse,
+            builderDelegate: PagedChildBuilderDelegate(
+              animateTransitions: true,
+              invisibleItemsThreshold: invisibleItemsThreshold,
+              itemBuilder: (context, item, index) => itemBuilder(context, index, item),
+              noItemsFoundIndicatorBuilder: (_) => emptyBuilder(context),
+              firstPageProgressIndicatorBuilder: (_) => _buildLoading(),
+              newPageProgressIndicatorBuilder: (_) => _buildLoading(),
+              firstPageErrorIndicatorBuilder: (_) => _buildError(reload: $cubit.load),
+              newPageErrorIndicatorBuilder: (_) => _buildError(reload: $cubit.load),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -57,7 +60,7 @@ class PaginationBuilder<C extends PaginationCubit<T>, T extends Object> extends 
     child: Padding(padding: EdgeInsets.all(16), child: LoadingIndicator()),
   );
 
-  Widget _buildError() => Center(
+  Widget _buildError({required VoidCallback reload}) => Center(
     child: Padding(
       padding: EdgeInsets.all(12),
       child: Column(
@@ -65,7 +68,7 @@ class PaginationBuilder<C extends PaginationCubit<T>, T extends Object> extends 
         spacing: 8,
         children: [
           AppText('Что-то пошло не так'),
-          AppTextButton.small(text: 'Попробовать снова', onTap: () => cubit.load()),
+          AppTextButton.small(text: 'Попробовать снова', onTap: reload),
         ],
       ),
     ),

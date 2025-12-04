@@ -7,8 +7,8 @@ import 'package:shared/shared.dart';
 typedef Events = Map<DateTime, List<Booking>>;
 
 class EventsCubit extends Cubit<Events> with SocketListenerMixin {
-  EventsCubit(this.context, this.repo, this.websockets) : super({}) {
-    controller = CalendarControllerProvider.of<Booking>(context).controller;
+  EventsCubit({required this.context, required this.repo, required this.websockets, required this.controller})
+    : super({}) {
     reloadEvents(); // TODO: HOW is this method gets called on every socket update???
     listenSockets(websockets);
   }
@@ -16,7 +16,7 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
   final BuildContext context;
   final BookingsRepository repo;
   final WebSocketService websockets;
-  late final EventController<Booking> controller;
+  final EventController<Booking> controller;
 
   @override
   void onSocketsMessage(json) {
@@ -45,17 +45,17 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
     return super.close();
   }
 
-  Future<void> addEvent(Booking event) async {
-    logger.debug('removing event ${event.id}');
-    final colors = _getEventColors(event);
-    controller.add(_createEvent(event, colors.bgcolor, colors.fgcolor));
+  Future<void> addEvent(Booking newEvent) async {
+    logger.debug('adding event ${newEvent.id}');
+    final colors = _getEventColors(newEvent);
+    controller.add(_createEvent(newEvent, colors.bgcolor, colors.fgcolor));
   }
 
-  Future<void> updateEvent(int bookingId, Booking newEvent) async {
+  Future<void> updateEvent(int bookingId, Booking event) async {
     logger.debug('updating event $bookingId');
-    final colors = _getEventColors(newEvent);
+    final colors = _getEventColors(event);
     final oldEvent = controller.allEvents.firstWhere((e) => e.event?.id == bookingId);
-    controller.update(oldEvent, _createEvent(newEvent, colors.bgcolor, colors.fgcolor));
+    controller.update(oldEvent, _createEvent(event, colors.bgcolor, colors.fgcolor));
   }
 
   Future<void> removeEvent(int bookingId) async {
@@ -66,8 +66,8 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
   Future<void> reloadEvents() async {
     final result = await repo.getAllBookings();
 
-    controller.removeAll(controller.allEvents);
     if (result.unpack() case List<Booking> data) {
+      controller.removeAll(controller.allEvents);
       for (var e in data) {
         if (const [BookingStatus.pending, BookingStatus.confirmed, BookingStatus.completed].contains(e.status)) {
           final colors = _getEventColors(e);
@@ -86,10 +86,10 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
       backgroundColor: bgcolor,
       foregroundColor: fgcolor,
       description: event.serviceName,
-      titleStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: context.ext.theme.textPrimary),
+      titleStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: context.ext.colors.black[900]),
       descriptionStyle: AppTextStyles.bodySmall.copyWith(
         fontWeight: FontWeight.w700,
-        color: context.ext.theme.textSecondary,
+        color: context.ext.colors.black[700],
       ),
       event: event,
     );
@@ -97,13 +97,13 @@ class EventsCubit extends Cubit<Events> with SocketListenerMixin {
 
   ({Color bgcolor, Color fgcolor}) _getEventColors(Booking booking) => switch (booking) {
     Booking() when booking.isTimeBlock => ((
-      bgcolor: context.ext.theme.iconsDefault,
-      fgcolor: context.ext.theme.backgroundDisabled,
+      bgcolor: context.ext.colors.black[700],
+      fgcolor: context.ext.colors.white[200],
     )),
     _ => switch (booking.status) {
-      BookingStatus.confirmed => (bgcolor: context.ext.theme.accent, fgcolor: context.ext.theme.accentLight),
-      BookingStatus.completed => (bgcolor: context.ext.theme.accent, fgcolor: context.ext.theme.accentLight),
-      _ => (bgcolor: context.ext.theme.textPrimary, fgcolor: context.ext.theme.backgroundHover),
+      BookingStatus.confirmed => (bgcolor: context.ext.colors.pink[500], fgcolor: context.ext.colors.pink[100]),
+      BookingStatus.completed => (bgcolor: context.ext.colors.pink[500], fgcolor: context.ext.colors.pink[100]),
+      _ => (bgcolor: context.ext.colors.black[900], fgcolor: context.ext.colors.white[300]),
     },
   };
 }

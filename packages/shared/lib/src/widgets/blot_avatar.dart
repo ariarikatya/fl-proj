@@ -14,7 +14,7 @@ class BlotAvatar extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        AppIcons.blotBigAlt.icon(context, size: size * 1.1, color: context.ext.theme.accentLight),
+        AppIcons.blotBigAlt.icon(context, size: size * 1.1, color: context.ext.colors.pink[100]),
         AppAvatar(avatarUrl: avatarUrl, size: size),
       ],
     );

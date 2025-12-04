@@ -1,5 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:polka_masters/features/schedules/controller/schedules_cubit.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class AppFilledCell<T extends Object?> extends StatelessWidget {
@@ -53,23 +55,24 @@ class AppFilledCell<T extends Object?> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isInMonth ? context.ext.theme.backgroundDefault : context.ext.theme.backgroundHover;
+    final isWorkingDay = context.watch<SchedulesCubit>().scheduleDayOf(date)?.active ?? false;
+    final backgroundColor = isWorkingDay ? context.ext.colors.white[100] : context.ext.colors.white[200];
 
     Widget dayWidget = Container(
       width: 24,
       height: 24,
       alignment: Alignment.center,
       decoration: isToday
-          ? BoxDecoration(color: context.ext.theme.accent, borderRadius: BorderRadius.circular(6))
+          ? BoxDecoration(color: context.ext.colors.pink[500], borderRadius: BorderRadius.circular(6))
           : null,
       child: AppText(
         '${date.day}',
         style: AppTextStyles.bodyLarge500.copyWith(
           color: isToday
-              ? context.ext.theme.backgroundDefault
+              ? context.ext.colors.white[100]
               : isInMonth
-              ? context.ext.theme.textPrimary
-              : context.ext.theme.textPlaceholder,
+              ? context.ext.colors.black[900]
+              : context.ext.colors.black[300],
         ),
       ),
     );

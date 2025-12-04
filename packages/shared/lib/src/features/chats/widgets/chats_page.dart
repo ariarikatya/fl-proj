@@ -2,23 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
 
-class ChatsPage extends StatefulWidget {
+class ChatsPage extends StatelessWidget {
   const ChatsPage({super.key});
-
-  @override
-  State<ChatsPage> createState() => _ChatsPageState();
-}
-
-class _ChatsPageState extends State<ChatsPage> {
-  late final cubit = blocs.get<ChatsCubit>(context)..loadChats();
 
   @override
   Widget build(BuildContext context) {
     return AppPage(
       appBar: const CustomAppBar(title: 'Твои чаты'),
       child: BlocBuilder<ChatsCubit, int>(
-        bloc: cubit,
         builder: (context, state) {
+          final cubit = context.read<ChatsCubit>();
+
           if (cubit.loading) {
             return Center(child: LoadingIndicator());
           }

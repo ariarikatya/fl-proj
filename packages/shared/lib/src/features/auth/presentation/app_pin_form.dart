@@ -18,30 +18,30 @@ class _AppPinFormState extends State<AppPinForm> {
   @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
-      width: 48,
-      height: 56,
+      width: 56,
+      height: 64,
       textStyle: AppTextStyles.headingMedium,
-
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: context.ext.theme.backgroundHover),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: context.ext.colors.white[200]),
     );
 
     final focusedPinTheme = defaultPinTheme.copyDecorationWith(
-      border: Border.all(color: context.ext.theme.borderStrong),
+      border: Border.all(color: context.ext.colors.black[500]),
     );
 
-    final errorPinTheme = defaultPinTheme.copyDecorationWith(border: Border.all(color: context.ext.theme.error));
+    final errorPinTheme = defaultPinTheme.copyDecorationWith(border: Border.all(color: context.ext.colors.error));
 
     return Pinput(
       defaultPinTheme: defaultPinTheme,
       focusedPinTheme: focusedPinTheme,
       errorPinTheme: errorPinTheme,
       length: 4,
+      closeKeyboardWhenCompleted: true,
       errorText: errorText,
       forceErrorState: errorText != null,
       validator: (s) {
         return s?.length == 4 ? null : 'Неправильный код';
       },
-      errorTextStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.error),
+      errorTextStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.error),
       pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
       showCursor: true,
       onCompleted: (pin) async {

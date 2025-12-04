@@ -23,7 +23,7 @@ class EmptySearchView extends StatelessWidget {
             AppText(
               'Попробуй перенастроить фильтры или сменить ключевое слово',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+              style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
             ),
             if (onResetFilters != null) ...[
               SizedBox(height: 16),

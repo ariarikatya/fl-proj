@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:polka_clients/features/booking/controller/old_bookings_cubit.dart';
 import 'package:polka_clients/features/master_appointment/widgets/master_page.dart';
 import 'package:polka_clients/features/master_appointment/widgets/services_page.dart';
 import 'package:shared/shared.dart';
@@ -16,14 +17,14 @@ class MasterMapCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () => context.ext.push(MasterPage(masterId: info.master.id)),
         child: Container(
-          decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(24)),
+          decoration: BoxDecoration(color: context.ext.colors.white[300], borderRadius: BorderRadius.circular(24)),
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 8,
             children: [
               _MasterHeader(master: info.master, distanceMeters: info.distanceMeters),
-              Divider(height: 1, thickness: 1, color: context.ext.theme.borderSubtle),
+              Divider(height: 1, thickness: 1, color: context.ext.colors.white[200]),
               AppText('Услуги', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
               for (var service in info.services.take(3))
                 Padding(
@@ -78,7 +79,7 @@ class _MasterHeader extends StatelessWidget {
                   Flexible(
                     child: AppText(
                       master.profession,
-                      style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                      style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700]),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -86,12 +87,12 @@ class _MasterHeader extends StatelessWidget {
               ),
               AppText(
                 '⭐ ${master.ratingFixed}',
-                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700]),
                 overflow: TextOverflow.ellipsis,
               ),
               AppText(
                 _distanceText(distanceMeters),
-                style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.textSecondary),
+                style: AppTextStyles.bodySmall.copyWith(color: context.ext.colors.black[700]),
               ),
             ],
           ),
@@ -117,7 +118,7 @@ class _ServiceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => blocs.get<BookingsCubit>(context).startAppointmentFlow(context, master, service),
+      onTap: () => context.read<OldBookingsCubit>().startAppointmentFlow(context, master, service),
       child: Material(
         color: Colors.transparent,
         child: Row(
@@ -142,7 +143,7 @@ class _ServiceRow extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      AppIcons.clock.icon(context, size: 16),
+                      FIcons.clock.icon(context, size: 16),
                       const SizedBox(width: 2),
                       Flexible(
                         child: AppText(

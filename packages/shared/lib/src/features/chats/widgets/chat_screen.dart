@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:shared/shared.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, required this.chatId});
+  const ChatScreen({super.key, required this.chatId, this.prependText});
 
   final int chatId;
+  final String? prependText;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  late final chat = blocs.get<ChatsCubit>(context).chats[widget.chatId];
+  late final chat = context.read<ChatsCubit>().chats[widget.chatId];
 
   @override
   void initState() {
@@ -29,14 +31,15 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     if (chat == null) return AppPage(child: AppErrorWidget(error: 'Чат не найден'));
-    return _ChatView(chat: chat!);
+    return _ChatView(chat: chat!, prependText: widget.prependText);
   }
 }
 
 class _ChatView extends StatelessWidget {
-  const _ChatView({required this.chat});
+  const _ChatView({required this.chat, this.prependText});
 
   final ChatController chat;
+  final String? prependText;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +62,7 @@ class _ChatView extends StatelessWidget {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: chat.preview.isOnline ? context.ext.theme.success : context.ext.theme.borderStrong,
+                        color: chat.preview.isOnline ? context.ext.colors.success : context.ext.colors.black[500],
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
@@ -94,7 +97,7 @@ class _ChatView extends StatelessWidget {
               },
             ),
           ),
-          ChatInputField(onSubmit: chat.sendMessage, onTyping: chat.sendTypingEvent),
+          ChatInputField(onSubmit: chat.sendMessage, onTyping: chat.sendTypingEvent, initialText: prependText),
         ],
       ),
     );

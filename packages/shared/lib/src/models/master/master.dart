@@ -27,7 +27,7 @@ class Master extends JsonEquatable implements User {
   });
 
   factory Master.fromJson(Map<String, dynamic> json) => Master(
-    id: (json['user_id'] ?? json['master_id'] ?? json['id']) as int,
+    id: (json['master_id'] ?? json['id'] ?? json['user_id']) as int,
     firstName: (json['first_name'] ?? json['name']) as String,
     lastName: json['last_name'] as String,
     profession: json['activity'] as String,
@@ -59,7 +59,7 @@ class Master extends JsonEquatable implements User {
 
   String get fullName => '$firstName $lastName';
 
-  String get ratingFixed => rating.toStringAsFixed(1);
+  String get ratingFixed => rating.toStringAsFixed(1).replaceAll('.', ',');
 
   @override
   List<Object?> get props => [
@@ -83,6 +83,7 @@ class Master extends JsonEquatable implements User {
   ];
 
   Master copyWith({
+    ValueGetter<int>? id,
     ValueGetter<String>? firstName,
     ValueGetter<String>? lastName,
     ValueGetter<String>? profession,
@@ -100,7 +101,7 @@ class Master extends JsonEquatable implements User {
     ValueGetter<double>? longitude,
     ValueGetter<ServiceLocation>? location,
   }) => Master(
-    id: id,
+    id: id != null ? id() : this.id,
     firstName: firstName != null ? firstName() : this.firstName,
     lastName: lastName != null ? lastName() : this.lastName,
     profession: profession != null ? profession() : this.profession,
@@ -122,6 +123,7 @@ class Master extends JsonEquatable implements User {
 
   @override
   Map<String, dynamic> toJson() => {
+    'id': id,
     'first_name': firstName,
     'last_name': lastName,
     'activity': profession,
@@ -133,6 +135,17 @@ class Master extends JsonEquatable implements User {
     'general_portfolio': portfolio,
     'workplace_photos': workplace,
     'categories': categories.map((e) => e.toJson()).toList(),
+    'rating': rating,
+    'reviews_count': reviewsCount,
+    'latitude': latitude,
+    'longitude': longitude,
+    'location': location.toJson(),
+  };
+
+  @override
+  Map<String, dynamic> get attributes => {
+    'city': city,
+    'experience': experience,
     'rating': rating,
     'reviews_count': reviewsCount,
     'latitude': latitude,

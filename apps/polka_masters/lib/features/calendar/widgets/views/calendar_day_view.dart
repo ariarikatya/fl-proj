@@ -1,33 +1,46 @@
 import 'package:calendar_view/calendar_view.dart' hide WeekDays;
 import 'package:flutter/material.dart';
+import 'package:polka_masters/features/calendar/widgets/create_booking_button.dart';
 import 'package:polka_masters/features/calendar/widgets/events/event_tile.dart';
 import 'package:polka_masters/features/calendar/widgets/mbs/book_client_mbs.dart';
 import 'package:polka_masters/features/calendar/widgets/mbs/booking_info_mbs.dart';
+import 'package:polka_masters/features/calendar/widgets/notification_builder.dart';
 import 'package:polka_masters/features/calendar/widgets/painters/schedule_day_hour_line_painter.dart';
 import 'package:polka_masters/scopes/calendar_scope.dart';
-import 'package:polka_masters/scopes/master_scope.dart';
 import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class CalendarDayView extends StatelessWidget {
   const CalendarDayView({super.key});
 
+  Future<void> _bookClientOnHour(BuildContext context, DateTime date) async {
+    final start = await DateTimePickerMBS.pickDuration(
+      context,
+      initValue: Duration(hours: date.hour),
+      title: 'Выбери начало записи',
+      canEditHours: false,
+    );
+    if (start != null && context.mounted) {
+      await showBookClientMbs(context: context, start: date.dateOnly.add(start), canEditStartTime: false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scope = context.watch<CalendarScope>();
-    final scheduleDay = context.watch<MasterScope>().schedule.days[WeekDays.fromDateTime(scope.date)];
     final offset = (DateTime.now().hour - 1.5) * CalendarScope.heigthPerMinuteRatio * 60;
 
     return Stack(
       children: [
         DayView<Booking>(
           initialDay: scope.date,
+          controller: scope.eventController,
           onPageChange: (date, __) => scope.setDate(date),
           key: scope.dayViewKey,
           keepScrollOffset: true,
           safeAreaOption: const SafeAreaOption(bottom: false),
           dayTitleBuilder: (date) => _DayTitleBuilder(date),
-          backgroundColor: context.ext.theme.backgroundDefault,
+          backgroundColor: context.ext.colors.white[100],
           eventTileBuilder: (date, events, boundary, startDuration, endDuration) => BookingEventTile(
             date: date,
             events: events,
@@ -39,7 +52,7 @@ class CalendarDayView extends StatelessWidget {
           timeLineBuilder: (date) => DefaultTimeLineMark(
             date: date,
             timeStringBuilder: (date, {secondaryDate}) => date.formatTimeOnly(),
-            markingStyle: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.textPlaceholder),
+            markingStyle: AppTextStyles.bodySmall.copyWith(color: context.ext.colors.black[300]),
           ),
           onEventLongTap: devMode
               ? (events, date) {
@@ -47,32 +60,23 @@ class CalendarDayView extends StatelessWidget {
                 }
               : null,
           verticalLineOffset: 0,
-          hourIndicatorSettings: HourIndicatorSettings(
-            height: 1,
-            color: context.ext.theme.backgroundDisabled,
-            offset: 5,
-          ),
-          hourLinePainter: scheduleDayHourLinePainter(context, scheduleDay),
+          hourIndicatorSettings: HourIndicatorSettings(height: 1, color: context.ext.colors.black[100], offset: 5),
+          hourLinePainter: scheduleDayHourLinePainter(),
           liveTimeIndicatorSettings: LiveTimeIndicatorSettings(
-            color: context.ext.theme.textPrimary,
+            color: context.ext.colors.black[900],
             bulletRadius: 0,
             height: 1.5,
           ),
           scrollOffset: offset,
-          onDateTap: (date) => showBookClientMbs(context: context, start: date),
+          onDateTap: (date) => _bookClientOnHour(context, date),
           onEventTap: (events, date) {
             if (events.firstOrNull?.event case Booking booking) {
               showBookingInfoMbs(context: context, booking: booking);
             }
           },
+          notificationBuilder: calendarNotificationBuilder,
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: AppFloatingActionButton$Add(
-            text: 'Создать  запись',
-            onTap: () => showBookClientMbs(context: context, start: DateTime.now().withoutMinutes),
-          ),
-        ),
+        const Align(alignment: Alignment.bottomCenter, child: CreateBookingButton()),
       ],
     );
   }
@@ -90,32 +94,33 @@ class _DayTitleBuilder extends StatelessWidget {
       height: 48,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: context.ext.theme.backgroundSubtle,
-        border: Border(bottom: BorderSide(color: context.ext.theme.backgroundDisabled)),
+        color: context.ext.colors.white[100],
+        border: Border(bottom: BorderSide(color: context.ext.colors.white[200])),
       ),
       child: Row(
         spacing: 4,
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           AppText(
             WeekDays.values[date.weekday - 1].short,
             style: AppTextStyles.bodyMedium500.copyWith(
-              color: isToday ? context.ext.theme.textPrimary : context.ext.theme.textPlaceholder,
+              color: isToday ? context.ext.colors.black[900] : context.ext.colors.black[300],
               height: 1,
             ),
           ),
           Container(
             width: 24,
             height: 24,
-            alignment: Alignment.center,
             decoration: isToday
-                ? BoxDecoration(color: context.ext.theme.accent, borderRadius: BorderRadius.circular(6))
+                ? BoxDecoration(color: context.ext.colors.pink[500], borderRadius: BorderRadius.circular(6))
                 : null,
             child: AppText(
               '${date.day}',
               style: AppTextStyles.bodyLarge.copyWith(
-                color: isToday ? context.ext.theme.backgroundDefault : context.ext.theme.textPlaceholder,
+                color: isToday ? context.ext.colors.white[100] : context.ext.colors.black[300],
               ),
+              textAlign: TextAlign.center,
             ),
           ),
         ],

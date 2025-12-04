@@ -5,11 +5,11 @@ import 'package:shared/src/initialization.dart';
 import 'package:shared/src/widgets/app_text.dart';
 
 SnackBar errorSnackbar(String error) {
-  final theme = navigatorKey.currentContext?.ext.theme;
+  final theme = navigatorKey.currentContext?.ext.colors;
   return SnackBar(
     content: AppText(
       error,
-      style: AppTextStyles.bodyLarge.copyWith(color: theme?.backgroundDefault, overflow: TextOverflow.ellipsis),
+      style: AppTextStyles.bodyLarge.copyWith(color: theme?.white[100], overflow: TextOverflow.ellipsis),
       maxLines: 20,
     ),
     behavior: SnackBarBehavior.floating,
@@ -20,11 +20,11 @@ SnackBar errorSnackbar(String error) {
 }
 
 SnackBar successSnackbar(String text) {
-  final theme = navigatorKey.currentContext?.ext.theme;
+  final theme = navigatorKey.currentContext?.ext.colors;
   return SnackBar(
     content: AppText(
       text,
-      style: AppTextStyles.bodyLarge.copyWith(color: theme?.backgroundDefault, overflow: TextOverflow.ellipsis),
+      style: AppTextStyles.bodyLarge.copyWith(color: theme?.white[100], overflow: TextOverflow.ellipsis),
       maxLines: 5,
     ),
     behavior: SnackBarBehavior.floating,
@@ -41,13 +41,13 @@ SnackBar infoSnackbar(Widget child, {double bottom = 0}) {
     // If on the main page, add bottom navbar padding
     if (Navigator.maybeOf(ctx)?.canPop() == false) bottomPadding += 24;
   }
-  final theme = navigatorKey.currentContext?.ext.theme;
+  final theme = navigatorKey.currentContext?.ext.colors;
 
   return SnackBar(
     content: child,
     behavior: SnackBarBehavior.floating,
     duration: Duration(seconds: 3),
-    backgroundColor: theme?.backgroundHover,
+    backgroundColor: theme?.white[300],
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     margin: EdgeInsets.only(left: 24, right: 24, bottom: bottomPadding + bottom),
   );

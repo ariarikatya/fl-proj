@@ -13,7 +13,7 @@ class AppErrorWidget extends StatelessWidget {
     return Center(
       child: Container(
         padding: EdgeInsets.all(24),
-        child: AppText(error, style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.error)),
+        child: AppText(error, style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.error)),
       ),
     );
   }

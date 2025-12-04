@@ -213,7 +213,7 @@ class _ReviewsWidget extends StatelessWidget {
   Row _header(BuildContext context) {
     return Row(
       children: [
-        AppText('Общий рейтинг:', style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary)),
+        AppText('Общий рейтинг:', style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700])),
         const SizedBox(width: 4),
         AboutInfo.reviews(master: master),
       ],
@@ -237,7 +237,7 @@ class _About extends StatelessWidget {
           children: [
             const AppText('Обо мне', style: AppTextStyles.headingSmall),
             const SizedBox(height: 8),
-            AppText(about, style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary)),
+            AppText(about, style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700])),
           ],
         ),
       ),
@@ -264,7 +264,7 @@ class _Header extends StatelessWidget {
           ),
           AppText(
             master.profession,
-            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),

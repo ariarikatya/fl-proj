@@ -9,6 +9,7 @@ class AppTextFormField extends StatefulWidget {
   const AppTextFormField({
     super.key,
     this.labelText,
+    this.labelStyle,
     this.hintText = '',
     this.maxLines = 1,
     this.controller,
@@ -49,6 +50,7 @@ class AppTextFormField extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final VoidCallback? onClear;
   final TextStyle? textStyle;
+  final TextStyle? labelStyle;
 
   @override
   State<AppTextFormField> createState() => _AppTextFormFieldState();
@@ -73,10 +75,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
 
   @override
   Widget build(BuildContext context) {
-    final border = OutlineInputBorder(
-      borderSide: BorderSide(color: context.ext.theme.borderDefault),
-      borderRadius: BorderRadius.circular(14),
-    );
+    final border = OutlineInputBorder(borderRadius: BorderRadius.circular(14));
     final prefix = widget.prefixIcon != null
         ? Padding(padding: const EdgeInsets.fromLTRB(16, 10, 4, 10), child: widget.prefixIcon!)
         : null;
@@ -86,12 +85,13 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
               widget.controller?.clear();
               widget.onClear?.call();
               // This is required for correct autovalidation
-              focusNode.requestFocus();
-              Future(() => focusNode.unfocus());
+              focusNode.unfocus();
+              Future(() => focusNode.requestFocus());
             },
             child: Padding(padding: const EdgeInsets.all(16), child: AppIcons.close.icon(context)),
           )
         : null;
+    final labelStyle = widget.labelStyle ?? AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[500]);
 
     Widget child = TextFormField(
       maxLength: widget.maxLength,
@@ -112,12 +112,12 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
       controller: widget.controller,
       style: widget.textStyle ?? AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
       textAlignVertical: widget.compact ? TextAlignVertical.bottom : null,
-      cursorColor: context.ext.theme.textPlaceholder,
+      cursorColor: context.ext.colors.black[500],
       onFieldSubmitted: widget.onFieldSubmitted,
       validator: widget.validator,
       autovalidateMode: AutovalidateMode.onUnfocus,
       errorBuilder: (context, error) =>
-          AppText(error, style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.error)),
+          AppText(error, style: AppTextStyles.bodySmall.copyWith(color: context.ext.colors.error)),
       decoration: InputDecoration(
         prefixIcon: prefix,
         prefixIconConstraints: widget.prefixIconConstraints ?? BoxConstraints.tight(Size(44, 44)),
@@ -126,17 +126,17 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         labelText: widget.labelText,
         hintText: widget.hintText,
-        floatingLabelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
+        floatingLabelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[500]),
         alignLabelWithHint: true,
-        labelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
-        hintStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
+        labelStyle: labelStyle,
+        hintStyle: labelStyle,
         border: border,
-        fillColor: widget.fillColor ?? context.ext.theme.backgroundHover,
+        fillColor: widget.fillColor ?? context.ext.colors.white[200],
         filled: true,
         enabledBorder: border.copyWith(borderSide: BorderSide.none),
         disabledBorder: border.copyWith(borderSide: BorderSide.none),
-        focusedBorder: border.copyWith(borderSide: BorderSide(color: context.ext.theme.borderStrong)),
-        errorBorder: border.copyWith(borderSide: BorderSide(color: context.ext.theme.error)),
+        focusedBorder: border.copyWith(borderSide: BorderSide(color: context.ext.colors.black[500])),
+        errorBorder: border.copyWith(borderSide: BorderSide(color: context.ext.colors.error)),
       ),
     );
 

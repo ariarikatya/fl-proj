@@ -9,11 +9,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = blocs.get<HomeNavigationCubit>(context);
-
     return BlocBuilder<HomeNavigationCubit, ({int index, Object? data})>(
-      bloc: controller,
       builder: (context, state) {
+        final controller = context.read<HomeNavigationCubit>();
         return PopScope(
           canPop: state.index == 0,
           onPopInvokedWithResult: (didPop, result) {
@@ -29,31 +27,31 @@ class HomePage extends StatelessWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                  color: context.ext.theme.backgroundHover,
+                  color: context.ext.colors.white[300],
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _NavigationBarItem(
-                        icon: AppIcons.home.icon(context),
+                        icon: FIcons.home.icon(context),
                         onTap: () => controller.openHome(),
                         selected: state.index == 0,
                       ),
                       _NavigationBarItem(
-                        icon: AppIcons.search.icon(context),
+                        icon: FIcons.search.icon(context),
                         onTap: () => controller.openMapSearch(),
                         selected: state.index == 1,
                       ),
                       _NavigationBarItem(
-                        icon: AppIcons.file.icon(context),
+                        icon: FIcons.clipboard.icon(context),
                         onTap: () => controller.openBookings(),
                         selected: state.index == 2,
                       ),
                       _NavigationBarItem(
                         icon: Builder(
                           builder: (ctx) => AppAvatar(
-                            avatarUrl: ClientScope.of(ctx).client.avatarUrl,
+                            avatarUrl: ctx.watch<ClientViewModel>().client.avatarUrl,
                             size: 24,
-                            borderColor: context.ext.theme.textPrimary,
+                            borderColor: context.ext.colors.black[900],
                             shadow: false,
                           ),
                         ),
@@ -90,7 +88,11 @@ class _NavigationBarItem extends StatelessWidget {
       child = Stack(
         alignment: Alignment.center,
         children: [
-          AppIcons.blot.icon(context, size: 36, color: context.ext.theme.accent),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(color: context.ext.colors.pink[100], borderRadius: BorderRadius.circular(8)),
+          ),
           child,
         ],
       );

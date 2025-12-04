@@ -10,11 +10,13 @@ void main() => runZonedGuarded(
   () async {
     runApp(const SplashScreen());
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Show splash for at least 2.5 seconds
     await Future.wait([Dependencies.init(), Future.delayed(const Duration(milliseconds: 2500))]);
     runApp(const App());
   },
   (error, stack) {
-    CrashlyticsService().reportError(error, stack);
+    errorReporter?.call(error, stack);
     logger.handle(error, stack, 'This error was caught by ZoneGuarded');
   },
 );

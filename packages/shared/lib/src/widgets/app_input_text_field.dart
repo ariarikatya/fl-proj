@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
-import 'package:shared/src/icons.dart';
+import 'package:shared/src/feather_icons.dart';
 import 'package:shared/src/widgets/app_text.dart';
 
 class AppInputTextField extends StatefulWidget {
@@ -38,7 +38,10 @@ class AppInputTextField extends StatefulWidget {
 }
 
 class _AppInputTextFieldState extends State<AppInputTextField> {
-  late final _focusNode = FocusNode()..addListener(_focusListener);
+  late final _focusNode = FocusNode()
+    ..addListener(_focusListener)
+    ..requestFocus();
+
   late final _focusNotifier = ValueNotifier(false);
 
   void _focusListener() => _focusNotifier.value = _focusNode.hasFocus;
@@ -53,7 +56,7 @@ class _AppInputTextFieldState extends State<AppInputTextField> {
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
-      borderSide: BorderSide(color: context.ext.theme.iconsDefault),
+      borderSide: BorderSide(color: context.ext.colors.black[700]),
       borderRadius: BorderRadius.circular(16),
     );
 
@@ -73,10 +76,10 @@ class _AppInputTextFieldState extends State<AppInputTextField> {
             margin: EdgeInsets.all(8),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: hasFocus ? context.ext.theme.buttonPrimary : context.ext.theme.textDisabled,
+              color: hasFocus ? context.ext.colors.black[900] : context.ext.colors.black[100],
               borderRadius: BorderRadius.circular(40),
             ),
-            child: AppIcons.arrowUp.icon(context, size: 16, color: context.ext.theme.backgroundDefault),
+            child: FIcons.arrow_up.icon(context, size: 16, color: context.ext.colors.white[100]),
           ),
         );
       },
@@ -89,18 +92,18 @@ class _AppInputTextFieldState extends State<AppInputTextField> {
           child: TextFormField(
             keyboardType: widget.keyboardType,
             inputFormatters: widget.inputFormatters,
-            // onTapOutside: (_) => _focusNode.unfocus(),
+            onTapOutside: (_) => _focusNode.unfocus(),
             onChanged: widget.onChanged,
             focusNode: _focusNode,
             maxLines: 5,
             minLines: 1,
             controller: widget.controller,
             style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            cursorColor: context.ext.theme.textPlaceholder,
+            cursorColor: context.ext.colors.black[500],
             onFieldSubmitted: widget.onFieldSubmitted,
             autovalidateMode: AutovalidateMode.onUnfocus,
             errorBuilder: (context, error) =>
-                AppText(error, style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.error)),
+                AppText(error, style: AppTextStyles.bodySmall.copyWith(color: context.ext.colors.error)),
             decoration: InputDecoration(
               prefixIcon: SizedBox(),
               prefixIconConstraints: BoxConstraints.tight(Size(40, 40)),
@@ -108,17 +111,17 @@ class _AppInputTextFieldState extends State<AppInputTextField> {
               suffixIconConstraints: BoxConstraints.tightFor(width: widget.suffixWidth ?? 48, height: 48),
               floatingLabelBehavior: FloatingLabelBehavior.auto,
               hintText: widget.hintText,
-              floatingLabelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
+              floatingLabelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[500]),
               alignLabelWithHint: true,
-              labelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
-              hintStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
+              labelStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[500]),
+              hintStyle: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[500]),
               border: border,
               filled: true,
-              fillColor: context.ext.theme.backgroundDefault,
+              fillColor: context.ext.colors.white[100],
               enabledBorder: border,
               disabledBorder: border,
               focusedBorder: border,
-              errorBorder: border.copyWith(borderSide: BorderSide(color: context.ext.theme.error)),
+              errorBorder: border.copyWith(borderSide: BorderSide(color: context.ext.colors.error)),
             ),
           ),
         ),

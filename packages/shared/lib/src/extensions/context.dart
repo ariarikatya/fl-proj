@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/features/theme/app_theme.dart';
-import 'package:shared/src/features/theme/app_theme_widget.dart';
+import 'package:shared/src/theme.dart';
 
 extension type ContextExt(BuildContext self) {
   Future<T?> push<T>(Widget page) async {
@@ -13,7 +12,15 @@ extension type ContextExt(BuildContext self) {
 
   void pop<T extends Object?>([T? result]) => Navigator.pop(self, result);
 
-  AppTheme get theme => AppThemeWidget.of(self).theme;
+  PolkaThemeExtension get colors {
+    return Theme.of(self).extension<PolkaThemeExtension>() ??
+        () {
+          assert(false, 'PolkaThemeExtension is not found in the current BuildContext');
+          return polkaThemeExtension;
+        }();
+  }
+
+  TextTheme get textTheme => TextTheme.of(self);
 }
 
 extension ContextX on BuildContext {

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/calendar/controllers/events_cubit.dart';
 import 'package:polka_masters/features/calendar/widgets/calendar_screen.dart';
 import 'package:polka_masters/features/contacts/controller/pending_bookings_cubit.dart';
 import 'package:polka_masters/features/contacts/widgets/contacts_screen.dart';
 import 'package:polka_masters/features/profile/widgets/profile_screen.dart';
-import 'package:polka_masters/scopes/master_scope.dart';
+import 'package:polka_masters/scopes/master_model.dart';
 import 'package:shared/shared.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,15 +19,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late final _pages = [const CalendarScreen(), const ChatsPage(), const ContactsScreen(), const ProfileScreen()];
 
-  int _index = 3;
+  int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Dependencies().requestNotificationPermissions();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // By calling these cubits we create and initialize them
-    blocs.get<ChatsCubit>(context);
-    blocs.get<EventsCubit>(context);
-    blocs.get<PendingBookingsCubit>(context);
+    context.read<ChatsCubit>();
+    context.read<EventsCubit>();
+    context.read<PendingBookingsCubit>();
   }
 
   @override
@@ -47,33 +54,33 @@ class _HomePageState extends State<HomePage> {
             Container(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
               decoration: BoxDecoration(
-                color: context.ext.theme.backgroundSubtle,
-                border: Border(top: BorderSide(color: context.ext.theme.backgroundDisabled, width: 1)),
+                color: context.ext.colors.white[200],
+                border: Border(top: BorderSide(color: context.ext.colors.white[200], width: 1)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _NavigationBarItem(
-                    icon: AppIcons.calendar.icon(context),
+                    icon: FIcons.calendar.icon(context, color: context.ext.colors.black[900]),
                     onTap: () => setState(() => _index = 0),
                     selected: _index == 0,
                   ),
                   _NavigationBarItem(
-                    icon: AppIcons.chats.icon(context),
+                    icon: FIcons.message_circle.icon(context, color: context.ext.colors.black[900]),
                     onTap: () => setState(() => _index = 1),
                     selected: _index == 1,
                   ),
                   _NavigationBarItem(
-                    icon: AppIcons.file.icon(context),
+                    icon: FIcons.clipboard.icon(context, color: context.ext.colors.black[900]),
                     onTap: () => setState(() => _index = 2),
                     selected: _index == 2,
                   ),
                   _NavigationBarItem(
                     icon: Builder(
                       builder: (ctx) => AppAvatar(
-                        avatarUrl: ctx.read<MasterScope>().master.avatarUrl,
+                        avatarUrl: ctx.read<MasterModel>().master.avatarUrl,
                         size: 24,
-                        borderColor: context.ext.theme.textPrimary,
+                        borderColor: context.ext.colors.black[900],
                         shadow: false,
                       ),
                     ),
@@ -108,7 +115,11 @@ class _NavigationBarItem extends StatelessWidget {
       child = Stack(
         alignment: Alignment.center,
         children: [
-          AppIcons.blot.icon(context, size: 36, color: context.ext.theme.accent),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(color: context.ext.colors.pink[100], borderRadius: BorderRadius.circular(8)),
+          ),
           child,
         ],
       );

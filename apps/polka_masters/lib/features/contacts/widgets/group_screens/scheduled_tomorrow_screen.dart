@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/contacts/controller/scheduled_tomorrow_bookings_cubit.dart';
+import 'package:polka_masters/features/contacts/data/contact_reminder.dart';
 import 'package:polka_masters/features/contacts/data/utils.dart';
 import 'package:polka_masters/features/contacts/widgets/pending_booking_card.dart';
 import 'package:shared/shared.dart';
@@ -40,7 +41,7 @@ class _ScheduledTomorrowScreenState extends State<ScheduledTomorrowScreen> {
         ),
         itemBuilder: (context, index, item) => PendingBookingCard(
           info: item,
-          onAccept: () => remindContact(context, item.contact),
+          onAccept: () => remindContact(context, item.contact, ContactReminder.appointmentTomorrow(item.booking)),
           onReject: () => _cubit.cancelBooking(item.booking.id),
           acceptLabel: 'Напомнить',
           rejectLabel: 'Отменить',

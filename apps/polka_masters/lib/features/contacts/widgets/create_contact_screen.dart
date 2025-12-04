@@ -73,7 +73,7 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                   const SizedBox(height: 8),
                   AppText(
                     'Запиши данные, чтобы сохранить все данные и поздравлять с Днём рождения',
-                    style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.iconsDefault),
+                    style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700]),
                   ),
                   const SizedBox(height: 24),
                   AppTextFormField(
@@ -101,7 +101,7 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                   const SizedBox(height: 8),
                   AppText(
                     'Запиши данные, чтобы быть на связи с клиентом',
-                    style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.iconsDefault),
+                    style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700]),
                   ),
                   const SizedBox(height: 24),
                   AppPhoneTextField(
@@ -126,7 +126,7 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                   const SizedBox(height: 8),
                   AppText(
                     'Запиши данные, чтобы не забыть важные детали, например, предпочтения или аллергии',
-                    style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.iconsDefault),
+                    style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700]),
                   ),
                   const SizedBox(height: 24),
                   AppTextFormField(

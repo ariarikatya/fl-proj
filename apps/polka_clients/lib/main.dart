@@ -3,16 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:polka_clients/app.dart';
 import 'package:polka_clients/dependencies.dart';
+import 'package:polka_clients/splash_screen.dart';
 import 'package:shared/shared.dart';
 
 void main() => runZonedGuarded(
   () async {
+    runApp(const SplashScreen());
     WidgetsFlutterBinding.ensureInitialized();
-    await Dependencies.init();
+
+    // Show splash for at least 2.5 seconds
+    await Future.wait([Dependencies.init(), Future.delayed(const Duration(milliseconds: 2500))]);
     runApp(const App());
   },
   (error, stack) {
-    CrashlyticsService().reportError(error, stack);
+    errorReporter?.call(error, stack);
     logger.handle(error, stack, 'This error was caught by ZoneGuarded');
   },
 );

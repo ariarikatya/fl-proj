@@ -43,9 +43,22 @@ class AppNavigatorState extends State<AppNavigator> with WidgetsBindingObserver 
   }
 
   @override
+  void didUpdateWidget(covariant AppNavigator oldWidget) {
+    logger.warning('DID UPDATE WIDGET');
+    if (oldWidget.initialPages != widget.initialPages) {
+      _change((_) => List.from(widget.initialPages));
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     logger.warning('removing $this as observer');
     WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Ну костыль да. Чистит стэк страниц навигатора
+      _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+    });
     super.dispose();
   }
 
@@ -61,8 +74,15 @@ class AppNavigatorState extends State<AppNavigator> with WidgetsBindingObserver 
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: _pages,
-      builder: (context, pages, child) =>
-          Navigator(key: _navigatorKey, pages: _pages.value, onDidRemovePage: (page) => remove(page)),
+      builder: (context, pages, child) => Navigator(
+        key: _navigatorKey,
+        pages: _pages.value,
+        onDidRemovePage: (page) => remove(page),
+        onGenerateRoute: (settings) {
+          logger.warning('GENERATING PAGE');
+          return null;
+        },
+      ),
     );
   }
 }

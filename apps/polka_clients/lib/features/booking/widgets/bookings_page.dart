@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:polka_clients/features/booking/controller/completed_bookings_cubit.dart';
+import 'package:polka_clients/features/booking/controller/pending_bookings_cubit.dart';
+import 'package:polka_clients/features/booking/controller/upcoming_bookings_cubit.dart';
 import 'package:polka_clients/features/booking/widgets/empty_booking_view.dart';
 import 'package:polka_clients/features/booking/widgets/booking_card.dart';
-import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
+import 'package:polka_clients/features/booking/controller/old_bookings_cubit.dart';
 import 'package:polka_clients/features/home/controller/home_navigation_cubit.dart';
 import 'package:shared/shared.dart';
 
@@ -38,10 +41,9 @@ class _BookingsPageState extends State<BookingsPage> with TickerProviderStateMix
             controller: _controller,
           ),
           Expanded(
-            child: BlocConsumer<BookingsCubit, BookingsState>(
-              bloc: blocs.get<BookingsCubit>(context),
+            child: BlocConsumer<OldBookingsCubit, BookingsState>(
               listener: (context, state) {
-                if (blocs.get<BookingsCubit>(context).newBookingId != null) {
+                if (context.read<OldBookingsCubit>().newBookingId != null) {
                   // Opens pending tabbar to see new booking
                   // TODO: Scroll to new booking
                   _openTabbar(0);
@@ -54,9 +56,21 @@ class _BookingsPageState extends State<BookingsPage> with TickerProviderStateMix
                 return TabBarView(
                   controller: _controller,
                   children: [
-                    _buildBookingsView(state.pending),
-                    _buildBookingsView(state.upcoming),
-                    _buildBookingsView(state.completed),
+                    PaginationBuilder<PendingBookingsCubit, Booking>(
+                      emptyBuilder: (_) => EmptyBookingView(action: context.read<HomeNavigationCubit>().openHome),
+                      itemBuilder: (_, __, item) => BookingCard(booking: item),
+                    ),
+                    PaginationBuilder<UpcomingBookingsCubit, Booking>(
+                      emptyBuilder: (_) => EmptyBookingView(action: context.read<HomeNavigationCubit>().openHome),
+                      itemBuilder: (_, __, item) => BookingCard(booking: item),
+                    ),
+                    PaginationBuilder<CompletedBookingsCubit, Booking>(
+                      emptyBuilder: (_) => EmptyBookingView(action: context.read<HomeNavigationCubit>().openHome),
+                      itemBuilder: (_, __, item) => BookingCard(booking: item),
+                    ),
+                    // _buildBookingsView(state.pending),
+                    // _buildBookingsView(state.upcoming),
+                    // _buildBookingsView(state.completed),
                   ],
                 );
               },
@@ -69,8 +83,8 @@ class _BookingsPageState extends State<BookingsPage> with TickerProviderStateMix
 
   Widget _buildBookingsView(Map<int, Booking>? bookings) => switch (bookings?.length) {
     null => const Center(child: LoadingIndicator()),
-    > 0 => _BookingsView(bookings!, newBookingId: /* blocs.get<BookingsCubit>(context).newBookingId */ 28),
-    _ => EmptyBookingView(action: blocs.get<HomeNavigationCubit>(context).openHome),
+    > 0 => _BookingsView(bookings!, newBookingId: context.read<OldBookingsCubit>().newBookingId),
+    _ => EmptyBookingView(action: context.read<HomeNavigationCubit>().openHome),
   };
 }
 
@@ -133,8 +147,14 @@ class _BookingsViewState extends State<_BookingsView> {
   @override
   Widget build(BuildContext context) {
     if (widget.bookings.isEmpty) {
-      return EmptyBookingView(action: blocs.get<HomeNavigationCubit>(context).openHome);
+      return EmptyBookingView(action: context.read<HomeNavigationCubit>().openHome);
     }
+    // Scrollable.ensureVisible(
+    //     key.currentContext!,
+    //     duration: Duration(milliseconds: 500),
+    //     curve: Curves.easeInOut,
+    //     alignment: 0.1, // Scroll to 10% from top
+    //   );
 
     return ListView.builder(
       padding: EdgeInsets.zero,

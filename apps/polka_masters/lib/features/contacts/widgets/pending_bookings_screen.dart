@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_masters/features/contacts/controller/pending_bookings_cubit.dart';
 import 'package:polka_masters/features/contacts/widgets/pending_booking_card.dart';
 import 'package:shared/shared.dart';
@@ -11,7 +12,6 @@ class PendingBookingsScreen extends StatelessWidget {
     return AppPage(
       safeAreaBuilder: (child) => SafeArea(bottom: false, child: child),
       child: PaginationBuilder<PendingBookingsCubit, BookingInfo>(
-        cubit: blocs.get<PendingBookingsCubit>(context),
         emptyBuilder: (_) => const Center(
           child: Padding(
             padding: EdgeInsets.all(24),
@@ -20,8 +20,8 @@ class PendingBookingsScreen extends StatelessWidget {
         ),
         itemBuilder: (context, index, item) => PendingBookingCard(
           info: item,
-          onAccept: () => blocs.get<PendingBookingsCubit>(context).confirmBooking(item.booking.id),
-          onReject: () => blocs.get<PendingBookingsCubit>(context).rejectBooking(item.booking.id),
+          onAccept: () => context.read<PendingBookingsCubit>().confirmBooking(item.booking.id),
+          onReject: () => context.read<PendingBookingsCubit>().rejectBooking(item.booking.id),
         ),
       ),
     );

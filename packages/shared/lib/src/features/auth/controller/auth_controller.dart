@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared/src/blocs_provider.dart';
+import 'package:shared/src/crashlytics/analytics_service.dart';
 import 'package:shared/src/features/auth/controller/auth_state.dart';
 import 'package:shared/src/logger.dart';
 import 'package:shared/src/models/auth_result.dart';
@@ -13,13 +13,17 @@ class AuthController<T extends User> extends ValueNotifier<AuthState<T>> {
   AuthController(
     super.value, {
     required this.authRepository,
+    required this.analytics,
     required this.secureStorage,
     required this.udid,
     this.onStateChanged,
-  });
+  }) {
+    _maybeReportProfile(value);
+  }
 
   final String udid;
   final AuthRepository authRepository;
+  final AnalyticsService analytics;
   final FlutterSecureStorage secureStorage;
   final AuthStateChanged<T>? onStateChanged;
 
@@ -33,6 +37,7 @@ class AuthController<T extends User> extends ValueNotifier<AuthState<T>> {
     (TokensPair tokens, String number)? data,
     String udid,
     AuthRepository authRepository,
+    AnalyticsService analytics,
     FlutterSecureStorage secureStorage, {
     AuthStateChanged<T>? onStateChanged,
   }) async {
@@ -52,6 +57,7 @@ class AuthController<T extends User> extends ValueNotifier<AuthState<T>> {
     final controller = AuthController<T>(
       state ?? AuthState.unauthenticated(),
       authRepository: authRepository,
+      analytics: analytics,
       secureStorage: secureStorage,
       udid: udid,
       onStateChanged: onStateChanged,
@@ -73,17 +79,23 @@ class AuthController<T extends User> extends ValueNotifier<AuthState<T>> {
     _savePhoneNumber(authResult.phoneNumber);
   }
 
-  void completeOnboarding(T user) {
+  Future<void> completeOnboarding() async {
     if (value case AuthStateOnboarding state) {
-      final $authResult = (phoneNumber: state.authResult.phoneNumber, tokens: state.authResult.tokens, account: user);
-      _updateState(AuthState.authenticated($authResult, user));
+      final profile = (await authRepository.getProfile<T>(state.authResult.tokens.accessToken)).unpack();
+      if (profile != null) {
+        final newState = AuthState.authenticated((
+          phoneNumber: state.authResult.phoneNumber,
+          tokens: state.authResult.tokens,
+          account: profile,
+        ), profile);
+        _updateState(newState);
+      }
     } else {
       throw Exception('Can only complete onboarding in onboarding state');
     }
   }
 
   void logout() {
-    blocs.clear();
     _deleteCredentials();
     _updateState(AuthState.unauthenticated());
   }
@@ -117,6 +129,14 @@ class AuthController<T extends User> extends ValueNotifier<AuthState<T>> {
     final $prev = value;
     value = state;
     onStateChanged?.call($prev, state);
+    _maybeReportProfile(state);
+  }
+
+  void _maybeReportProfile(AuthState<T> state) {
+    if (state case AuthStateAuthenticated(:final user)) {
+      analytics.setUserProfileId(user.value.identifier);
+      analytics.reportUserProfile(user.value.attributes);
+    }
   }
 
   void _saveTokens(TokensPair tokens) {

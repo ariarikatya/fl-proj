@@ -34,9 +34,7 @@ class ChatWidget extends StatelessWidget {
                             height: 12,
                             width: 12,
                             decoration: BoxDecoration(
-                              color: chat.preview.isOnline
-                                  ? context.ext.theme.success
-                                  : context.ext.theme.backgroundDisabled,
+                              color: chat.preview.isOnline ? context.ext.colors.success : context.ext.colors.white[200],
                               shape: BoxShape.circle,
                             ),
                           );
@@ -56,7 +54,7 @@ class ChatWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(child: AppText(chat.preview.otherUserName, overflow: TextOverflow.ellipsis)),
-                            Padding(padding: EdgeInsets.only(left: 8), child: AppIcons.check.icon(context)),
+                            Padding(padding: EdgeInsets.only(left: 8), child: FIcons.check.icon(context)),
                           ],
                         ),
                         Row(
@@ -66,13 +64,13 @@ class ChatWidget extends StatelessWidget {
                             Expanded(
                               child: AppText(
                                 (chat.preview.lastMessage ?? 'Пока что нет сообщений'),
-                                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700]),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 2,
                               ),
                             ),
                             if (chat.preview.unreadCount > 0)
-                              CounterWidget(count: chat.preview.unreadCount, color: context.ext.theme.error),
+                              CounterWidget(count: chat.preview.unreadCount, color: context.ext.colors.error),
                           ],
                         ),
                       ],
@@ -109,10 +107,7 @@ class CounterWidget extends StatelessWidget {
       child: AppText(
         '$count',
         textAlign: TextAlign.center,
-        style: AppTextStyles.bodySmall.copyWith(
-          color: context.ext.theme.backgroundDefault,
-          overflow: TextOverflow.ellipsis,
-        ),
+        style: AppTextStyles.bodySmall.copyWith(color: context.ext.colors.white[100], overflow: TextOverflow.ellipsis),
       ),
     );
   }

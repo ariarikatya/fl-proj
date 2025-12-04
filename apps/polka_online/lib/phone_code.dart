@@ -13,11 +13,7 @@ class PhoneCodePage extends StatefulWidget {
   final String phoneNumber;
   final String masterId;
 
-  const PhoneCodePage({
-    super.key,
-    required this.phoneNumber,
-    required this.masterId,
-  });
+  const PhoneCodePage({super.key, required this.phoneNumber, required this.masterId});
 
   @override
   State<PhoneCodePage> createState() => _PhoneCodePageState();
@@ -38,9 +34,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
   @override
   void initState() {
     super.initState();
-    logger.info(
-      '[PhoneCodePage] Initialized - phone: ${widget.phoneNumber}, masterId: ${widget.masterId}',
-    );
+    logger.info('[PhoneCodePage] Initialized - phone: ${widget.phoneNumber}, masterId: ${widget.masterId}');
     _loadMasterInfo();
     _startResendTimer();
   }
@@ -110,10 +104,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => WelcomePage(
-            masterId: widget.masterId,
-            phoneNumber: widget.phoneNumber,
-          ),
+          builder: (context) => WelcomePage(masterId: widget.masterId, phoneNumber: widget.phoneNumber),
         ),
       );
     }
@@ -131,16 +122,11 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
 
     try {
       final authRepository = Dependencies.instance.authRepository;
-      final result = await authRepository.verifyCode<Client>(
-        widget.phoneNumber,
-        code,
-        'web_polka_online',
-      );
+      final result = await authRepository.verifyCode<Client>(widget.phoneNumber, code, 'web_polka_online');
 
       result.when(
         ok: (authResult) {
           logger.info('[PhoneCodePage] Code verified successfully');
-          Dependencies.instance.setTokens(authResult.tokens);
 
           if (mounted) {
             setState(() => _isVerifying = false);
@@ -217,19 +203,13 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     final height = MediaQuery.of(context).size.height;
     final isDesktop = LayoutHelper.isDesktopLayout(width);
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(
-      screenWidth: width,
-      showImage: showImage,
-    );
+    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
 
     return PageScaffold(
       isDesktop: isDesktop,
       showImage: showImage,
       onMenuTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
       },
       onDownloadTap: StoreUtils.openStore,
       breadcrumbStep: 0,
@@ -237,12 +217,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         child: SafeArea(
           top: false,
           child: isDesktop
-              ? _buildDesktopContent(
-                  width: width,
-                  height: height,
-                  showImage: showImage,
-                  imageWidth: imageWidth,
-                )
+              ? _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth)
               : _buildMobileContent(),
         ),
       ),
@@ -271,9 +246,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
           const SizedBox(height: 16),
           Text(
             'И мы пришлем на него код, чтобы Вы могли авторизоваться и записаться на услугу',
-            style: AppTextStyles.bodyMedium500.copyWith(
-              color: AppColors.iconsDefault,
-            ),
+            style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
           ),
           const SizedBox(height: 32),
           _buildPinInput(),
@@ -281,10 +254,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
           if (_pinController.text.length == 4 && !_isVerifying)
             SizedBox(
               width: double.infinity,
-              child: AppTextButton.large(
-                text: 'Отправить',
-                onTap: () => _verifyCode(_pinController.text),
-              ),
+              child: AppTextButton.large(text: 'Отправить', onTap: () => _verifyCode(_pinController.text)),
             ),
           const SizedBox(height: 24),
           _buildResendButton(),
@@ -313,9 +283,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         const SizedBox(height: 16),
         Text(
           'И мы пришлем на него код, чтобы Вы могли авторизоваться и записаться на услугу',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
-          ),
+          style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
         ),
         const SizedBox(height: 32),
         _buildPinInput(),
@@ -331,26 +299,19 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 64,
-      textStyle: AppTextStyles.headingMedium.copyWith(
-        color: AppColors.textPrimary,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundHover,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      textStyle: AppTextStyles.headingMedium.copyWith(color: polkaThemeExtension.black[900]),
+      decoration: BoxDecoration(color: polkaThemeExtension.white[300], borderRadius: BorderRadius.circular(14)),
     );
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        color: AppColors.backgroundHover,
-        border: Border.all(color: AppColors.accent, width: 1),
+        color: polkaThemeExtension.white[300],
+        border: Border.all(color: polkaThemeExtension.pink[500], width: 1),
       ),
     );
 
     final errorPinTheme = defaultPinTheme.copyWith(
-      decoration: defaultPinTheme.decoration!.copyWith(
-        border: Border.all(color: AppColors.error, width: 1),
-      ),
+      decoration: defaultPinTheme.decoration!.copyWith(border: Border.all(color: polkaThemeExtension.error, width: 1)),
     );
 
     return Column(
@@ -376,27 +337,18 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
           const SizedBox(height: 8),
           Text(
             _errorText!,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),
+            style: AppTextStyles.bodyMedium.copyWith(color: polkaThemeExtension.error),
             textAlign: TextAlign.center,
           ),
         ],
-        if (_isVerifying) ...[
-          const SizedBox(height: 16),
-          const CircularProgressIndicator(),
-        ],
+        if (_isVerifying) ...[const SizedBox(height: 16), const CircularProgressIndicator()],
       ],
     );
   }
 
   Widget _buildResendButton() {
     if (_isResending) {
-      return const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      );
+      return const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)));
     }
 
     if (_resendCountdown > 0) {
@@ -404,9 +356,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         width: double.infinity,
         child: Text(
           'Отправить повторно через $_formattedCountdown',
-          style: AppTextStyles.bodyLarge.copyWith(
-            decoration: TextDecoration.underline,
-          ),
+          style: AppTextStyles.bodyLarge.copyWith(decoration: TextDecoration.underline),
           textAlign: TextAlign.center,
         ),
       );
@@ -418,9 +368,7 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
         onTap: _resendCode,
         child: Text(
           'Не пришел код?',
-          style: AppTextStyles.bodyLarge.copyWith(
-            decoration: TextDecoration.underline,
-          ),
+          style: AppTextStyles.bodyLarge.copyWith(decoration: TextDecoration.underline),
           textAlign: TextAlign.center,
         ),
       ),
@@ -441,20 +389,10 @@ class _PhoneCodePageState extends State<PhoneCodePage> {
             children: [
               AppIcons.chat.icon(context, size: 16),
               const SizedBox(width: 4),
-              Text(
-                'Нужна помощь? ',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+              Text('Нужна помощь? ', style: AppTextStyles.bodyLarge.copyWith(decoration: TextDecoration.underline)),
             ],
           ),
-          Text(
-            '(Чат поддержки)',
-            style: AppTextStyles.bodyLarge.copyWith(
-              decoration: TextDecoration.underline,
-            ),
-          ),
+          Text('(Чат поддержки)', style: AppTextStyles.bodyLarge.copyWith(decoration: TextDecoration.underline)),
         ],
       ),
     );

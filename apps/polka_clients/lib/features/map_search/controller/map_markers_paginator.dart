@@ -41,7 +41,7 @@ class MapMarkersPaginator extends Cubit<int> {
   void setLocation((double latitude, double longitude)? newLocation) => {location = newLocation, reset()};
 
   Future<void> loadPlacemarks() async {
-    final city = ClientScope.of(context, listen: false).client.city;
+    final city = context.read<ClientViewModel>().client.city;
     final result = await repo.searchMasterMarkers(query, filter, city, location: location, page: _page, limit: limit);
 
     result.maybeWhen(

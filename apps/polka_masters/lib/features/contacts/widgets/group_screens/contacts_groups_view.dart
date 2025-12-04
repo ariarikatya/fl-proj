@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_masters/features/contacts/controller/contact_groups_cubit.dart';
+import 'package:polka_masters/features/contacts/data/contact_reminder.dart';
 import 'package:polka_masters/features/contacts/widgets/group_screens/blacklist_contacts_screen.dart';
 import 'package:polka_masters/features/contacts/widgets/group_screens/contact_group_search_screen.dart';
 import 'package:polka_masters/features/contacts/widgets/group_screens/scheduled_tomorrow_screen.dart';
@@ -12,15 +14,19 @@ class ContactsGroupsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DataBuilder<ContactGroupsCubit, Map<ContactGroup, int>>(
-      cubit: blocs.get<ContactGroupsCubit>(context),
-      dataBuilder: (_, groups) => RefreshWidget(
-        refresh: blocs.get<ContactGroupsCubit>(context).load,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [for (var MapEntry(:key, :value) in groups.entries) _GroupContainer(group: key, count: value)],
+      dataBuilder: (_, groups) {
+        final allGroups = {for (final val in ContactGroup.values) val: 0}..addAll(groups);
+        return RefreshWidget(
+          refresh: context.read<ContactGroupsCubit>().load,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (var MapEntry(:key, :value) in allGroups.entries) _GroupContainer(group: key, count: value),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -38,8 +44,11 @@ class _GroupContainer extends StatelessWidget {
         final page = switch (group) {
           ContactGroup.blacklist => const BlacklistContactsScreen(),
           ContactGroup.scheduledTomorrow => const ScheduledTomorrowScreen(),
-          ContactGroup.needReappointment ||
-          ContactGroup.lost => ContactGroupSearchScreen(group: group, remindButton: true),
+          ContactGroup.needReappointment => ContactGroupSearchScreen(
+            group: group,
+            reminder: ContactReminder.notSeenIn3Weeks(),
+          ),
+          ContactGroup.lost => ContactGroupSearchScreen(group: group, reminder: ContactReminder.lost()),
           _ => ContactGroupSearchScreen(group: group),
         };
         context.ext.push(page);
@@ -47,7 +56,7 @@ class _GroupContainer extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
+          border: Border(bottom: BorderSide(color: context.ext.colors.white[300])),
         ),
         child: Row(
           spacing: 8,
@@ -55,7 +64,7 @@ class _GroupContainer extends StatelessWidget {
             Container(
               width: 64,
               height: 64,
-              decoration: BoxDecoration(color: context.ext.theme.backgroundHover, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: context.ext.colors.white[300], shape: BoxShape.circle),
               alignment: Alignment.center,
               child: AppText(group.blob, style: AppTextStyles.headingLarge),
             ),

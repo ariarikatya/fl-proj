@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared/src/extensions/context.dart';
-import 'package:shared/src/icons.dart';
+import 'package:shared/src/feather_icons.dart';
 import 'package:shared/src/widgets/app_text.dart';
 
 class AppFloatingActionButton$Add extends StatelessWidget {
@@ -15,14 +15,22 @@ class AppFloatingActionButton$Add extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.only(bottom: 8),
-        padding: EdgeInsets.fromLTRB(8, 12, 16, 12),
-        decoration: BoxDecoration(color: context.ext.theme.buttonPrimary, borderRadius: BorderRadius.circular(16)),
+        padding: EdgeInsets.fromLTRB(8, 10, 16, 10),
+        decoration: BoxDecoration(color: context.ext.colors.black[900], borderRadius: BorderRadius.circular(10)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          spacing: 4,
+          spacing: 2,
           children: [
-            AppIcons.add.icon(context, color: context.ext.theme.backgroundDefault),
-            AppText(text, color: context.ext.theme.backgroundDefault),
+            FIcons.plus.icon(context, size: 16, color: context.ext.colors.white[100]),
+            AppText(
+              text,
+              color: context.ext.colors.white[100],
+              style: context.ext.textTheme.bodyMedium?.copyWith(
+                color: context.ext.colors.white[100],
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Inter',
+              ),
+            ),
           ],
         ),
       ),

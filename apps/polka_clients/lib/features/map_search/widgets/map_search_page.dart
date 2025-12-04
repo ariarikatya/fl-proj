@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_clients/client_scope.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/map_search/controller/map_markers_paginator.dart';
@@ -63,7 +64,7 @@ class __MapSearchPageState extends State<_MapSearchPage> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      backgroundColor: context.ext.theme.backgroundHover,
+      backgroundColor: context.ext.colors.white[300],
       safeAreaBuilder: (child) => SafeArea(bottom: false, child: child),
       child: Stack(
         children: [
@@ -71,15 +72,15 @@ class __MapSearchPageState extends State<_MapSearchPage> {
 
           Container(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-            color: context.ext.theme.backgroundHover,
+            color: context.ext.colors.white[300],
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
                 AppText(
-                  'г. ${ClientScope.of(context).client.city}',
-                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                  'г. ${context.watch<ClientViewModel>().client.city}',
+                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
                 ),
                 MastersSearchBar(controller: _controller),
               ],
@@ -90,10 +91,10 @@ class __MapSearchPageState extends State<_MapSearchPage> {
             child: MastersBottomSheet(
               onResetFilters: () {
                 _controller.clear();
-                blocs.get<MapFeedCubit>(context)
+                context.read<MapFeedCubit>()
                   ..setQuery(null)
                   ..setFilter(const SearchFilter());
-                blocs.get<MapMarkersPaginator>(context)
+                context.read<MapMarkersPaginator>()
                   ..setQuery(null)
                   ..setFilter(const SearchFilter());
               },
@@ -115,12 +116,12 @@ class MastersSearchBar extends StatefulWidget {
 }
 
 class _MastersSearchBarState extends State<MastersSearchBar> {
-  late final _filter = blocs.get<MapFeedCubit>(context).filter;
+  late final _filter = context.read<MapFeedCubit>().filter;
 
   void _updateQuery() {
     final query = widget.controller.text.trim().isEmpty ? null : widget.controller.text.trim();
-    blocs.get<MapFeedCubit>(context).setQuery(query);
-    blocs.get<MapMarkersPaginator>(context).setQuery(query);
+    context.read<MapFeedCubit>().setQuery(query);
+    context.read<MapMarkersPaginator>().setQuery(query);
   }
 
   @override
@@ -132,16 +133,14 @@ class _MastersSearchBarState extends State<MastersSearchBar> {
   @override
   void dispose() {
     widget.controller.removeListener(_updateQuery);
-    blocs.destroy<MapFeedCubit>();
-    blocs.destroy<MapMarkersPaginator>();
     super.dispose();
   }
 
   void _openFilters() async {
     final filter = await context.ext.push<SearchFilter>(FiltersPage(initFilter: _filter.value, showSorting: false));
-    if (filter != null) {
-      blocs.get<MapFeedCubit>(context).setFilter(filter);
-      blocs.get<MapMarkersPaginator>(context).setFilter(filter);
+    if (filter != null && mounted) {
+      context.read<MapFeedCubit>().setFilter(filter);
+      context.read<MapMarkersPaginator>().setFilter(filter);
     }
   }
 
@@ -153,22 +152,24 @@ class _MastersSearchBarState extends State<MastersSearchBar> {
         Expanded(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              boxShadow: [BoxShadow(blurRadius: 4, offset: const Offset(0, 1), color: Colors.black.withValues(alpha: 0.1))],
+              boxShadow: [
+                BoxShadow(blurRadius: 4, offset: const Offset(0, 1), color: Colors.black.withValues(alpha: 0.1)),
+              ],
               borderRadius: BorderRadius.circular(14),
             ),
             child: AppTextFormField(
               controller: widget.controller,
               compact: true,
               hintText: 'Например, Airtouch',
-              prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
-              fillColor: context.ext.theme.backgroundDefault,
+              prefixIcon: FIcons.search.icon(context, color: context.ext.colors.black[500]),
+              fillColor: context.ext.colors.white[100],
               onFieldSubmitted: (value) {
-                blocs.get<MapFeedCubit>(context).reset();
-                blocs.get<MapMarkersPaginator>(context).reset();
+                context.read<MapFeedCubit>().reset();
+                context.read<MapMarkersPaginator>().reset();
               },
               onClear: () {
-                blocs.get<MapFeedCubit>(context).reset();
-                blocs.get<MapMarkersPaginator>(context).reset();
+                context.read<MapFeedCubit>().reset();
+                context.read<MapMarkersPaginator>().reset();
               },
             ),
           ),

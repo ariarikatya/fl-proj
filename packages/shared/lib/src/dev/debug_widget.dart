@@ -30,9 +30,12 @@ class DebugWidget extends StatelessWidget {
                     padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
-                      color: context.ext.theme.accentLight,
+                      color: context.ext.colors.pink[100],
                     ),
-                    child: AppText('debug', style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.accent)),
+                    child: AppText(
+                      'debug',
+                      style: AppTextStyles.bodySmall.copyWith(color: context.ext.colors.pink[500]),
+                    ),
                   ),
                 ),
               ),

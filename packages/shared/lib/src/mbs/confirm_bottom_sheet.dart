@@ -15,7 +15,7 @@ Future<bool?> showConfirmBottomSheet({
 }) {
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: context.ext.theme.backgroundDefault,
+    backgroundColor: context.ext.colors.white[100],
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (_) =>
         _ConfirmSheet(title: title, acceptText: acceptText, declineText: declineText, description: description),
@@ -37,20 +37,25 @@ class _ConfirmSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (description == null)
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: AppText(
-                title,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600),
-              ),
-            )
-          else ...[
-            AppText(title, style: AppTextStyles.headingLarge),
+          // if (description == null)
+          //   Padding(
+          //     padding: const EdgeInsets.all(10),
+          //     child: AppText(
+          //       title,
+          //       textAlign: TextAlign.center,
+          //       style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600),
+          //     ),
+          //   )
+          // else ...[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AppText(title, style: AppTextStyles.headingLarge),
+          ),
+          if (description != null) ...[
             SizedBox(height: 16),
             AppText.secondary(description!, style: AppTextStyles.bodyLarge),
           ],
+          // ],
           const SizedBox(height: 24),
           AppTextButton.large(text: acceptText, onTap: () => context.ext.pop(true)),
           const SizedBox(height: 12),

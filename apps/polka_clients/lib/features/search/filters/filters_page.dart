@@ -107,7 +107,7 @@ class _FiltersPageState extends State<FiltersPage> {
                               padding: const EdgeInsets.only(top: 4),
                               child: AppText(
                                 'от',
-                                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textPlaceholder),
+                                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[500]),
                               ),
                             ),
                             onClear: () {
@@ -128,7 +128,7 @@ class _FiltersPageState extends State<FiltersPage> {
                               padding: const EdgeInsets.only(top: 4),
                               child: AppText(
                                 'до',
-                                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textPlaceholder),
+                                style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[500]),
                               ),
                             ),
                             onClear: () {
@@ -219,7 +219,7 @@ class _ClearButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.close, size: 16, color: context.ext.theme.textPrimary),
+                Icon(Icons.close, size: 16, color: context.ext.colors.black[900]),
                 const SizedBox(width: 4),
                 AppText('Очистить все', style: AppTextStyles.bodyMedium.copyWith(decoration: TextDecoration.underline)),
               ],

@@ -1,5 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
@@ -11,7 +9,7 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = message.isOwnMessage ? context.ext.theme.backgroundDefault : context.ext.theme.textPrimary;
+    final textColor = message.isOwnMessage ? context.ext.colors.white[100] : context.ext.colors.black[900];
 
     Widget content = Padding(
       padding: EdgeInsets.symmetric(horizontal: 10),
@@ -63,7 +61,7 @@ class MessageBubble extends StatelessWidget {
                 clipper: BubbleClipper(clipRightBottom: !message.isOwnMessage, clipLeftBottom: message.isOwnMessage),
                 child: Container(
                   padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
-                  color: message.isOwnMessage ? context.ext.theme.buttonPrimary : context.ext.theme.backgroundHover,
+                  color: message.isOwnMessage ? context.ext.colors.black[900] : context.ext.colors.white[300],
                   child: content,
                 ),
               ),
@@ -81,7 +79,7 @@ class MessageBubble extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.fromLTRB(8, 2.5, 8, 2.5),
-            decoration: BoxDecoration(color: context.ext.theme.accentLight, borderRadius: BorderRadius.circular(100)),
+            decoration: BoxDecoration(color: context.ext.colors.pink[100], borderRadius: BorderRadius.circular(100)),
             child: AppText(message.sentAt.formatDateRelative(), style: AppTextStyles.bodyMedium),
           ),
           widget,
@@ -104,21 +102,8 @@ class _AttachmentsWrapper extends StatelessWidget {
     Widget content = child;
 
     if (message.attachments.isNotEmpty) {
-      final imageProvider = message.attachments.length == 1
-          ? SingleImageProvider(CachedNetworkImageProvider(message.attachments.first))
-          : ChatMultiImageProvider([for (var url in message.attachments) CachedNetworkImageProvider(url)]);
-
       Widget attachment = GestureDetector(
-        onTap: () => showImageViewerPager(
-          context,
-          imageProvider,
-          immersive: false,
-          useSafeArea: true,
-          doubleTapZoomable: true,
-          swipeDismissible: true,
-          barrierColor: Colors.black.withValues(alpha: 0.8),
-          backgroundColor: Colors.transparent,
-        ),
+        onTap: () => showAppImageViewer(context, message.attachments),
         child: ImageClipped(imageUrl: message.fileUrl!, borderRadius: 12, height: 300),
       );
 
@@ -133,13 +118,13 @@ class _AttachmentsWrapper extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: context.ext.theme.accentLight,
+                  color: context.ext.colors.pink[100],
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: context.ext.theme.accent, width: 1),
+                  border: Border.all(color: context.ext.colors.pink[500], width: 1),
                 ),
                 child: AppText(
                   '+ ${message.attachments.length - 1}',
-                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.accent),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.pink[500]),
                 ),
               ),
             ),

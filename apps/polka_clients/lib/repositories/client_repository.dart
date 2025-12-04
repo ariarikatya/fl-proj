@@ -8,7 +8,12 @@ sealed class ClientRepository {
   Future<Result<List<Master>>> searchMasters(String query, SearchFilter? filter);
   Future<Result<MasterInfo>> getMasterInfo(int masterId);
   Future<Result<List<Review>>> getMasterReviews(int masterId);
-  Future<Result<List<AvailableSlot>>> getSlots(int masterId, int serviceId);
+  Future<Result<List<AvailableSlot>>> getSlots(
+    int masterId,
+    int serviceId, {
+    required DateTime dateFrom,
+    required DateTime dateTo,
+  });
   Future<Result<int>> makeAppointment({required int serviceId, required int slotId, String? notes});
   Future<Result<String>> uploadClientAvatar(XFile photo);
   Future<Result<String>> getMasterPhone(int masterId);
@@ -50,15 +55,16 @@ class RestClientRepository extends ClientRepository {
   });
 
   @override
-  Future<Result<List<AvailableSlot>>> getSlots(int masterId, int serviceId) async {
+  Future<Result<List<AvailableSlot>>> getSlots(
+    int masterId,
+    int serviceId, {
+    required DateTime dateFrom,
+    required DateTime dateTo,
+  }) async {
     try {
       final response = await dio.get(
         '/masters/$masterId/calendar',
-        queryParameters: {
-          'service_id': serviceId,
-          'date_from': DateTime.now().toJson(),
-          'date_to': DateTime.now().add(const Duration(days: 10)).toJson(),
-        },
+        queryParameters: {'service_id': serviceId, 'date_from': dateFrom.toJson(), 'date_to': dateTo.toJson()},
       );
       final data = parseJsonList(response.data['slots'], AvailableSlot.fromJson);
       return Result.ok(data);

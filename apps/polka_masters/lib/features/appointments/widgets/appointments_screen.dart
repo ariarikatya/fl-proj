@@ -54,8 +54,8 @@ class _AppointmentsViewState extends State<_AppointmentsView> {
       appBar: const CustomAppBar(title: 'Твои записи'),
       child: RefreshIndicator(
         onRefresh: _updateBookings,
-        color: context.ext.theme.accent,
-        backgroundColor: context.ext.theme.accentLight,
+        color: context.ext.colors.pink[500],
+        backgroundColor: context.ext.colors.pink[100],
         child: ListView.separated(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           itemCount: bookings.length,
@@ -86,7 +86,7 @@ class _AppointmentCard extends StatelessWidget {
       model: booking,
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(14)),
+        decoration: BoxDecoration(color: context.ext.colors.white[300], borderRadius: BorderRadius.circular(14)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 8,

@@ -1,28 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:polka_masters/features/contacts/data/write_contact_option.dart';
 import 'package:shared/shared.dart';
-
-enum WriteContactOption {
-  whatsapp(AppIcons.whatsapp, 'WhatsApp'),
-  telegram(AppIcons.telegram, 'Telegram'),
-  polka(AppIcons.chatCircle, 'чат POLKA');
-
-  const WriteContactOption(this.icon, this.optionName);
-  final AppIcons icon;
-  final String optionName;
-
-  void handle(BuildContext context, Contact contact) {
-    if (this == WriteContactOption.polka && contact.clientId != null) {
-      ChatsUtils().openChat(context, contact.clientId!, contact.name, contact.avatarUrl, withClient: true);
-    } else {
-      final link = switch (this) {
-        WriteContactOption.whatsapp => Uri.https('wa.me', '/${contact.number}', {'text': 'Hello from Polka!'}),
-        WriteContactOption.telegram => Uri.https('t.me', '/+${contact.number}', {'text': 'Hello from Polka!'}),
-        _ => throw Exception('Unsupported link option: $this'),
-      };
-      launchUrl(link);
-    }
-  }
-}
 
 Future<WriteContactOption?> showWriteContactOptionsMbs(
   BuildContext context, {
@@ -30,7 +8,7 @@ Future<WriteContactOption?> showWriteContactOptionsMbs(
 }) {
   return showModalBottomSheet<WriteContactOption>(
     context: context,
-    backgroundColor: context.ext.theme.backgroundDefault,
+    backgroundColor: context.ext.colors.white[100],
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (_) => _WriteContactMbs(options: options),
   );
@@ -54,7 +32,7 @@ class _WriteContactMbs extends StatelessWidget {
           const SizedBox(height: 24),
           for (final (index, option) in options.indexed) ...[
             _Option(option: option, icon: option.icon, text: 'Написать в ${option.optionName}'),
-            if (index < options.length - 1) Divider(height: 1, color: context.ext.theme.backgroundDisabled),
+            if (index < options.length - 1) Divider(height: 1, color: context.ext.colors.white[200]),
           ],
         ],
       ),

@@ -78,7 +78,7 @@ class ErrorStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDefault,
+      backgroundColor: polkaThemeExtension.white[100],
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -107,7 +107,7 @@ class LoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDefault,
+      backgroundColor: polkaThemeExtension.white[100],
       body: const Center(child: CircularProgressIndicator()),
     );
   }

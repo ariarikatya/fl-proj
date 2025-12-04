@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/onboarding/controller.dart';
 import 'package:shared/shared.dart';
 
@@ -11,7 +11,7 @@ class WorkplacePage extends StatefulWidget {
 }
 
 class _WorkplacePageState extends OnboardingPageState<WorkplacePage, OnboardingController, WorkplaceData> {
-  late final workplace = List<ValueNotifier<XFile?>>.generate(3, (i) => useNotifier<XFile?>('$i', null));
+  late final workplace = List<ValueNotifier<String?>>.generate(5, (i) => useNotifier<String?>('$i', null));
   late final place = useNotifier<ServiceLocation?>('place', ServiceLocation.home);
   late final address = useNotifier<Address?>('address', null);
   late final _controller = useController('address');
@@ -46,44 +46,40 @@ class _WorkplacePageState extends OnboardingPageState<WorkplacePage, OnboardingC
 
   @override
   List<Widget> content() => [
-    const AppText('Расскажи, где ты принимаешь клиентов', style: AppTextStyles.headingLarge),
-    const SizedBox(height: 24),
-    const AppText('Выбери место', style: AppTextStyles.headingSmall),
+    AppText('Расскажи, где ты работаешь', style: context.ext.textTheme.headlineMedium),
     const SizedBox(height: 16),
-    ServiceLocationPicker(notifier: place),
-    const SizedBox(height: 24),
-    const AppText('Выбери адрес', style: AppTextStyles.headingSmall),
-    const SizedBox(height: 8),
+    AppText(
+      'Укажи адрес и добавь фото рабочего места — уют и чистота решают многое',
+      style: context.ext.textTheme.bodyMedium?.copyWith(color: context.ext.colors.black[700]),
+    ),
+    const SizedBox(height: 16),
     GestureOverrideWidget(
       onTap: _pickAddress,
       child: AppTextFormField(
-        labelText: 'Адрес услуги',
+        labelText: 'Выбери адрес',
         controller: _controller,
         validator: Validators.isNotEmpty,
         readOnly: true,
       ),
     ),
-    const SizedBox(height: 24),
-    const AppText('Добавь фото рабочего места', style: AppTextStyles.headingSmall),
     const SizedBox(height: 16),
-    Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 8,
-      children: [
-        for (var i = 0; i < workplace.length; i++)
-          Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: workplace[i],
-              builder: (context, value, child) {
-                return ImagePickerWidget(
-                  onImageAdded: (image) => workplace[i].value = image,
-                  onDelete: () => workplace[i].value = null,
-                  image: workplace[i].value,
-                );
-              },
+    ServiceLocationPicker(notifier: place),
+    const SizedBox(height: 24),
+    AppText('Добавь фото рабочего места', style: context.ext.textTheme.headlineMedium),
+    const SizedBox(height: 16),
+    SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          for (var i = 0; i < workplace.length; i++)
+            NewImagePickerWidget(
+              onImageUpdate: (url) => workplace[i].value = url,
+              upload: Dependencies().profileRepository.uploadSinglePhoto,
             ),
-          ),
-      ],
+        ],
+      ),
     ),
   ];
 }

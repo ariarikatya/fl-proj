@@ -1,9 +1,11 @@
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:polka_clients/features/home/controller/home_navigation_cubit.dart';
 import 'package:polka_clients/features/map_search/controller/map_markers_paginator.dart';
 import 'package:polka_clients/features/map_search/controller/map_search_cubit.dart';
+import 'package:polka_clients/features/profile/widgets/categories_page.dart';
 import 'package:polka_clients/features/search/filters/search_filter.dart';
 import 'package:polka_clients/client_scope.dart';
-import 'package:polka_clients/widgets/masters_view.dart';
+import 'package:polka_clients/widgets/master_card.dart';
 import 'package:shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,7 +17,7 @@ class HomeFeedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final client = ClientScope.of(context).client;
+    final client = context.watch<ClientViewModel>().client;
 
     return AppPage(
       safeAreaBuilder: (child) => SafeArea(bottom: false, child: child),
@@ -29,7 +31,7 @@ class HomeFeedPage extends StatelessWidget {
               children: [
                 AppText(
                   'г. ${client.city}',
-                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                  style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
                 ),
                 const AppSearchBar(),
               ],
@@ -38,26 +40,34 @@ class HomeFeedPage extends StatelessWidget {
           Expanded(
             child: SizedBox(
               width: double.infinity,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: AppText('🌿 Привет, ${client.firstName}', style: AppTextStyles.headingLarge),
-                    ),
-                    const SizedBox(height: 16),
-                    const _Filters(),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: AppText(
-                        'Мастера рядом с тобой',
-                        style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600),
+              child: RefreshWidget(
+                refresh: context.read<FeedCubit>().reset,
+                child: CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: AppText('🌿 Привет, ${client.firstName}', style: AppTextStyles.headingLarge),
+                          ),
+                          const SizedBox(height: 16),
+                          const _Filters(),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: AppText(
+                              'Мастера рядом с тобой',
+                              style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
                       ),
                     ),
-                    const _MastersFeed(),
+
+                    const SliverPadding(padding: EdgeInsets.fromLTRB(24, 0, 24, 24), sliver: _MastersFeed()),
                   ],
                 ),
               ),
@@ -74,19 +84,67 @@ class _MastersFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FeedCubit, FeedState>(
-      bloc: blocs.get<FeedCubit>(context),
-      builder: (context, state) => switch (state) {
-        FeedInitial() => const SizedBox.shrink(),
-        FeedLoading() => const SizedBox(height: 200, child: Center(child: LoadingIndicator())),
-        FeedLoaded() => Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: MastersView(masters: state.data, embedded: true),
-        ),
-        FeedError() => SizedBox(height: 200, child: Center(child: AppText(state.error))),
+    return BlocBuilder<FeedCubit, PagingState<int, Master>>(
+      builder: (context, state) {
+        final feed = context.read<FeedCubit>();
+        return PagedSliverGrid<int, Master>(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 4,
+            mainAxisExtent: 394,
+          ),
+          state: state,
+          fetchNextPage: feed.load,
+          builderDelegate: PagedChildBuilderDelegate(
+            animateTransitions: true,
+            noItemsFoundIndicatorBuilder: (ctx) => _buildNoItemsFound(ctx),
+            itemBuilder: (context, item, index) => MasterCard(master: item),
+            firstPageProgressIndicatorBuilder: (_) => _buildLoading(),
+            newPageProgressIndicatorBuilder: (_) => _buildLoading(),
+            firstPageErrorIndicatorBuilder: (_) => _buildError(reload: feed.reset),
+            newPageErrorIndicatorBuilder: (_) => _buildError(reload: feed.reset),
+          ),
+        );
       },
     );
   }
+
+  Widget _buildNoItemsFound(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          const AppText.headingSmall('Ничего нет'),
+          const AppText(
+            'Мы не нашли подходящих тебе мастеров\nПопробуй изменить категории в профиле',
+            textAlign: TextAlign.center,
+          ),
+          AppTextButton.small(text: 'Изменить', onTap: () => context.ext.push(const CategoriesPage())),
+        ],
+      ),
+    ),
+  );
+
+  Widget _buildLoading() => const Center(
+    child: Padding(padding: EdgeInsets.all(16), child: LoadingIndicator()),
+  );
+
+  Widget _buildError({required VoidCallback reload}) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          const AppText('Что-то пошло не так'),
+          AppTextButton.small(text: 'Попробовать снова', onTap: reload),
+        ],
+      ),
+    ),
+  );
 }
 
 class _Filters extends StatelessWidget {
@@ -125,8 +183,8 @@ class AppSearchBar extends StatelessWidget {
         child: AppTextFormField(
           compact: true,
           hintText: 'Например, Airtouch',
-          prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
-          fillColor: context.ext.theme.backgroundDefault,
+          prefixIcon: FIcons.search.icon(context, color: context.ext.colors.black[500]),
+          fillColor: context.ext.colors.white[100],
         ),
       ),
     );
@@ -143,9 +201,9 @@ class CategoryFilterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        blocs.get<MapFeedCubit>(context).setFilter(SearchFilter(categories: {service}));
-        blocs.get<MapMarkersPaginator>(context).setFilter(SearchFilter(categories: {service}));
-        blocs.get<HomeNavigationCubit>(context).openMapSearch();
+        context.read<MapFeedCubit>().setFilter(SearchFilter(categories: {service}));
+        context.read<MapMarkersPaginator>().setFilter(SearchFilter(categories: {service}));
+        context.read<HomeNavigationCubit>().openMapSearch();
       },
       child: SizedBox(
         width: 60,
@@ -155,10 +213,7 @@ class CategoryFilterButton extends StatelessWidget {
               width: 60,
               height: 56,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: context.ext.theme.backgroundHover,
-                borderRadius: BorderRadius.circular(14),
-              ),
+              decoration: BoxDecoration(color: context.ext.colors.white[300], borderRadius: BorderRadius.circular(14)),
               child: icon,
             ),
             const SizedBox(height: 2),

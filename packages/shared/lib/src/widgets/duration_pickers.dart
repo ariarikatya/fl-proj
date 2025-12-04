@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:shared/src/extensions/duration.dart';
 import 'package:shared/src/mbs/date_time_picker.dart';
@@ -48,12 +50,14 @@ class FromToDurationPicker extends StatefulWidget {
     required this.endTime,
     required this.onStartTimeChanged,
     required this.onEndTimeChanged,
+    this.canEditStartTime = true,
   });
 
   final Duration startTime;
   final Duration endTime;
   final ValueChanged<Duration> onStartTimeChanged;
   final ValueChanged<Duration> onEndTimeChanged;
+  final bool canEditStartTime;
 
   @override
   State<FromToDurationPicker> createState() => _FromToDurationPickerState();
@@ -79,19 +83,19 @@ class _FromToDurationPickerState extends State<FromToDurationPicker> {
           child: AppTextButtonSecondary.large(
             text: 'c ${_startTime.toTimeString()}',
             onTap: () async {
+              if (!widget.canEditStartTime) return;
               final duration = await DateTimePickerMBS.pickDuration(
                 context,
                 initValue: _startTime,
                 title: 'Выбери начало',
               );
               if (duration != null) {
+                final diff = (_endTime - _startTime).abs();
                 setState(() {
                   _startTime = duration;
-                  widget.onStartTimeChanged(duration);
-                  if (duration > _endTime) {
-                    _endTime = _startTime;
-                    widget.onEndTimeChanged(_endTime);
-                  }
+                  _endTime = Duration(minutes: min((duration + diff).inMinutes, Duration.minutesPerDay - 5));
+                  widget.onStartTimeChanged(_startTime);
+                  widget.onEndTimeChanged(_endTime);
                 });
               }
             },
@@ -105,8 +109,9 @@ class _FromToDurationPickerState extends State<FromToDurationPicker> {
                 context,
                 initValue: _endTime,
                 title: 'Выбери окончание',
+                minValue: widget.canEditStartTime ? null : _startTime,
               );
-              if (duration != null && duration > _startTime) {
+              if (duration != null) {
                 setState(() => _endTime = duration);
                 widget.onEndTimeChanged(duration);
               }

@@ -7,7 +7,7 @@ class MenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.ext.theme.backgroundDefault,
+      backgroundColor: context.ext.colors.white[100],
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -17,12 +17,7 @@ class MenuPage extends StatelessWidget {
               // Close button
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
+                children: [IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close))],
               ),
               const SizedBox(height: 24),
               // Steps list

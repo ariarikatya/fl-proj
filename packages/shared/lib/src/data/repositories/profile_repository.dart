@@ -14,6 +14,11 @@ sealed class ProfileRepository {
 
   /// Returns Map where keys are local filepaths and values are corresponding uploaded urls
   Future<Result<Map<String, String>>> uploadPhotos(List<XFile> xfiles);
+
+  /// Uploads single photo and returns image url
+  Future<Result<String>> uploadSinglePhoto(XFile xfile);
+
+  Future<Result<void>> uploadFcmToken(String token, String udid, String platform);
 }
 
 class RestProfileRepository extends ProfileRepository {
@@ -24,8 +29,11 @@ class RestProfileRepository extends ProfileRepository {
   @override
   Future<Result<Client>> createClientProfile(String phone, Client client) async {
     try {
-      await dio.post('/profile', data: {'phone': phone, 'profile': client.toJson()..["is_master"] = false});
-      return Result.ok(client);
+      final response = await dio.post(
+        '/profile',
+        data: {'phone': phone, 'profile': client.toJson()..["is_master"] = false},
+      );
+      return Result.ok(client.copyWith(id: () => response.data['client_profile']['id']));
     } catch (e, st) {
       return Result.err(e, st);
     }
@@ -34,8 +42,11 @@ class RestProfileRepository extends ProfileRepository {
   @override
   Future<Result<Master>> createMasterProfile(String phone, Master master) async {
     try {
-      await dio.post('/profile', data: {'phone': phone, 'profile': master.toJson()..["is_master"] = true});
-      return Result.ok(master);
+      final response = await dio.post(
+        '/profile',
+        data: {'phone': phone, 'profile': master.toJson()..["is_master"] = true},
+      );
+      return Result.ok(master.copyWith(id: () => response.data['master_profile']['id']));
     } catch (e, st) {
       return Result.err(e, st);
     }
@@ -76,5 +87,21 @@ class RestProfileRepository extends ProfileRepository {
           (json) => json['file_name'] == xfile.name,
         )['image_url'],
     };
+  });
+
+  @override
+  Future<Result<String>> uploadSinglePhoto(XFile xfile) => tryCatch(() async {
+    final data = FormData.fromMap({
+      'images': [MultipartFile.fromFileSync(xfile.path)],
+    });
+    final response = await dio.post('/upload-image', data: data);
+    return (response.data['images'] as List).first['image_url'];
+  });
+
+  @override
+  Future<Result<void>> uploadFcmToken(String token, String udid, String platform) => tryCatch(() async {
+    final body = {'token': token, 'device_id': udid, 'platform': platform};
+    await dio.post('/notifications/register-token', data: body);
+    return;
   });
 }

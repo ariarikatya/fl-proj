@@ -11,7 +11,7 @@ class MasterHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      decoration: BoxDecoration(color: context.ext.theme.backgroundSubtle, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(color: context.ext.colors.white[200], borderRadius: BorderRadius.circular(24)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -28,11 +28,11 @@ class MasterHeader extends StatelessWidget {
                 ),
                 AppText(
                   master.profession,
-                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700]),
                 ),
                 AppText(
                   '⭐ ${master.ratingFixed} | Опыт: ${master.experience}',
-                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700]),
                 ),
               ],
             ),

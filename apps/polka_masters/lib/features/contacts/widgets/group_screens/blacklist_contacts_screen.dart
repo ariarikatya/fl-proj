@@ -45,7 +45,7 @@ class _BlacklistContactsScreenState extends State<BlacklistContactsScreen> {
                 const AppText('Черный список', style: AppTextStyles.headingLarge),
                 AppText(
                   'Здесь удаленные или проблемные клиенты, с которыми ты ограничела контакт',
-                  style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.iconsDefault),
+                  style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700]),
                 ),
               ],
             ),
@@ -54,7 +54,7 @@ class _BlacklistContactsScreenState extends State<BlacklistContactsScreen> {
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
             child: AppTextFormField(
               hintText: 'Имя или номер телефона',
-              prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
+              prefixIcon: FIcons.search.icon(context, color: context.ext.colors.black[500]),
               controller: _controller,
             ),
           ),

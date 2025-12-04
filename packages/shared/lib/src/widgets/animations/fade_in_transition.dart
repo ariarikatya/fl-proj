@@ -12,17 +12,25 @@ class FadeInTransition extends StatefulWidget {
   State<FadeInTransition> createState() => _FadeInTransitionState();
 }
 
-class _FadeInTransitionState extends State<FadeInTransition> {
-  double _opacity = 0;
+class _FadeInTransitionState extends State<FadeInTransition> with TickerProviderStateMixin {
+  late final _controller = AnimationController(vsync: this, duration: widget.duration);
+  late final _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => _opacity = 1));
+    Future.delayed(Duration(milliseconds: 200), () => _controller.forward());
+    // WidgetsBinding.instance.addPostFrameCallback((_) => _controller.forward());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedOpacity(duration: widget.duration, opacity: _opacity, child: widget.child);
+    return FadeTransition(opacity: _animation, child: widget.child);
   }
 }

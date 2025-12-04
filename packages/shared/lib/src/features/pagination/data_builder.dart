@@ -6,9 +6,9 @@ import 'package:shared/src/widgets/app_text_button.dart';
 import 'package:shared/src/widgets/loading/loading_indicator.dart';
 
 class DataBuilder<C extends DataCubit<T>, T extends Object> extends StatelessWidget {
-  const DataBuilder({super.key, required this.cubit, required this.dataBuilder});
+  const DataBuilder({super.key, this.cubit, required this.dataBuilder});
 
-  final C cubit;
+  final C? cubit;
   final Widget Function(BuildContext context, T data) dataBuilder;
 
   @override
@@ -19,7 +19,7 @@ class DataBuilder<C extends DataCubit<T>, T extends Object> extends StatelessWid
         DataInitial() => SizedBox.shrink(),
         DataLoading() => _buildLoading(),
         DataLoaded(:final data) => dataBuilder(context, data),
-        DataError(:final error) => _buildError(error),
+        DataError(:final error) => _buildError(context, error),
       },
     );
   }
@@ -28,15 +28,15 @@ class DataBuilder<C extends DataCubit<T>, T extends Object> extends StatelessWid
     child: Padding(padding: EdgeInsets.all(16), child: LoadingIndicator()),
   );
 
-  Widget _buildError(String error) => Center(
+  Widget _buildError(BuildContext context, String error) => Center(
     child: Padding(
       padding: EdgeInsets.all(12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         spacing: 8,
         children: [
-          AppText('Что-то пошло не так'),
-          AppTextButton.small(text: 'Попробовать снова', onTap: () => cubit.load()),
+          AppText(error, textAlign: TextAlign.center),
+          AppTextButton.small(text: 'Попробовать снова', onTap: () => (cubit ?? context.read<C>()).load()),
         ],
       ),
     ),

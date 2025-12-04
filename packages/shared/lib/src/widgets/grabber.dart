@@ -24,7 +24,7 @@ class Grabber extends StatelessWidget {
       margin: EdgeInsets.all(10),
       width: 36,
       height: 5,
-      decoration: BoxDecoration(color: context.ext.theme.textPrimary, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: context.ext.colors.black[900], borderRadius: BorderRadius.circular(5)),
     ),
   );
 }

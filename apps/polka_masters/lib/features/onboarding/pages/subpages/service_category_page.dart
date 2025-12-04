@@ -22,11 +22,17 @@ class _ServiceCategoryPageState extends OnboardingPageState<ServiceCategoryPage,
   CategoryData? validateContinue() => service.value;
 
   @override
+  String? get continueLabel => 'Выбрать категорию';
+
+  @override
   List<Widget> content() => [
-    const AppText('Создадим твою услугу', style: AppTextStyles.headingLarge),
-    const SizedBox(height: 24),
-    const AppText('Выбери категорию', style: AppTextStyles.headingSmall),
+    AppText('Создадим твою первую услугу', style: context.ext.textTheme.headlineMedium),
     const SizedBox(height: 16),
-    ServiceCategoryPicker(category: service),
+    AppText(
+      'Выбери категорию, чтобы по ней клиенты могли легко находить тебя',
+      style: context.ext.textTheme.bodyMedium?.copyWith(color: context.ext.colors.black[700]),
+    ),
+    const SizedBox(height: 24),
+    ServiceCategoryPickerV2(category: service),
   ];
 }

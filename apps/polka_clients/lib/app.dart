@@ -3,7 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:polka_clients/authentication_scope.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/main_page.dart';
-import 'package:polka_clients/theme.dart';
 import 'package:shared/shared.dart';
 
 class App extends StatefulWidget {
@@ -15,11 +14,7 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> {
   Widget $injectScopes(Widget child) {
-    return AppThemeScope(
-      initialTheme: clientsTheme,
-      themes: themes,
-      child: AuthenticationScopeWidget(controller: Dependencies().authController, child: child),
-    );
+    return AuthenticationScopeWidget(controller: Dependencies().authController, child: child);
   }
 
   @override
@@ -27,6 +22,7 @@ class AppState extends State<App> {
     return MaterialApp(
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [Locale('ru', 'RU')],
+      theme: ThemeData(extensions: [polkaClientsThemeExtension], textTheme: polkaTextTheme),
       home: const MainPage(),
       navigatorKey: navigatorKey,
       navigatorObservers: [talkerRouteObserver()],

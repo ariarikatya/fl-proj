@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:polka_masters/dependencies.dart';
-import 'package:polka_masters/scopes/master_scope.dart';
+import 'package:polka_masters/scopes/master_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
@@ -26,11 +25,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late final _experience = ValueNotifier<String?>(_master.experience);
   late final _location = ValueNotifier<ServiceLocation?>(_master.location);
   late final address = ValueNotifier<Address?>(null);
-  late final _workplaceImages = List<XFile?>.filled(_workplaceMaxImagesLength, null);
-  late final _workplacePlaceholders = List<String?>.from(_master.workplace);
+  late final _workplaceImages = List<String?>.generate(
+    _workplaceMaxImagesCount,
+    (index) => _master.workplace.elementAtOrNull(index),
+  );
+  late final _portfolioImages = List<String?>.generate(
+    _portfolioMaxImagesCount,
+    (index) => _master.portfolio.elementAtOrNull(index),
+  );
 
   bool _saving = false;
-  static const _workplaceMaxImagesLength = 3;
+
+  static const _workplaceMaxImagesCount = 5;
+  static const _portfolioMaxImagesCount = 5;
 
   @override
   void initState() {
@@ -63,7 +70,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       experience: () => _experience.value!,
       location: () => _location.value!,
       address: address.value == null ? null : () => address.value!.address,
-      // workplace: () => _workplaceImages,
+      city: address.value == null ? null : () => address.value!.city,
+      workplace: () => _workplaceImages.nonNulls.toList(),
+      portfolio: () => _portfolioImages.nonNulls.toList(),
     );
   }
 
@@ -77,7 +86,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     result.when(
       ok: (data) {
         if (mounted) {
-          context.read<MasterScope>().updateMaster(updatedMaster);
+          context.read<MasterModel>().updateMaster(updatedMaster);
           showInfoSnackbar('Профиль успешно сохранен');
           context.ext.pop();
         }
@@ -152,18 +161,40 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ),
                   const SizedBox(height: 28),
                   const AppText.headingSmall('Фото рабочего места'),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
                   SingleChildScrollView(
                     clipBehavior: Clip.none,
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       spacing: 8,
                       children: [
-                        for (int i = 0; i < _workplaceMaxImagesLength; i++)
-                          ImagePickerWidget(
-                            onDelete: () => setState(() => _workplaceImages[i] = null),
-                            image: _workplaceImages.elementAtOrNull(i),
-                            imagePLaceholderUrl: _workplacePlaceholders.elementAtOrNull(i),
+                        for (int i = 0; i < _workplaceMaxImagesCount; i++)
+                          NewImagePickerWidget(
+                            upload: Dependencies().profileRepository.uploadSinglePhoto,
+                            onImageUpdate: (imageUrl) {
+                              setState(() => _workplaceImages[i] = imageUrl);
+                            },
+                            initialImageUrl: _workplaceImages.elementAtOrNull(i),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const AppText.headingSmall('Портфолио'),
+                  const SizedBox(height: 12),
+                  SingleChildScrollView(
+                    clipBehavior: Clip.none,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        for (int i = 0; i < _portfolioMaxImagesCount; i++)
+                          NewImagePickerWidget(
+                            upload: Dependencies().profileRepository.uploadSinglePhoto,
+                            onImageUpdate: (imageUrl) {
+                              setState(() => _portfolioImages[i] = imageUrl);
+                            },
+                            initialImageUrl: _portfolioImages.elementAtOrNull(i),
                           ),
                       ],
                     ),

@@ -77,10 +77,8 @@ class AppText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final $color =
-        color ??
-        style?.color ??
-        (_secondaryTextColor ? context.ext.theme.textSecondary : context.ext.theme.textPrimary);
-    final $style = TextStyle(color: $color, overflow: overflow).merge(style ?? AppTextStyles.bodyLarge);
+        color ?? style?.color ?? (_secondaryTextColor ? context.ext.colors.black[700] : context.ext.colors.black[900]);
+    final $style = TextStyle(color: $color, overflow: overflow).merge(style ?? context.ext.textTheme.bodyMedium);
 
     if (selectable) {
       return SelectableText(text, textAlign: textAlign, style: $style, maxLines: maxLines);
@@ -105,8 +103,8 @@ class _RichText extends AppText {
 
   @override
   Widget build(BuildContext context) {
-    final $color = context.ext.theme.textPrimary;
-    final $style = TextStyle(color: $color, overflow: overflow).merge(style ?? AppTextStyles.bodyLarge);
+    final $color = context.ext.colors.black[900];
+    final $style = TextStyle(color: $color, overflow: overflow).merge(style ?? context.ext.textTheme.bodyMedium);
 
     if (selectable) {
       return SelectableText.rich(

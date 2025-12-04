@@ -13,7 +13,9 @@ class MasterInfo extends JsonEquatable {
 
   factory MasterInfo.fromJson(Map<String, dynamic> json) => MasterInfo(
     master: Master.fromJson(json['master_profile']),
-    schedule: Schedule.fromJson((json['master_schedules'] as List).first),
+    schedule: json['master_schedules'] != null && (json['master_schedules'] as List).isNotEmpty
+        ? Schedule.fromJson((json['master_schedules'] as List).first)
+        : null,
     services: parseJsonList(json['master_services'], Service.fromJson),
     reviews: parseJsonList(json['reviews'] ?? [], Review.fromJson),
     json: json,
@@ -21,7 +23,7 @@ class MasterInfo extends JsonEquatable {
 
   final Master master;
   final List<Service> services;
-  final Schedule schedule;
+  final Schedule? schedule;
   final List<Review> reviews;
 
   @override
@@ -30,7 +32,7 @@ class MasterInfo extends JsonEquatable {
   MasterInfo copyWith({
     ValueGetter<Master>? master,
     ValueGetter<List<Service>>? services,
-    ValueGetter<Schedule>? schedule,
+    ValueGetter<Schedule?>? schedule,
     ValueGetter<List<Review>>? reviews,
   }) => MasterInfo(
     master: master != null ? master() : this.master,
@@ -44,7 +46,7 @@ class MasterInfo extends JsonEquatable {
   Map<String, dynamic> toJson() => {
     'master': master.toJson(),
     'services': services.map((e) => e.toJson()).toList(),
-    'schedule': schedule.toJson(),
+    'schedule': ?schedule?.toJson(),
     'reviews': reviews.map((e) => e.toJson()).toList(),
   };
 }

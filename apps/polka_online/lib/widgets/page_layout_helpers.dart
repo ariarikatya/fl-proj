@@ -77,9 +77,9 @@ class DesktopPageLayout extends StatelessWidget {
               child: Container(
                 constraints: BoxConstraints(minHeight: availableHeight),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundSubtle,
+                  color: polkaThemeExtension.white[200],
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.backgroundHover, width: 1),
+                  border: Border.all(color: polkaThemeExtension.white[300], width: 1),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0x0C0C0D0D).withValues(alpha: 0.05),
@@ -161,14 +161,14 @@ class PageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDefault,
+      backgroundColor: polkaThemeExtension.white[100],
       body: Column(
         children: [
           TopAppBar(isDesktop: isDesktop, showImage: showImage, onMenuTap: onMenuTap, onDownloadTap: onDownloadTap),
           if (!isDesktop && onBackTap != null) MobileProgressBar(onBackTap: onBackTap!),
           Expanded(
             child: Container(
-              color: isDesktop ? AppColors.backgroundOnline : AppColors.backgroundDefault,
+              color: isDesktop ? polkaThemeExtension.white[200] : polkaThemeExtension.white[100],
               child: Stack(
                 children: [
                   if (isDesktop && breadcrumbStep != null)

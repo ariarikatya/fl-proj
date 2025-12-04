@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/contacts/controller/contact_groups_cubit.dart';
 import 'package:polka_masters/features/contacts/controller/contact_search_cubit.dart';
@@ -78,8 +79,8 @@ class _ViewState extends State<_View> {
         ok: (data) {
           setState(() => contact = contact.copyWith(isBlocked: () => true));
           showSnackbar(infoSnackbar(const AppText('Контакт добавлен в черный список'), bottom: 0));
-          blocs.get<ContactGroupsCubit>(context).load();
-          blocs.get<ContactSearchCubit>(context).search();
+          context.read<ContactGroupsCubit>().load();
+          context.read<ContactSearchCubit>().search();
         },
         err: handleError,
       );
@@ -93,8 +94,8 @@ class _ViewState extends State<_View> {
         ok: (data) {
           setState(() => contact = contact.copyWith(isBlocked: () => false));
           showSnackbar(infoSnackbar(const AppText('Контакт разблокирован'), bottom: 0));
-          blocs.get<ContactGroupsCubit>(context).load();
-          blocs.get<ContactSearchCubit>(context).search();
+          context.read<ContactGroupsCubit>().load();
+          context.read<ContactSearchCubit>().search();
         },
         err: handleError,
       );
@@ -209,9 +210,7 @@ class _ViewState extends State<_View> {
               ] else
                 const Padding(
                   padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
-                  child: AppText.secondary(
-                    'У этого клиента еще нет посещений, может, ты сможешь показать ей что-то интересное',
-                  ),
+                  child: AppText.secondary('У этого клиента еще нет посещений'),
                 ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
@@ -247,7 +246,7 @@ class _Header extends StatelessWidget {
           ),
           AppText(
             contactLabel(info.contact),
-            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),

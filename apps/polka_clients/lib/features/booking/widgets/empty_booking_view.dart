@@ -19,7 +19,7 @@ class EmptyBookingView extends StatelessWidget {
             AppText(
               'Посмотри в нашем бьюти-каталоге',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+              style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
             ),
             if (action != null) ...[
               const SizedBox(height: 16),

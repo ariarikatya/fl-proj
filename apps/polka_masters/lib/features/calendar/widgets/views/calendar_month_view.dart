@@ -1,6 +1,7 @@
 import 'package:calendar_view/calendar_view.dart' hide WeekDays;
 import 'package:flutter/material.dart';
 import 'package:polka_masters/features/calendar/widgets/app_filled_cell.dart';
+import 'package:polka_masters/features/calendar/widgets/notification_builder.dart';
 import 'package:polka_masters/scopes/calendar_scope.dart';
 import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
@@ -14,6 +15,7 @@ class CalendarMonthView extends StatelessWidget {
 
     return MonthView<Booking>(
       initialMonth: scope.date,
+      controller: scope.eventController,
       onPageChange: (date, __) => scope.setDate(date),
       key: scope.monthViewKey,
       useAvailableVerticalSpace: true,
@@ -22,8 +24,8 @@ class CalendarMonthView extends StatelessWidget {
         dayIndex: index,
         displayBorder: false,
         weekDayStringBuilder: (index) => WeekDays.values[index].short,
-        backgroundColor: context.ext.theme.backgroundSubtle,
-        textStyle: AppTextStyles.bodyLarge500.copyWith(color: context.ext.theme.textPlaceholder),
+        backgroundColor: context.ext.colors.white[100],
+        textStyle: AppTextStyles.bodyLarge500.copyWith(color: context.ext.colors.black[500]),
       ),
       cellBuilder: (date, event, isToday, isInMonth, hideDaysNotInMonth) => AppFilledCell.factory(
         date,
@@ -33,10 +35,12 @@ class CalendarMonthView extends StatelessWidget {
         hideDaysNotInMonth,
         onTileTap: (event, date) => _openDate(scope, date),
       ),
-      borderColor: context.ext.theme.backgroundDisabled,
+      borderColor: context.ext.colors.black[100],
       borderSize: 0.5,
       headerBuilder: (_) => const SizedBox.shrink(),
+      notificationBuilder: calendarNotificationBuilder,
       onCellTap: (events, date) => _openDate(scope, date),
+      hideDaysNotInMonth: true,
     );
   }
 

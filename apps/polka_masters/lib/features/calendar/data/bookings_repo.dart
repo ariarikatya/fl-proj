@@ -32,15 +32,6 @@ sealed class BookingsRepository {
     Duration? endTime,
     DateTime? date,
   });
-
-  Future<Result<bool>> blockTime({
-    required DateTime date,
-    required Duration startTime,
-    required Duration endTime,
-    String? reason,
-  });
-
-  Future<Result<bool>> unblockTime({required DateTime date, required Duration startTime, required Duration endTime});
 }
 
 final class RestBookingsRepository extends BookingsRepository {
@@ -102,30 +93,6 @@ final class RestBookingsRepository extends BookingsRepository {
   });
 
   @override
-  Future<Result<bool>> blockTime({
-    required DateTime date,
-    required Duration startTime,
-    required Duration endTime,
-    String? reason,
-  }) => tryCatch(() async {
-    final response = await dio.post(
-      '/master/block-time',
-      data: {"date": date.toJson(), "start_time": startTime.toJson(), "end_time": endTime.toJson(), "reason": ?reason},
-    );
-    return response.data['success'] as bool;
-  });
-
-  @override
-  Future<Result<bool>> unblockTime({required DateTime date, required Duration startTime, required Duration endTime}) =>
-      tryCatch(() async {
-        final response = await dio.post(
-          '/master/unblock-time',
-          data: {"date": date.toJson(), "start_time": startTime.toJson(), "end_time": endTime.toJson()},
-        );
-        return response.data['success'] as bool;
-      });
-
-  @override
   Future<Result<BookingInfo>> getBookingInfo(int bookingId) => tryCatch(() async {
     final response = await dio.get('/appointment-info?appointment_id=$bookingId');
     return BookingInfo.fromJson(response.data);
@@ -169,8 +136,8 @@ final class RestBookingsRepository extends BookingsRepository {
         final params = {
           'page': page,
           'limit': limit,
-          'date_from': DateTime.now().add(const Duration(days: 1)).toJson(),
-          'date_to': DateTime.now().add(const Duration(days: 1)).toJson(),
+          'date_from': DateTime.now().dateOnly.add(const Duration(days: 1)).toJson(),
+          'date_to': DateTime.now().dateOnly.add(const Duration(days: 2)).subtract(const Duration(seconds: 1)).toJson(),
         };
         final response = await dio.get('/master/appointments/confirmed', queryParameters: params);
         return parseJsonList(response.data['data'], BookingInfo.fromJson);

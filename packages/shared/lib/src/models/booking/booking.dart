@@ -12,10 +12,10 @@ enum BookingStatus {
   final String label;
 
   Color colorOf(BuildContext context) => switch (this) {
-    BookingStatus.confirmed => context.ext.theme.success,
-    BookingStatus.canceled => context.ext.theme.error,
-    BookingStatus.rejected => context.ext.theme.error,
-    _ => context.ext.theme.textSecondary,
+    BookingStatus.confirmed => context.ext.colors.success,
+    BookingStatus.canceled => context.ext.colors.error,
+    BookingStatus.rejected => context.ext.colors.error,
+    _ => context.ext.colors.black[700],
   };
 }
 

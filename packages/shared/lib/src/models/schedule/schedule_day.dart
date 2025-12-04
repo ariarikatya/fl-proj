@@ -18,19 +18,12 @@ class ScheduleDay extends Equatable {
   @override
   List<Object?> get props => [start, end, active];
 
-  ScheduleDay copyWith({
-    ValueGetter<Duration>? start,
-    ValueGetter<Duration>? end,
-    ValueGetter<bool>? active,
-  }) => ScheduleDay(
-    start: start != null ? start.call() : this.start,
-    end: end != null ? end.call() : this.end,
-    active: active != null ? active.call() : this.active,
-  );
+  ScheduleDay copyWith({ValueGetter<Duration>? start, ValueGetter<Duration>? end, ValueGetter<bool>? active}) =>
+      ScheduleDay(
+        start: start != null ? start.call() : this.start,
+        end: end != null ? end.call() : this.end,
+        active: active != null ? active.call() : this.active,
+      );
 
-  Map<String, dynamic> toJson() => {
-    'start': start.toTimeString(),
-    'end': end.toTimeString(),
-    'active': active,
-  };
+  Map<String, dynamic> toJson() => {'start': start.toTimeString(), 'end': end.toTimeString(), 'active': active};
 }

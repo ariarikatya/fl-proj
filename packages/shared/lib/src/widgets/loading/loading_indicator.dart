@@ -11,9 +11,9 @@ class LoadingIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircularProgressIndicator(
       constraints: constraints,
-      color: context.ext.theme.accent,
+      color: context.ext.colors.pink[500],
       strokeCap: StrokeCap.round,
-      backgroundColor: context.ext.theme.accentLight,
+      backgroundColor: context.ext.colors.pink[100],
       value: value,
     );
   }

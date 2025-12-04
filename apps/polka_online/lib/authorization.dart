@@ -61,9 +61,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
               _masterInfo = data;
               _isLoading = false;
             });
-            logger.info(
-              '[AuthorizationPage] Master info loaded: ${data.master.fullName}',
-            );
+            logger.info('[AuthorizationPage] Master info loaded: ${data.master.fullName}');
           }
         },
         err: (error, stackTrace) {
@@ -107,9 +105,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
 
   Future<void> _sendCode() async {
     if (_phoneNotifier.value.length != 10) {
-      logger.warning(
-        '[AuthorizationPage] Invalid phone length: ${_phoneNotifier.value}',
-      );
+      logger.warning('[AuthorizationPage] Invalid phone length: ${_phoneNotifier.value}');
       showErrorSnackbar('Введите корректный номер телефона');
       return;
     }
@@ -132,10 +128,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PhoneCodePage(
-                  phoneNumber: phoneNumber,
-                  masterId: _masterId,
-                ),
+                builder: (context) => PhoneCodePage(phoneNumber: phoneNumber, masterId: _masterId),
               ),
             );
           }
@@ -146,11 +139,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
         },
       );
     } catch (e, st) {
-      logger.error(
-        '[AuthorizationPage] Unexpected error sending code: $e',
-        e,
-        st,
-      );
+      logger.error('[AuthorizationPage] Unexpected error sending code: $e', e, st);
       setState(() => _isSendingCode = false);
       showErrorSnackbar('Произошла ошибка при отправке кода');
     }
@@ -171,19 +160,13 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
     final height = MediaQuery.of(context).size.height;
     final isDesktop = LayoutHelper.isDesktopLayout(width);
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(
-      screenWidth: width,
-      showImage: showImage,
-    );
+    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
 
     return PageScaffold(
       isDesktop: isDesktop,
       showImage: showImage,
       onMenuTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
       },
       onDownloadTap: openStore,
       breadcrumbStep: 0,
@@ -191,12 +174,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
           ? SingleChildScrollView(
               child: SafeArea(
                 top: false,
-                child: _buildDesktopContent(
-                  width: width,
-                  height: height,
-                  showImage: showImage,
-                  imageWidth: imageWidth,
-                ),
+                child: _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth),
               ),
             )
           : _buildMobileContent(),
@@ -225,9 +203,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
           const SizedBox(height: 16),
           Text(
             'И мы пришлем на него код, чтобы Вы могли авторизоваться и записаться на услугу',
-            style: AppTextStyles.bodyMedium500.copyWith(
-              color: AppColors.iconsDefault,
-            ),
+            style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
           ),
           const SizedBox(height: 32),
           AppPhoneTextField(notifier: _phoneNotifier),
@@ -263,9 +239,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
         const SizedBox(height: 16),
         Text(
           'И мы пришлем на него код, чтобы Вы могли авторизоваться и записаться на услугу',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
-          ),
+          style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
         ),
         const SizedBox(height: 32),
         AppPhoneTextField(notifier: _phoneNotifier),

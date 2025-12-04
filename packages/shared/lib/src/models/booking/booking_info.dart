@@ -3,18 +3,7 @@ import 'package:shared/src/dev/json_equatable.dart';
 import 'package:shared/src/models/booking/booking.dart';
 import 'package:shared/src/models/client.dart';
 import 'package:shared/src/models/contact/contact.dart';
-import 'package:shared/src/models/contact/contact_group.dart';
 import 'package:shared/src/models/service/service.dart';
-import 'package:shared/src/utils.dart';
-
-const _mockContact = Contact(
-  id: -1,
-  name: 'Mock Contact',
-  number: '79123456789',
-  // avatarUrl: 'https://upload.wikimedia.org/wikipedia/ru/c/ce/Aang.png',
-  group: ContactGroup.neW,
-  notes: 'У меня аллергия на аммиак, можно его не использовать при окрашивании?',
-); // For development only
 
 class BookingInfo extends JsonEquatable {
   const BookingInfo({
@@ -30,8 +19,6 @@ class BookingInfo extends JsonEquatable {
     client: json['client'] != null ? Client.fromJson(json['client']) : null,
     contact: json['contact'] != null
         ? Contact.fromJson(json['contact'])
-        : devMode
-        ? _mockContact
         : throw StateError('contact is required field in booking info'),
     service: Service.fromJson(json['service']),
     json: json,

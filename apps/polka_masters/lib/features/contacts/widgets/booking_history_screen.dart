@@ -34,10 +34,7 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
             child: Container(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              decoration: BoxDecoration(
-                color: context.ext.theme.backgroundSubtle,
-                borderRadius: BorderRadius.circular(24),
-              ),
+              decoration: BoxDecoration(color: context.ext.colors.white[200], borderRadius: BorderRadius.circular(24)),
               child: Row(
                 spacing: 16,
                 children: [

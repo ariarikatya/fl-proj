@@ -17,16 +17,17 @@ class AllContactsScreen extends StatefulWidget {
 
 class _AllContactsScreenState extends State<AllContactsScreen> with AutomaticKeepAliveClientMixin {
   late final _controller = TextEditingController();
+  late final _search = context.read<ContactSearchCubit>();
 
   @override
   void initState() {
     super.initState();
-    blocs.get<ContactSearchCubit>(context).bindController(_controller);
+    _search.bindController(_controller);
   }
 
   @override
   void dispose() {
-    blocs.get<ContactSearchCubit>(context).unbindController(_controller);
+    _search.unbindController(_controller);
     _controller.dispose();
     super.dispose();
   }
@@ -42,20 +43,19 @@ class _AllContactsScreenState extends State<AllContactsScreen> with AutomaticKee
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: context.ext.theme.backgroundSubtle,
-                  border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
+                  color: context.ext.colors.white[200],
+                  border: Border(bottom: BorderSide(color: context.ext.colors.white[300])),
                 ),
                 padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
                 child: AppTextFormField(
                   hintText: 'Имя или номер телефона',
                   compact: true,
-                  prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
+                  prefixIcon: FIcons.search.icon(context, color: context.ext.colors.black[500]),
                   controller: _controller,
                 ),
               ),
               Expanded(
                 child: BlocBuilder<ContactSearchCubit, SearchState<Contact>>(
-                  bloc: blocs.get<ContactSearchCubit>(context),
                   builder: (context, state) => switch (state) {
                     SearchInitial() => const SizedBox.shrink(),
                     SearchLoading() => const Center(child: LoadingIndicator()),

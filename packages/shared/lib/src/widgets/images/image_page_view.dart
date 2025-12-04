@@ -59,7 +59,7 @@ class _ImagePageViewState extends State<ImagePageView> {
                         width: value == i ? 16 : 4,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: value == i ? context.ext.theme.accent : context.ext.theme.borderSubtle,
+                          color: value == i ? context.ext.colors.pink[500] : context.ext.colors.white[200],
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),

@@ -27,17 +27,17 @@ class _PortfolioPageState extends OnboardingPageState<PortfolioPage, OnboardingC
 
   @override
   void complete(OnboardingController controller, PortfolioData? data) {
-    controller.completePortfolioPage(data);
-    // TODO: show loader
+    final future = controller.completePortfolioPage(data);
+    LoadingOverlay.load(context, future, message: 'Создаем твой профиль');
   }
 
   @override
   List<Widget> content() => [
-    const AppText('Загрузи фото своих лучших работ', style: AppTextStyles.headingLarge),
+    AppText('Загрузи свои лучшие работы', style: context.ext.textTheme.headlineMedium),
     const SizedBox(height: 16),
     AppText(
-      'Мы покажем их клиентам в твоей карточке',
-      style: AppTextStyles.headingSmall.copyWith(color: context.ext.theme.textSecondary, fontWeight: FontWeight.w500),
+      'Мы покажем их клиентам в твоей карточке в приложении POLKA',
+      style: context.ext.textTheme.bodyMedium?.copyWith(color: context.ext.colors.black[700]),
     ),
     const SizedBox(height: 16),
     Row(

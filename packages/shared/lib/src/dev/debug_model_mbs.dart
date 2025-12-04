@@ -46,7 +46,7 @@ class _DebugModelBottomSheetState extends State<_DebugModelBottomSheet> {
       controller: _controller,
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
-          color: context.ext.theme.backgroundDefault,
+          color: context.ext.colors.white[100],
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(

@@ -67,4 +67,10 @@ class Client extends JsonEquatable implements User {
     'avatar_url': avatarUrl,
     'email': ?email,
   };
+
+  @override
+  Map<String, dynamic> get attributes => {
+    'city': city,
+    'preferred_services': preferredServices.map((e) => e.toJson()).toList(),
+  };
 }

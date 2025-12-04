@@ -15,27 +15,28 @@ class SupportScreen extends StatelessWidget {
     return LoadDataPage(
       title: _title,
       future: () async {
-        logger.info('Opening support screen with credentials: email=$email, name=$name');
-        final dio = DioFactory.createDio(baseUrl: 'https://polka.helpdeskeddy.com/api')
-          ..options.headers['Authorization'] =
-              'Basic ${'YmFiYXJ5a2luMjAwM0B5YW5kZXgucnU6YWQ4ZDRiOGItZjQwZi00NDRmLTlhOGUtNjhiNTM0MTgwMTU1'}';
-        try {
-          final body = {'email': email, 'name': name};
-          final response = await dio.post('/v2/chat/visitor/id', data: body);
-          return Result.ok(response.data['data']['id'] as String);
-        } catch (e, st) {
-          return Result<String>.err(e, st);
-        }
+        return Result.ok(1);
+        // logger.info('Opening support screen with credentials: email=$email, name=$name');
+        // final dio = DioFactory.createDio(baseUrl: 'https://polka.helpdeskeddy.com/api')
+        //   ..options.headers['Authorization'] =
+        //       'Basic ${'YmFiYXJ5a2luMjAwM0B5YW5kZXgucnU6YWQ4ZDRiOGItZjQwZi00NDRmLTlhOGUtNjhiNTM0MTgwMTU1'}';
+        // try {
+        //   final body = {'email': 'email@test.com', 'name': name};
+        //   final response = await dio.post('/v2/chat/visitor/id', data: body);
+        //   return Result.ok(response.data['data']['id'] as String);
+        // } catch (e, st) {
+        //   return Result<String>.err(e, st);
+        // }
       },
-      builder: (sessionId) => _View(sessionId: sessionId, name: name, email: email),
+      // builder: (sessionId) => _View(sessionId: sessionId, name: name, email: email),
+      builder: (sessionId) => _View(name: name, email: email),
     );
   }
 }
 
 class _View extends StatefulWidget {
-  const _View({required this.sessionId, required this.name, required this.email});
+  const _View({required this.name, required this.email});
 
-  final String sessionId;
   final String name;
   final String email;
 
@@ -53,7 +54,7 @@ class _ViewState extends State<_View> {
         },
         onPageStarted: (String url) {
           logger.info('page started');
-          _initChat();
+          // _initChat();
         },
         onPageFinished: (String url) {
           logger.info('page finished');
@@ -66,15 +67,36 @@ class _ViewState extends State<_View> {
       ),
     )
     ..setBackgroundColor(Colors.white24)
-    ..loadRequest(Uri.parse('https://polka.helpdeskeddy.com/ru/omnichannel/chat/?id=${widget.sessionId}'));
+    ..loadRequest(Uri.parse('https://polka.helpdeskeddy.com/ru/omnichannel/chat/'));
 
   void _initChat() async {
-    controller.runJavaScript(
-      "window.postMessage({type: 'init', payload: {name: '${widget.name}', email: '${widget.email}'}});",
+    List results = [];
+
+    // await Future.delayed(Duration(seconds: 1));
+    logger.debug('running addCustomChatButtons');
+    results.add(
+      await controller.runJavaScriptReturningResult(
+        "window.postMessage({type: 'addCustomChatButtons',payload: {id: 'invoices', buttons: [{text: 'ID123'}, {text: 'ID321'}, {text: 'ID456'}]}})",
+      ),
     );
-    controller.runJavaScript(
-      "window.postMessage({type: 'setInitialChatMessage', payload: 'Добро пожаловать в чат поддержки Polka'});",
+
+    // await Future.delayed(Duration(seconds: 1));
+    logger.debug('running setInitialMessage');
+    results.add(
+      await controller.runJavaScriptReturningResult(
+        'window.postMessage({type: "setInitialChatMessage", payload: "Добро пожаловать в чат поддержки Polka"});',
+      ),
     );
+
+    await Future.delayed(Duration(seconds: 1));
+    logger.debug('running init');
+    results.add(
+      await controller.runJavaScriptReturningResult(
+        // "window.postMessage({type: 'init', payload: {name: '${widget.name}', email: '${widget.email}'}});",
+        "window.postMessage({type: 'init', payload: {name: 'Николай', email: 'homecomp2018@gmail.com'}});",
+      ),
+    );
+    logger.debug(results);
   }
 
   @override

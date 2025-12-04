@@ -23,7 +23,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    blocs.get<FeedSearchCubit>(context);
     _focusNode.requestFocus();
   }
 
@@ -31,7 +30,6 @@ class _SearchPageState extends State<SearchPage> {
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
-    blocs.destroy<FeedSearchCubit>();
     super.dispose();
   }
 
@@ -49,7 +47,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _search() {
-    blocs.get<FeedSearchCubit>(context).search(_controller.text.trim(), _filter);
+    context.read<FeedSearchCubit>().search(_controller.text.trim(), _filter);
   }
 
   @override
@@ -66,10 +64,10 @@ class _SearchPageState extends State<SearchPage> {
               children: [
                 Expanded(
                   child: AppTextFormField(
-                    fillColor: context.ext.theme.backgroundSubtle,
+                    fillColor: context.ext.colors.white[200],
                     hintText: 'Например, Airtouch',
                     compact: true,
-                    prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
+                    prefixIcon: FIcons.search.icon(context, color: context.ext.colors.black[500]),
                     controller: _controller,
                     focusNode: _focusNode,
                     onFieldSubmitted: (value) => _search(),
@@ -85,7 +83,6 @@ class _SearchPageState extends State<SearchPage> {
           ),
           Expanded(
             child: BlocBuilder<FeedSearchCubit, FeedSearchState>(
-              bloc: blocs.get<FeedSearchCubit>(context),
               builder: (context, state) => switch (state) {
                 FeedSearchInitial() => const SizedBox.shrink(),
                 FeedSearchLoading() => const Center(child: LoadingIndicator()),
@@ -119,11 +116,11 @@ class FilterButton extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
-              color: enabled ? context.ext.theme.accentLight : context.ext.theme.backgroundSubtle,
+              color: enabled ? context.ext.colors.pink[100] : context.ext.colors.white[200],
               borderRadius: BorderRadius.circular(14),
-              border: enabled ? Border.all(color: context.ext.theme.accent, width: 1) : null,
+              border: enabled ? Border.all(color: context.ext.colors.pink[500], width: 1) : null,
             ),
-            child: AppIcons.filter.icon(context),
+            child: FIcons.filter.icon(context),
           ),
           if (enabled)
             Positioned(
@@ -133,9 +130,9 @@ class FilterButton extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: context.ext.theme.accent,
+                  color: context.ext.colors.pink[500],
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: context.ext.theme.backgroundDefault, width: 1),
+                  border: Border.all(color: context.ext.colors.white[100], width: 1),
                 ),
               ),
             ),

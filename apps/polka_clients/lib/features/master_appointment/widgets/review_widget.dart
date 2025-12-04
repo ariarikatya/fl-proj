@@ -10,8 +10,6 @@ class ReviewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      // padding: EdgeInsets.all(16),
-      // decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(24)),
       child: Column(
         spacing: 8,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,14 +21,22 @@ class ReviewWidget extends StatelessWidget {
               Expanded(child: AppText(review.clientName, style: AppTextStyles.bodyMedium)),
             ],
           ),
-          AppText(review.comment, style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary)),
+          AppText(review.comment, style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700])),
           AppText('⭐ ${review.rating.toString()}', style: AppTextStyles.bodyMedium),
           if (review.photos.isNotEmpty)
             Row(
               spacing: 8,
               children: review.photos
                   .take(2)
-                  .map((e) => Flexible(child: ImageClipped(imageUrl: e, height: 180)))
+                  .indexed
+                  .map(
+                    (e) => Flexible(
+                      child: GestureDetector(
+                        onTap: () => showAppImageViewer(context, review.photos, initialIndex: e.$1),
+                        child: ImageClipped(imageUrl: e.$2, height: 180),
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
         ],

@@ -5,7 +5,11 @@ import 'package:shared/src/utils.dart';
 import 'package:shared/src/widgets/app_switch.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-Future<void> openTalkerScreen(BuildContext context, {required Future<String?> Function() getToken}) async {
+Future<void> openTalkerScreen(
+  BuildContext context, {
+  required Future<String?> Function() getAccessToken,
+  required Future<String?> Function() getFcmToken,
+}) async {
   await Navigator.push(
     context,
     MaterialPageRoute(
@@ -20,13 +24,35 @@ Future<void> openTalkerScreen(BuildContext context, {required Future<String?> Fu
               CustomSettingsItemButton(
                 name: 'Copy Access Token',
                 onTap: () async {
-                  final token = await getToken();
+                  final token = await getAccessToken();
                   if (token case String value) {
                     await Clipboard.setData(ClipboardData(text: value));
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Token copied successfully')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Access Token copied')));
                     }
-                    showSuccessSnackbar('Token copied successfully');
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Could not get token',
+                            style: TextStyle(color: Theme.of(context).colorScheme.error),
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+              CustomSettingsItemButton(
+                name: 'Copy FCM Token',
+                onTap: () async {
+                  final token = await getFcmToken();
+                  if (token case String value) {
+                    await Clipboard.setData(ClipboardData(text: value));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('FCM Token copied')));
+                    }
                   } else {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,6 +1,7 @@
 enum ServiceLocation {
   home('Дома', 'at_home'),
-  studio('В салоне', 'studio');
+  studio('В студии', 'studio'),
+  coworking('В коворкинге', 'coworking');
 
   static ServiceLocation fromJson(String value) =>
       ServiceLocation.values.firstWhere((e) => e.jsonValue == value, orElse: () => studio);

@@ -16,7 +16,7 @@ class JsonWidget extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(color: context.ext.colors.white[300], borderRadius: BorderRadius.circular(14)),
       child: AppText(body, selectable: true, style: AppTextStyles.bodyMedium),
     );
   }

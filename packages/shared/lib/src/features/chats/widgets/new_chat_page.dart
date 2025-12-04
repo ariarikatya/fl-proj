@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
 
 class NewChatPage extends StatefulWidget {
@@ -8,12 +9,14 @@ class NewChatPage extends StatefulWidget {
     required this.otherUserName,
     required this.otherUserAvatar,
     required this.withClient,
+    this.prependText,
   });
 
   final int otherUserId;
   final String otherUserName;
   final String? otherUserAvatar;
   final bool withClient;
+  final String? prependText;
 
   @override
   State<NewChatPage> createState() => _NewChatPageState();
@@ -21,11 +24,12 @@ class NewChatPage extends StatefulWidget {
 
 class _NewChatPageState extends State<NewChatPage> {
   void _startChat(String text, {List<String> attachments = const []}) async {
-    await blocs.get<ChatsCubit>(context).startChat(widget.otherUserId, text, withClient: widget.withClient);
+    final chats = context.read<ChatsCubit>();
+    await chats.startChat(widget.otherUserId, text, withClient: widget.withClient);
     if (!mounted) return;
-    await blocs.get<ChatsCubit>(context).loadChats(force: true);
+    await chats.loadChats(force: true);
     if (!mounted) return;
-    final chat = blocs.get<ChatsCubit>(context).maybeGetChatWithOtherUserId(widget.otherUserId);
+    final chat = chats.maybeGetChatWithOtherUserId(widget.otherUserId);
     if (mounted && chat != null) {
       context.ext.replace(ChatScreen(chatId: chat.preview.id));
     }
@@ -42,7 +46,7 @@ class _NewChatPageState extends State<NewChatPage> {
             Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: context.ext.theme.borderStrong, borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: context.ext.colors.black[500], borderRadius: BorderRadius.circular(8)),
             ),
             Flexible(child: AppText(widget.otherUserName)),
           ],
@@ -57,7 +61,7 @@ class _NewChatPageState extends State<NewChatPage> {
           Expanded(child: Center(child: AppText('Пока что нет сообщений'))),
           Padding(
             padding: EdgeInsets.only(top: 8),
-            child: ChatInputField(onSubmit: _startChat, onTyping: (_) {}),
+            child: ChatInputField(onSubmit: _startChat, onTyping: (_) {}, initialText: widget.prependText),
           ),
         ],
       ),

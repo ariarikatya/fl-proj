@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:polka_masters/features/contacts/data/write_contact_option.dart';
 import 'package:polka_masters/features/contacts/widgets/write_contact_mbs.dart';
 import 'package:shared/shared.dart';
 
@@ -17,7 +18,7 @@ class CommunicationButtons extends StatelessWidget {
             child: AppTextButtonSecondary.large(
               text: 'Чат',
               onTap: () {
-                ChatsUtils().openChat(context, contact.clientId!, contact.name, contact.avatarUrl, withClient: false);
+                ChatsUtils().openChat(context, contact.clientId!, contact.name, contact.avatarUrl, withClient: true);
               },
             ),
           )
@@ -31,7 +32,7 @@ class CommunicationButtons extends StatelessWidget {
                   options: [WriteContactOption.whatsapp, WriteContactOption.telegram],
                 );
                 if (option != null && context.mounted) {
-                  option.handle(context, contact);
+                  option.handle(context, contact, '');
                 }
               },
             ),

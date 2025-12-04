@@ -44,7 +44,7 @@ class ImagePickerWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onPickImage ?? _pickImage,
       child: Material(
-        color: Colors.transparent,
+        color: context.ext.colors.white[200],
         child: SizedBox(
           width: 110,
           height: 144,
@@ -57,7 +57,7 @@ class ImagePickerWidget extends StatelessWidget {
                 options: RoundedRectDottedBorderOptions(
                   radius: Radius.circular(14),
                   dashPattern: [3, 3],
-                  color: context.ext.theme.iconsDefault,
+                  color: context.ext.colors.black[700],
                 ),
                 child: Center(
                   child: picture != null
@@ -65,10 +65,10 @@ class ImagePickerWidget extends StatelessWidget {
                       : Container(
                           padding: EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: context.ext.theme.accentLight,
+                            color: context.ext.colors.pink[50],
                             borderRadius: BorderRadius.circular(40),
                           ),
-                          child: AppIcons.add.icon(context, size: 16),
+                          child: FIcons.plus.icon(context, size: 16),
                         ),
                 ),
               ),
@@ -81,7 +81,7 @@ class ImagePickerWidget extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: context.ext.theme.accentLight,
+                        color: context.ext.colors.pink[100],
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: AppIcons.close.icon(context, size: 16),

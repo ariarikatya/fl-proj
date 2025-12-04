@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:polka_clients/features/booking/controller/old_bookings_cubit.dart';
+import 'package:polka_clients/features/master_appointment/widgets/service_screen.dart';
 import 'package:shared/shared.dart';
 
 class ServicesGridView extends StatelessWidget {
@@ -11,18 +13,12 @@ class ServicesGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cellWidth = (MediaQuery.of(context).size.width - 8) / 2;
-    return GridView.builder(
+    return ListView.separated(
       primary: !embedded,
       shrinkWrap: embedded,
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 24,
-        crossAxisSpacing: 8,
-        childAspectRatio: cellWidth / (cellWidth + 128),
-      ),
       itemCount: services.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (context, index) => ServiceWidget(service: services[index], master: master),
     );
   }
@@ -36,48 +32,68 @@ class ServiceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DebugWidget(
-      model: service,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AspectRatio(aspectRatio: 1, child: ImageClipped(imageUrl: service.resultPhotos.firstOrNull)),
-          AppText(
-            service.title,
-            style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
-          ),
-          Row(
-            children: [
-              AppEmojis.fromMasterService(service.category).icon(size: const Size(14, 14)),
-              const SizedBox(width: 4),
-              Expanded(
-                child: AppText(
-                  service.category.label,
-                  style: AppTextStyles.bodyMedium.copyWith(overflow: TextOverflow.ellipsis),
-                ),
+    final colors = context.ext.colors;
+    final textTheme = context.ext.textTheme;
+
+    return GestureDetector(
+      onTap: () => context.ext.push(ServiceScreen(service: service, master: master)),
+      child: Material(
+        color: Colors.transparent,
+        child: Row(
+          spacing: 40,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText(
+                    service.title,
+                    style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, height: 1.2),
+                  ),
+                  const SizedBox(height: 8),
+                  AppText.rich([
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: ClipRRect(
+                          borderRadius: BorderRadiusGeometry.circular(16),
+                          child: Image.asset(
+                            service.category.imagePath,
+                            width: 16,
+                            height: 16,
+                            fit: BoxFit.cover,
+                            package: 'shared',
+                          ),
+                        ),
+                      ),
+                    ),
+                    TextSpan(
+                      text: service.category.label,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colors.black[500],
+                        fontWeight: FontWeight.w600,
+                        height: 1,
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 8),
+                  AppText(
+                    '${service.duration.toDurationString()} | ₽${service.price}',
+                    style: TextStyle(color: colors.black[700], height: 1),
+                  ),
+                  const SizedBox(height: 12),
+                  AppTextButton.small(
+                    text: 'Записаться',
+                    onTap: () => context.read<OldBookingsCubit>().startAppointmentFlow(context, master, service),
+                    shrinkWrap: false,
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              AppIcons.clock.icon(context, size: 14),
-              const SizedBox(width: 2),
-              Expanded(
-                child: AppText(
-                  service.duration.toDurationString(),
-                  style: AppTextStyles.bodyMedium.copyWith(overflow: TextOverflow.ellipsis),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          AppTextButton.small(
-            text: '₽${service.price} Записаться',
-            onTap: () => blocs.get<BookingsCubit>(context).startAppointmentFlow(context, master, service),
-            shrinkWrap: false,
-          ),
-        ],
+            ),
+            ImageClipped(imageUrl: service.resultPhotos.firstOrNull, width: 136, height: 136, borderRadius: 14),
+          ],
+        ),
       ),
     );
   }

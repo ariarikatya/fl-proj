@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared/src/blocs_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/features/chats/widgets/chat_screen.dart';
 import 'package:shared/src/features/chats/cubit/chats_cubit.dart';
@@ -34,14 +34,15 @@ final class ChatsUtils {
     String otherUserName,
     String? otherUserAvatar, {
     required bool withClient,
+    String? prependText,
   }) async {
-    final chats = blocs.get<ChatsCubit>(context);
+    final chats = context.read<ChatsCubit>();
     await chats.loadChats();
     if (!context.mounted) return;
 
     final chat = chats.maybeGetChatWithOtherUserId(otherUserId);
     if (chat != null) {
-      context.ext.push(ChatScreen(chatId: chat.preview.id));
+      context.ext.push(ChatScreen(chatId: chat.preview.id, prependText: prependText));
     } else {
       context.ext.push(
         NewChatPage(
@@ -49,6 +50,7 @@ final class ChatsUtils {
           otherUserName: otherUserName,
           otherUserAvatar: otherUserAvatar,
           withClient: withClient,
+          prependText: prependText,
         ),
       );
     }

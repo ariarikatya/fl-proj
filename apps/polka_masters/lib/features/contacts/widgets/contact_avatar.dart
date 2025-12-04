@@ -17,14 +17,10 @@ class ContactAvatar extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: context.ext.theme.iconsDefault, borderRadius: BorderRadius.circular(size)),
+      decoration: BoxDecoration(color: context.ext.colors.black[700], borderRadius: BorderRadius.circular(size)),
       child: AppText(
         contact.initials,
-        style: AppTextStyles.headingLarge.copyWith(
-          fontSize: fontSize,
-          height: 1,
-          color: context.ext.theme.backgroundDefault,
-        ),
+        style: AppTextStyles.headingLarge.copyWith(fontSize: fontSize, height: 1, color: context.ext.colors.white[100]),
       ),
     );
   }
@@ -40,12 +36,12 @@ class ContactBlotAvatar extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        AppIcons.blotBig.icon(context, size: size + 8, color: context.ext.theme.accent),
+        AppIcons.blotBig.icon(context, size: size + 8, color: context.ext.colors.pink[500]),
         Container(
           width: size,
           height: size,
           decoration: BoxDecoration(
-            border: Border.all(color: context.ext.theme.backgroundHover, width: 1),
+            border: Border.all(color: context.ext.colors.white[300], width: 1),
             borderRadius: BorderRadius.circular(100),
           ),
           alignment: Alignment.center,

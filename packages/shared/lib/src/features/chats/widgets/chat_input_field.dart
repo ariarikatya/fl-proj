@@ -1,22 +1,25 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
 class ChatInputField extends StatefulWidget {
-  const ChatInputField({super.key, required this.onSubmit, required this.onTyping});
+  const ChatInputField({super.key, required this.onSubmit, required this.onTyping, this.initialText});
 
   final void Function(String, {List<String> attachments}) onSubmit;
   final void Function(bool typing) onTyping;
+  final String? initialText;
 
   @override
   State<ChatInputField> createState() => _ChatInputFieldState();
 }
 
 class _ChatInputFieldState extends State<ChatInputField> {
-  late final _controller = TextEditingController();
+  late final _controller = TextEditingController(text: widget.initialText);
 
   final _attachments = ValueNotifier(<XFile>[]);
   final _loading = ValueNotifier(false);
@@ -55,7 +58,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     var attachments = <String>[];
     if (_attachments.value.isNotEmpty) {
       _loading.value = true;
-      final upload = blocs.get<ChatsCubit>(context).profileRepository.uploadPhotos;
+      final upload = context.read<ChatsCubit>().profileRepository.uploadPhotos;
       final imageUrls = await upload(_attachments.value);
       attachments = imageUrls.unpack()?.values.toList() ?? [];
       _deleteAttachments();
@@ -67,7 +70,12 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   void _pickAttachmentsFromGallery() async {
-    final images = await ImagePicker().pickMultiImage(limit: 10);
+    List<XFile> images;
+    try {
+      images = await ImagePicker().pickMultiImage(limit: 10);
+    } catch (e, st) {
+      return handleError(PhotoPickException(e is PlatformException ? e : null), st);
+    }
     _attachments.value = [..._attachments.value, ...images].take(10).toList();
   }
 
@@ -87,7 +95,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         child: SizedBox(
           height: 32,
           width: 32,
-          child: Padding(padding: EdgeInsets.all(6), child: AppIcons.add.icon(context, size: 20)),
+          child: Padding(padding: EdgeInsets.all(6), child: FIcons.plus.icon(context, size: 20)),
         ),
       ),
     );
@@ -96,7 +104,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       onTap: _pickAttachmentsFromCamera,
       child: Material(
         color: Colors.transparent,
-        child: Padding(padding: EdgeInsets.all(6), child: AppIcons.camera.icon(context, size: 20)),
+        child: Padding(padding: EdgeInsets.all(6), child: FIcons.camera.icon(context, size: 20)),
       ),
     );
 
@@ -107,7 +115,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     return Container(
       padding: EdgeInsets.fromLTRB(24, 10, 24, 10),
-      color: context.ext.theme.backgroundHover,
+      color: context.ext.colors.white[300],
       child: Column(
         children: [
           ValueListenableBuilder(
@@ -131,7 +139,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                                       width: 48,
                                       height: 48,
                                       decoration: BoxDecoration(
-                                        color: context.ext.theme.backgroundHover,
+                                        color: context.ext.colors.white[300],
                                         borderRadius: BorderRadius.circular(6),
                                         image: DecorationImage(
                                           image: FileImage(File(value[i].path)),

@@ -7,7 +7,7 @@ import 'package:shared/src/widgets/app_text.dart';
 import 'package:shared/src/widgets/loading/loading_indicator.dart';
 
 Widget imageLoadingProgressIndicator(BuildContext context, String url, DownloadProgress progress) => ColoredBox(
-  color: context.ext.theme.backgroundHover.withValues(alpha: 0.5),
+  color: context.ext.colors.white[300].withValues(alpha: 0.5),
   child: Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,

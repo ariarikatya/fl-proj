@@ -8,5 +8,10 @@ class SlotsCubit extends DataCubit<List<AvailableSlot>> {
   final int masterId, serviceId;
 
   @override
-  Future<Result<List<AvailableSlot>>> loadData() => repo.getSlots(masterId, serviceId);
+  Future<Result<List<AvailableSlot>>> loadData() => repo.getSlots(
+    masterId,
+    serviceId,
+    dateFrom: DateTime.now(),
+    dateTo: DateTime.now().add(const Duration(days: 90)),
+  );
 }

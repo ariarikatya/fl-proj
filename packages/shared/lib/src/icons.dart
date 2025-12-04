@@ -49,11 +49,15 @@ enum AppIcons {
   link,
   copy;
 
-  Widget icon(BuildContext context, {double size = 24, Color? color}) => SvgPicture.string(
-    iconsMap[this]!,
+  Widget icon(BuildContext context, {double size = 24, Color? color}) => SizedBox(
     width: size,
     height: size,
-    colorFilter: ColorFilter.mode(color ?? context.ext.theme.iconsDefault, BlendMode.srcIn),
+    child: SvgPicture.string(
+      iconsMap[this]!,
+      width: size,
+      height: size,
+      colorFilter: ColorFilter.mode(color ?? context.ext.colors.black[700], BlendMode.srcIn),
+    ),
   );
 }
 

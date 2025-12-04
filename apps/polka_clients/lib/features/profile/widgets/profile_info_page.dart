@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_clients/client_scope.dart';
 import 'package:polka_clients/dependencies.dart';
+import 'package:polka_clients/features/feed/controller/feed_cubit.dart';
 import 'package:shared/shared.dart';
 
 class ProfileInfoPage extends StatefulWidget {
@@ -20,8 +22,8 @@ class _ProfileInfoPageState extends State<ProfileInfoPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    client = ClientScope.of(context).client;
-    phoneNumber = ClientScope.of(context).phoneNumber;
+    client = context.read<ClientViewModel>().client;
+    phoneNumber = context.read<ClientViewModel>().phoneNumber;
     _controllers[0].text = client.fullName;
     _controllers[1].text = client.city;
     _controllers[2].text = client.email ?? '';
@@ -54,10 +56,17 @@ class _ProfileInfoPageState extends State<ProfileInfoPage> {
     final result = await profileRepo.updateAccountInfo(name, surname, city, email);
 
     result.when(
-      ok: (newCategories) {
-        ClientScope.of(context).updateClient(
-          (client) =>
-              client.copyWith(firstName: () => name, lastName: () => surname, city: () => city, email: () => email),
+      ok: (_) {
+        // In case city changed
+        context.read<FeedCubit>().reset();
+        final viewModel = context.read<ClientViewModel>();
+        viewModel.updateClient(
+          viewModel.client.copyWith(
+            firstName: () => name,
+            lastName: () => surname,
+            city: () => city,
+            email: () => email,
+          ),
         );
         showSuccessSnackbar('Изменения успешно сохранены');
         if (mounted) context.ext.pop();
@@ -153,7 +162,7 @@ class _DeleteAccountButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          AppIcons.trash.icon(context),
+          FIcons.trash.icon(context),
           AppText('Удалить мой аккаунт', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
         ],
       ),

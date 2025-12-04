@@ -1,22 +1,11 @@
+import 'package:polka_clients/repositories/client_repository.dart';
 import 'package:shared/shared.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:polka_clients/dependencies.dart';
 
-part 'feed_state.dart';
+class FeedCubit extends PaginationCubit<Master> {
+  FeedCubit(this.repo);
+  final ClientRepository repo;
 
-class FeedCubit extends Cubit<FeedState> {
-  FeedCubit() : super(const FeedState.initial()) {
-    loadFeed();
-  }
-
-  final clientRepo = Dependencies().clientRepository;
-
-  void loadFeed() async {
-    emit(const FeedState.loading());
-
-    final result = await clientRepo.getMastersFeed();
-
-    safeEmit(result.when(ok: (data) => FeedState.loaded(data), err: (e, st) => FeedState.error(parseError(e, st))));
-  }
+  @override
+  Future<Result<List<Master>>> loadItems(int page, int limit) =>
+      repo.getMastersFeed(limit: limit, offset: (page - 1) * limit);
 }

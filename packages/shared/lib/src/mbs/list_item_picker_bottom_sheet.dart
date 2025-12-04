@@ -12,7 +12,7 @@ Future<T?> showListItemPickerBottomSheet<T extends Object?>({
 }) {
   return showModalBottomSheet<T>(
     context: context,
-    backgroundColor: context.ext.theme.backgroundDefault,
+    backgroundColor: context.ext.colors.white[100],
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (_) => _ListSheet(title: title, items: items, builder: builder),
   );
@@ -28,26 +28,20 @@ class _ListSheet<T extends Object?> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MbsBase(
+      expandContent: false,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 36,
-              height: 5,
-              decoration: BoxDecoration(color: context.ext.theme.iconsDefault, borderRadius: BorderRadius.circular(4)),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
             child: AppText(
               title,
               textAlign: TextAlign.center,
               style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           for (var item in items) GestureDetector(onTap: () => context.ext.pop(item), child: builder(item)),
           const SizedBox(height: 10),
         ],

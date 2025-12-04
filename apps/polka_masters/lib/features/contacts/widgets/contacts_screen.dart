@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/contacts/controller/pending_bookings_cubit.dart';
-import 'package:polka_masters/features/contacts/widgets/add_contact_button.dart';
 import 'package:polka_masters/features/contacts/widgets/all_contacts_screen.dart';
 import 'package:polka_masters/features/contacts/widgets/group_screens/contacts_groups_view.dart';
 import 'package:polka_masters/features/contacts/widgets/pending_bookings_screen.dart';
@@ -14,29 +12,7 @@ class ContactsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LoadDataPage(
-      title: 'Твои клиенты',
-      future: Dependencies().contactsRepo.searchContacts,
-      builder: (data) => _LoadedView(hasContacts: data.isNotEmpty),
-    );
-  }
-}
-
-class _LoadedView extends StatefulWidget {
-  const _LoadedView({required this.hasContacts});
-
-  final bool hasContacts;
-
-  @override
-  State<_LoadedView> createState() => _LoadedViewState();
-}
-
-class _LoadedViewState extends State<_LoadedView> {
-  late bool hasContacts = widget.hasContacts;
-
-  @override
-  Widget build(BuildContext context) {
-    return hasContacts ? const _ContactsView() : _EmptyView(onContactCreated: () => setState(() => hasContacts = true));
+    return const _ContactsView();
   }
 }
 
@@ -65,37 +41,29 @@ class _ContactsViewState extends State<_ContactsView> with TickerProviderStateMi
         children: [
           AppTabBar(
             controller: _controller,
-            color: context.ext.theme.accent,
-            backgroundColor: context.ext.theme.backgroundSubtle,
+            color: context.ext.colors.pink[500],
+            backgroundColor: context.ext.colors.white[200],
             tabs: [
               Tab(
-                // text: 'Новые заявки',
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Flexible(
                       child: ListenableBuilder(
                         listenable: _controller,
                         builder: (context, child) {
-                          return AppText(
-                            'Новые заявки',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: _controller.index == 0
-                                  ? context.ext.theme.accent
-                                  : context.ext.theme.textPlaceholder,
-                              height: 2.5,
-                            ),
-                          );
+                          return Text('Новые заявки', style: AppTextStyles.bodyMedium.copyWith(height: 2.5));
                         },
                       ),
                     ),
                     BlocBuilder<PendingBookingsCubit, PagingState<int, BookingInfo>>(
-                      bloc: blocs.get<PendingBookingsCubit>(context),
                       builder: (context, state) {
                         if (state.items == null || state.items!.isEmpty) return const SizedBox.shrink();
                         return Padding(
-                          padding: const EdgeInsets.only(top: 12, left: 4),
-                          child: CounterWidget(count: state.items!.length, color: context.ext.theme.accent),
+                          padding: const EdgeInsets.only(left: 4),
+                          child: CounterWidget(count: state.items!.length, color: context.ext.colors.pink[500]),
                         );
                       },
                     ),
@@ -111,43 +79,6 @@ class _ContactsViewState extends State<_ContactsView> with TickerProviderStateMi
               controller: _controller,
               children: const [PendingBookingsScreen(), AllContactsScreen(), ContactsGroupsView()],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyView extends StatelessWidget {
-  const _EmptyView({required this.onContactCreated});
-
-  final VoidCallback onContactCreated;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppPage(
-      safeAreaBuilder: (child) => SafeArea(bottom: false, child: child),
-      child: Stack(
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(40),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppText('Пока у тебя нет\nклиентов', style: AppTextStyles.headingLarge, textAlign: TextAlign.center),
-                  SizedBox(height: 16),
-                  AppText.secondary(
-                    'Добавь первого, чтобы начать вести историю визитов и напоминаний',
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: AddContactButton(onContactCreated: (_) => onContactCreated()),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_clients/features/home/controller/home_navigation_cubit.dart';
 import 'package:shared/shared.dart';
 
@@ -30,17 +31,14 @@ class ThanksForReviewBottomSheet extends StatelessWidget {
           const SizedBox(height: 8),
           AppText(
             'Твой отклик помогает другим найти своего мастера, а мастеру — расти и становиться лучше. 💛',
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: context.ext.theme.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
+            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700], fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 24),
           AppTextButton.large(
             text: 'К записям',
             onTap: () {
               context.ext.pop();
-              blocs.get<HomeNavigationCubit>(context).openBookings();
+              context.read<HomeNavigationCubit>().openBookings();
             },
           ),
         ],

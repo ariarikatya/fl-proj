@@ -1,9 +1,12 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:polka_masters/features/schedules/controller/schedules_cubit.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
-CustomHourLinePainter scheduleDayHourLinePainter(BuildContext context, ScheduleDay? scheduleDay) =>
+CustomHourLinePainter scheduleDayHourLinePainter() =>
     (
+      BuildContext context,
       Color lineColor,
       double lineHeight,
       double offset,
@@ -16,6 +19,7 @@ CustomHourLinePainter scheduleDayHourLinePainter(BuildContext context, ScheduleD
       double emulateVerticalOffsetBy,
       int startHour,
       int endHour,
+      List<DateTime> dates,
     ) => ScheduleDayHourLinePainter(
       lineColor: lineColor,
       lineHeight: lineHeight,
@@ -29,9 +33,9 @@ CustomHourLinePainter scheduleDayHourLinePainter(BuildContext context, ScheduleD
       dashWidth: dashWidth,
       dashSpaceWidth: dashSpaceWidth,
       endHour: endHour,
-      scheduleDay: scheduleDay,
-      defaultColor: context.ext.theme.backgroundDefault,
-      disabledColor: context.ext.theme.backgroundHover,
+      scheduleDay: dates.isEmpty ? null : context.watch<SchedulesCubit>().scheduleDayOf(dates.first),
+      defaultColor: context.ext.colors.white[100],
+      disabledColor: context.ext.colors.white[200],
     );
 
 /// Paints 24 hour lines, schedule-day specific.

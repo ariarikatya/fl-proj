@@ -1,6 +1,7 @@
-import 'dart:developer';
-
 import 'package:appmetrica_plugin/appmetrica_plugin.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
+import 'package:shared/src/logger.dart';
 
 sealed class CrashlyticsService {
   CrashlyticsService._();
@@ -18,19 +19,22 @@ sealed class CrashlyticsService {
   Future<void> init();
 
   Future<void> reportError(Object? err, [StackTrace? stackTrace]);
-
-  Future<void> reportEvent(String eventName);
 }
 
 final class Crashlytics$AppMetricaImpl extends CrashlyticsService {
-  Crashlytics$AppMetricaImpl({required this.apiKey}) : super._();
-
-  final String apiKey;
+  Crashlytics$AppMetricaImpl() : super._();
 
   @override
   Future<void> init() async {
-    await AppMetrica.activate(AppMetricaConfig(apiKey));
     CrashlyticsService._instance = this;
+    FlutterError.onError = (FlutterErrorDetails details) {
+      reportError(details.exception, details.stack);
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      reportError(error, stack);
+      return true;
+    };
+    logger.info('AppMetrica crashlytics initialized');
   }
 
   @override
@@ -38,9 +42,6 @@ final class Crashlytics$AppMetricaImpl extends CrashlyticsService {
     message: err.toString(),
     errorDescription: stackTrace != null ? AppMetricaErrorDescription(stackTrace, type: 'Unhandled Exception') : null,
   );
-
-  @override
-  Future<void> reportEvent(String eventName) => AppMetrica.reportEvent(eventName);
 }
 
 final class Crashlytics$LoggerImpl extends CrashlyticsService {
@@ -48,16 +49,11 @@ final class Crashlytics$LoggerImpl extends CrashlyticsService {
 
   @override
   Future<void> init() async {
-    log('log crashlytics initialized');
+    logger.info('log crashlytics initialized');
   }
 
   @override
   Future<void> reportError(Object? err, [StackTrace? stackTrace]) async {
-    log('log crashlytics caught error: $err\n$stackTrace');
-  }
-
-  @override
-  Future<void> reportEvent(String eventName) async {
-    log('log crashlytics report event: $eventName');
+    logger.info('log crashlytics caught error: $err\n$stackTrace');
   }
 }

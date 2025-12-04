@@ -62,14 +62,10 @@ class _FinalPageState extends State<FinalPage> {
           _masterInfo = data;
           _isLoading = false;
         });
-        logger.debug(
-          'Master info loaded successfully for FinalPage - master: ${data.master.fullName}',
-        );
+        logger.debug('Master info loaded successfully for FinalPage - master: ${data.master.fullName}');
       },
       err: (error, stackTrace) {
-        logger.error(
-          'Error loading master info for FinalPage masterId $_masterId: $error',
-        );
+        logger.error('Error loading master info for FinalPage masterId $_masterId: $error');
         setState(() {
           _error = error.toString();
           _isLoading = false;
@@ -108,10 +104,7 @@ class _FinalPageState extends State<FinalPage> {
     final height = MediaQuery.of(context).size.height;
     final isDesktop = width >= 950;
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(
-      screenWidth: width,
-      showImage: showImage,
-    );
+    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
 
     logger.debug(
       'Building FinalPage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth',
@@ -122,10 +115,7 @@ class _FinalPageState extends State<FinalPage> {
       showImage: showImage,
       onMenuTap: () {
         logger.debug('Opening menu page from FinalPage');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
       },
       onDownloadTap: () {
         logger.debug('Opening store from FinalPage header');
@@ -145,12 +135,7 @@ class _FinalPageState extends State<FinalPage> {
           ? SingleChildScrollView(
               child: SafeArea(
                 top: false,
-                child: _buildDesktopContent(
-                  width: width,
-                  height: height,
-                  showImage: showImage,
-                  imageWidth: imageWidth,
-                ),
+                child: _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth),
               ),
             )
           : _buildMobileContent(),
@@ -182,9 +167,7 @@ class _FinalPageState extends State<FinalPage> {
           const SizedBox(height: 16),
           Text(
             'А еще проще записаться через наше приложение, установите POLKA',
-            style: AppTextStyles.bodyMedium500.copyWith(
-              color: AppColors.iconsDefault,
-            ),
+            style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
           ),
           const SizedBox(height: 32),
           AppTextButton.large(
@@ -214,9 +197,7 @@ class _FinalPageState extends State<FinalPage> {
             const SizedBox(height: 16),
             Text(
               'А еще проще записаться через наше приложение, установите POLKA',
-              style: AppTextStyles.bodyMedium500.copyWith(
-                color: AppColors.iconsDefault,
-              ),
+              style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
             ),
             const SizedBox(height: 32),
             Center(
@@ -236,16 +217,14 @@ class _FinalPageState extends State<FinalPage> {
     final master = _masterInfo!.master;
     final service = widget.service;
 
-    logger.debug(
-      'Building master card for FinalPage - master: ${master.fullName}, service: ${service?.title}',
-    );
+    logger.debug('Building master card for FinalPage - master: ${master.fullName}, service: ${service?.title}');
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
-        color: AppColors.backgroundDefault,
+        color: polkaThemeExtension.white[100],
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.backgroundDefault, width: 1),
+        border: Border.all(color: polkaThemeExtension.white[100], width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -272,22 +251,14 @@ class _FinalPageState extends State<FinalPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _buildMasterInfoColumn(
-                      context,
-                      master: master,
-                      isDesktop: isDesktop,
-                    ),
+                    child: _buildMasterInfoColumn(context, master: master, isDesktop: isDesktop),
                   ),
                   const SizedBox(width: 20),
                   _buildStatsColumn(context, master: master),
                 ],
               )
             else
-              _buildMasterInfoColumn(
-                context,
-                master: master,
-                isDesktop: isDesktop,
-              ),
+              _buildMasterInfoColumn(context, master: master, isDesktop: isDesktop),
             const SizedBox(height: 24),
             if (service != null) _buildServiceInfo(context, service, isDesktop),
           ],
@@ -296,11 +267,7 @@ class _FinalPageState extends State<FinalPage> {
     );
   }
 
-  Widget _buildMasterInfoColumn(
-    BuildContext context, {
-    required Master master,
-    required bool isDesktop,
-  }) {
+  Widget _buildMasterInfoColumn(BuildContext context, {required Master master, required bool isDesktop}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -331,28 +298,14 @@ class _FinalPageState extends State<FinalPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildStatItem(
-          context,
-          master.rating.toStringAsFixed(1),
-          'Рейтинг',
-          showStar: true,
-        ),
-        _buildStatItem(
-          context,
-          FormatUtils.getYearsText(master.experience),
-          'Опыта',
-        ),
+        _buildStatItem(context, master.rating.toStringAsFixed(1), 'Рейтинг', showStar: true),
+        _buildStatItem(context, FormatUtils.getYearsText(master.experience), 'Опыта'),
         _buildStatItem(context, master.reviewsCount.toString(), 'Отзыва'),
       ],
     );
   }
 
-  Widget _buildStatItem(
-    BuildContext context,
-    String value,
-    String label, {
-    bool showStar = false,
-  }) {
+  Widget _buildStatItem(BuildContext context, String value, String label, {bool showStar = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Column(
@@ -362,10 +315,7 @@ class _FinalPageState extends State<FinalPage> {
           Row(
             children: [
               Text(value, style: AppTextStyles.bodyLarge),
-              if (showStar) ...[
-                const SizedBox(width: 4),
-                AppIcons.star.icon(context, size: 16),
-              ],
+              if (showStar) ...[const SizedBox(width: 4), AppIcons.star.icon(context, size: 16)],
             ],
           ),
           const SizedBox(height: 2),
@@ -375,11 +325,7 @@ class _FinalPageState extends State<FinalPage> {
     );
   }
 
-  Widget _buildServiceInfo(
-    BuildContext context,
-    Service service,
-    bool isDesktop,
-  ) {
+  Widget _buildServiceInfo(BuildContext context, Service service, bool isDesktop) {
     final serviceName = FormatUtils.truncate(service.title, 30);
     final serviceDuration = service.duration.toDurationStringShort();
     final servicePrice = service.price;
@@ -402,11 +348,9 @@ class _FinalPageState extends State<FinalPage> {
                 width: 80, // Фиксированная ширина для меток
                 child: Text(
                   'Услуга',
-                  style:
-                      (isDesktop
-                              ? AppTextStyles.bodyLarge
-                              : AppTextStyles.bodyMedium)
-                          .copyWith(color: AppColors.textSecondary),
+                  style: (isDesktop ? AppTextStyles.bodyLarge : AppTextStyles.bodyMedium).copyWith(
+                    color: polkaThemeExtension.black[700],
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -418,31 +362,21 @@ class _FinalPageState extends State<FinalPage> {
                   children: [
                     Text(
                       serviceName,
-                      style: isDesktop
-                          ? AppTextStyles.bodyLarge
-                          : AppTextStyles.bodyMedium,
+                      style: isDesktop ? AppTextStyles.bodyLarge : AppTextStyles.bodyMedium,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        AppIcons.clock.icon(
-                          context,
-                          size: 16,
-                          color: AppColors.textSecondary,
-                        ),
+                        AppIcons.clock.icon(context, size: 16, color: polkaThemeExtension.black[700]),
                         const SizedBox(width: 4),
                         Text(
                           ' $serviceDuration  |  ₽ $servicePrice',
-                          style:
-                              (isDesktop
-                                      ? AppTextStyles.bodyMedium500
-                                      : AppTextStyles.bodySmall)
-                                  .copyWith(
-                                    color: AppColors.textSecondary,
-                                    height: 1,
-                                  ),
+                          style: (isDesktop ? AppTextStyles.bodyMedium500 : AppTextStyles.bodySmall).copyWith(
+                            color: polkaThemeExtension.black[700],
+                            height: 1,
+                          ),
                         ),
                       ],
                     ),
@@ -461,11 +395,9 @@ class _FinalPageState extends State<FinalPage> {
                 width: 80, // Такая же фиксированная ширина
                 child: Text(
                   'Дата',
-                  style:
-                      (isDesktop
-                              ? AppTextStyles.bodyLarge
-                              : AppTextStyles.bodyMedium)
-                          .copyWith(color: AppColors.textSecondary),
+                  style: (isDesktop ? AppTextStyles.bodyLarge : AppTextStyles.bodyMedium).copyWith(
+                    color: polkaThemeExtension.black[700],
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -473,14 +405,10 @@ class _FinalPageState extends State<FinalPage> {
                 // Занимает всё оставшееся пространство
                 child: Text(
                   formattedDateTime,
-                  style:
-                      (isDesktop
-                              ? AppTextStyles.bodyLarge
-                              : AppTextStyles.bodyMedium)
-                          .copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
+                  style: (isDesktop ? AppTextStyles.bodyLarge : AppTextStyles.bodyMedium).copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: polkaThemeExtension.black[900],
+                  ),
                 ),
               ),
             ],

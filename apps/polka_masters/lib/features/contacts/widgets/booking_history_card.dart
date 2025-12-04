@@ -14,7 +14,7 @@ class BookingHistoryCard extends StatelessWidget {
         height: 82,
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
+          border: Border(bottom: BorderSide(color: context.ext.colors.white[300])),
         ),
         child: Row(
           spacing: 12,
@@ -34,10 +34,10 @@ class BookingHistoryCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   AppText.rich([
-                    WidgetSpan(child: AppIcons.clock.icon(context, size: 16), alignment: PlaceholderAlignment.middle),
+                    WidgetSpan(child: FIcons.clock.icon(context, size: 16), alignment: PlaceholderAlignment.middle),
                     TextSpan(
                       text: ' ${booking.duration.toDurationStringShort()}  |  ₽ ${booking.price}',
-                      style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.textSecondary, height: 1),
+                      style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700], height: 1),
                     ),
                   ]),
                 ],

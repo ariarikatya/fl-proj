@@ -97,7 +97,7 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppColors.backgroundDefault,
+        backgroundColor: polkaThemeExtension.white[100],
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -105,7 +105,7 @@ class _WelcomePageState extends State<WelcomePage> {
     if (_error != null || _masterInfo == null) {
       logger.error('Error displaying WelcomePage: $_error');
       return Scaffold(
-        backgroundColor: AppColors.backgroundDefault,
+        backgroundColor: polkaThemeExtension.white[100],
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -188,7 +188,7 @@ class _WelcomePageState extends State<WelcomePage> {
           const SizedBox(height: 16),
           Text(
             'Чтобы записаться к мастеру и выбрать услугу, пожалуйста, нажмите "Записаться"',
-            style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
+            style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
           ),
           const SizedBox(height: 32),
           AppTextButton.large(
@@ -221,7 +221,7 @@ class _WelcomePageState extends State<WelcomePage> {
         const SizedBox(height: 16),
         Text(
           'Чтобы записаться к мастеру и выбрать услугу, пожалуйста, нажмите "Записаться"',
-          style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
+          style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
         ),
         const SizedBox(height: 32),
         Center(

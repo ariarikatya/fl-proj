@@ -13,7 +13,7 @@ class AppPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar,
-      backgroundColor: backgroundColor ?? context.ext.theme.backgroundDefault,
+      backgroundColor: backgroundColor ?? context.ext.colors.white[100],
       body: safeAreaBuilder?.call(child) ?? SafeArea(child: child),
     );
   }

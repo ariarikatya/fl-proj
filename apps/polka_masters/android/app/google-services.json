@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "60414126628",
+    "project_id": "polka-masters",
+    "storage_bucket": "polka-masters.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60414126628:android:2de1209626d538cb4e06b1",
+        "android_client_info": {
+          "package_name": "com.mads.polkapro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2U78gZ9NRd7o09TEEY6hMK-1OnEmYC6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

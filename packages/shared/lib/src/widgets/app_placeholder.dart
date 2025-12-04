@@ -14,7 +14,7 @@ class AppPlaceholder extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 24),
       padding: EdgeInsets.all(16),
       width: double.infinity,
-      decoration: BoxDecoration(color: context.ext.theme.backgroundSubtle, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(color: context.ext.colors.white[200], borderRadius: BorderRadius.circular(14)),
       child: AppText(text, style: AppTextStyles.bodyLarge, textAlign: TextAlign.center),
     );
   }

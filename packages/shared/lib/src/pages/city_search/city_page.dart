@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared/src/app_dependencies.dart';
 import 'package:shared/src/extensions/context.dart';
 import 'package:shared/src/app_text_styles.dart';
-import 'package:shared/src/blocs_provider.dart';
 import 'package:shared/src/logger.dart';
 import 'package:shared/src/pages/city_search/city_search_cubit.dart';
 import 'package:shared/src/widgets/app_page.dart';
@@ -25,10 +25,9 @@ class CityPage extends StatefulWidget {
 class _CityPageState extends State<CityPage> {
   late final _focusNode = FocusNode();
   late final _controller = TextEditingController(text: widget.initialCity)..addListener(listener);
+  late final _cubit = CitySearchCubit(dependencies.dio);
 
-  void _search() {
-    blocs.get<CitySearchCubit>(context).search(_controller.text.trim());
-  }
+  void _search() => _cubit.search(_controller.text.trim());
 
   void listener() {
     if (_controller.text.trim().isNotEmpty) {
@@ -49,7 +48,7 @@ class _CityPageState extends State<CityPage> {
   void dispose() {
     _focusNode.dispose();
     _controller.dispose();
-    blocs.destroy<CitySearchCubit>();
+    _cubit.close();
     super.dispose();
   }
 
@@ -65,7 +64,7 @@ class _CityPageState extends State<CityPage> {
           ),
           Expanded(
             child: BlocBuilder<CitySearchCubit, CitySearchState>(
-              bloc: blocs.get<CitySearchCubit>(context),
+              bloc: _cubit,
               builder: (context, state) => switch (state) {
                 CitySearchLoaded(:final data) => SingleChildScrollView(
                   child: SizedBox(
@@ -83,7 +82,7 @@ class _CityPageState extends State<CityPage> {
                               margin: EdgeInsets.symmetric(horizontal: 24),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
+                                border: Border(bottom: BorderSide(color: context.ext.colors.white[300])),
                               ),
                               child: AppText(city.fullName, style: AppTextStyles.bodyLarge),
                             ),

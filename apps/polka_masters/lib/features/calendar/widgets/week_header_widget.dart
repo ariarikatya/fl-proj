@@ -11,7 +11,7 @@ class WeekHeaderWidget extends StatelessWidget {
     final isToday = DateUtils.isSameDay(date, DateTime.now());
     return Container(
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: context.ext.theme.backgroundSubtle),
+      decoration: BoxDecoration(color: context.ext.colors.white[100]),
       child: Column(
         spacing: 4,
         mainAxisSize: MainAxisSize.min,
@@ -19,7 +19,7 @@ class WeekHeaderWidget extends StatelessWidget {
           AppText(
             WeekDays.values[date.weekday - 1].short,
             style: AppTextStyles.bodyMedium500.copyWith(
-              color: isToday ? context.ext.theme.textPrimary : context.ext.theme.textPlaceholder,
+              color: isToday ? context.ext.colors.black[900] : context.ext.colors.black[300],
               height: 1,
             ),
           ),
@@ -28,12 +28,12 @@ class WeekHeaderWidget extends StatelessWidget {
             height: 24,
             alignment: Alignment.center,
             decoration: isToday
-                ? BoxDecoration(color: context.ext.theme.accent, borderRadius: BorderRadius.circular(6))
+                ? BoxDecoration(color: context.ext.colors.pink[500], borderRadius: BorderRadius.circular(6))
                 : null,
             child: AppText(
               '${date.day}',
               style: AppTextStyles.bodyLarge.copyWith(
-                color: isToday ? context.ext.theme.backgroundDefault : context.ext.theme.textPlaceholder,
+                color: isToday ? context.ext.colors.white[100] : context.ext.colors.black[300],
               ),
             ),
           ),

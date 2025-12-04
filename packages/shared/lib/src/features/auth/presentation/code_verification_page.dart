@@ -1,17 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared/src/app_text_styles.dart';
-import 'package:shared/src/features/auth/presentation/support_button.dart';
-import 'package:shared/src/models/auth_result.dart';
-import 'package:shared/src/models/user.dart';
-import 'package:shared/src/result.dart';
-import 'package:shared/src/utils.dart';
-import 'package:shared/src/widgets/app_link_button.dart';
-import 'package:shared/src/widgets/app_page.dart';
-import 'package:shared/src/widgets/app_text.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:shared/shared.dart';
 
-import 'app_pin_form.dart';
+final _phoneFormatter = MaskTextInputFormatter(
+  mask: '+# ### ### ## ##',
+  filter: {"#": RegExp(r'[0-9]')},
+  type: MaskAutoCompletionType.lazy,
+);
 
 class PhoneVerificationCodePage<T extends User> extends StatelessWidget {
   const PhoneVerificationCodePage({
@@ -45,13 +42,16 @@ class PhoneVerificationCodePage<T extends User> extends StatelessWidget {
         children: [
           SizedBox(height: 48),
           SizedBox(
-            height: 330,
+            height: 360,
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppText('Введи код, отправленный на +$phoneNumber', style: AppTextStyles.headingLarge),
+                  AppText(
+                    'Введи код, отправленный на ${_phoneFormatter.maskText(phoneNumber)}',
+                    style: context.ext.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                   SizedBox(height: 38),
                   AppPinForm(validateCode: _verifyCode),
                   SizedBox(height: 16),
@@ -60,7 +60,7 @@ class PhoneVerificationCodePage<T extends User> extends StatelessWidget {
               ),
             ),
           ),
-          Padding(padding: EdgeInsets.only(left: 24), child: SupportButton()),
+          Align(child: SupportButton()),
         ],
       ),
     );
@@ -120,7 +120,7 @@ class _ResendCodeButtonState extends State<_ResendCodeButton> {
       final seconds = (_secondsRemaining % 60).toString().padLeft(2, '0');
       return 'Отправить код повторно через $minutes:$seconds';
     }
-    return _timer == null ? 'Не получили код?' : 'Отправить код повторно';
+    return _timer == null ? 'Не пришел код?' : 'Отправить код повторно';
   }
 
   @override

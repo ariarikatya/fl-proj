@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/booking/booking_utils.dart';
-import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
+import 'package:polka_clients/features/booking/controller/old_bookings_cubit.dart';
 import 'package:polka_clients/features/master_appointment/widgets/master_appointment_info.dart';
 import 'package:shared/shared.dart';
 
@@ -13,12 +14,8 @@ class BookingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LoadDataPage(
-      future: () => Dependencies().clientRepository.getMasterInfo(booking.masterId),
-      builder: (data) => BookingView(
-        booking: booking,
-        master: data.master,
-        service: data.services.firstWhere((e) => e.id == booking.serviceId),
-      ),
+      future: () => Dependencies().bookingsRepo.getBookingInfo(booking.id),
+      builder: (data) => BookingView(booking: booking, master: data.master, service: data.service),
     );
   }
 }
@@ -31,7 +28,7 @@ class BookingView extends StatelessWidget {
   final Service service;
 
   void _bookAgain(BuildContext context) {
-    blocs.get<BookingsCubit>(context).startAppointmentFlow(context, master, service);
+    context.read<OldBookingsCubit>().startAppointmentFlow(context, master, service);
   }
 
   void _cancelAppointment(BuildContext context) async {
@@ -42,13 +39,13 @@ class BookingView extends StatelessWidget {
       declineText: 'Нет',
     );
     if (context.mounted && cancel == true) {
-      final changed = await blocs.get<BookingsCubit>(context).cancelAppointment(context, booking.id);
+      final changed = await context.read<OldBookingsCubit>().cancelAppointment(context, booking.id);
       if (context.mounted && changed) context.ext.pop();
     }
   }
 
   void _changeAppointmentTime(BuildContext context) async {
-    final changed = await blocs.get<BookingsCubit>(context).changeAppointmentTime(context, booking);
+    final changed = await context.read<OldBookingsCubit>().changeAppointmentTime(context, booking);
     if (context.mounted && changed) context.ext.pop();
   }
 
@@ -71,7 +68,7 @@ class BookingView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               decoration: BoxDecoration(
-                border: Border.symmetric(horizontal: BorderSide(color: context.ext.theme.backgroundHover, width: 1)),
+                border: Border.symmetric(horizontal: BorderSide(color: context.ext.colors.white[300], width: 1)),
               ),
               width: double.infinity,
               child: Column(
@@ -81,7 +78,7 @@ class BookingView extends StatelessWidget {
                   const AppText('Когда:', style: AppTextStyles.headingSmall),
                   AppText(
                     booking.datetime.formatFull(),
-                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                    style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
                   ),
                   if (booking.status == BookingStatus.confirmed)
                     Padding(
@@ -105,18 +102,18 @@ class BookingView extends StatelessWidget {
                     const AppText('Где:', style: AppTextStyles.headingSmall),
                     AppText(
                       master.location.label,
-                      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
                       textAlign: TextAlign.center,
                     ),
                     AppText(
                       master.address,
-                      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+                      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
                     AppTextButtonSecondary.large(
                       text: 'Показать на карте',
-                      onTap: () => showOnMap(context, master.latitude, master.longitude, service.title),
+                      onTap: () => showOnExternalMap(context, master.latitude, master.longitude, service.title),
                     ),
                   ],
                 ),
@@ -134,7 +131,7 @@ class BookingView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               width: double.infinity,
               decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: context.ext.theme.backgroundHover, width: 1)),
+                border: Border(top: BorderSide(color: context.ext.colors.white[300], width: 1)),
               ),
               child: Column(
                 spacing: 8,
@@ -163,7 +160,7 @@ class BookingView extends StatelessWidget {
                             master.id,
                             master.fullName,
                             master.avatarUrl,
-                            withClient: true,
+                            withClient: false,
                           ),
                         ),
                       ),
@@ -227,7 +224,7 @@ class _Header extends StatelessWidget {
                 const SizedBox(height: 4),
                 AppText(
                   master.profession,
-                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700]),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -259,19 +256,19 @@ class _BookingStatusBadge extends StatelessWidget {
   final BookingStatus status;
 
   Color colorOf(BuildContext context) => switch (status) {
-    BookingStatus.pending => context.ext.theme.accent,
-    BookingStatus.confirmed => context.ext.theme.success,
-    BookingStatus.canceled => context.ext.theme.error,
-    BookingStatus.rejected => context.ext.theme.error,
-    BookingStatus.completed => context.ext.theme.textPrimary,
+    BookingStatus.pending => context.ext.colors.pink[500],
+    BookingStatus.confirmed => context.ext.colors.success,
+    BookingStatus.canceled => context.ext.colors.error,
+    BookingStatus.rejected => context.ext.colors.error,
+    BookingStatus.completed => context.ext.colors.black[900],
   };
 
   Color bgColorOf(BuildContext context) => switch (status) {
-    BookingStatus.pending => context.ext.theme.accentLight,
-    BookingStatus.confirmed => context.ext.theme.successLight,
-    BookingStatus.canceled => context.ext.theme.accentLight,
-    BookingStatus.rejected => context.ext.theme.accentLight,
-    BookingStatus.completed => context.ext.theme.backgroundHover,
+    BookingStatus.pending => context.ext.colors.pink[100],
+    BookingStatus.confirmed => context.ext.colors.white[200],
+    BookingStatus.canceled => context.ext.colors.pink[100],
+    BookingStatus.rejected => context.ext.colors.pink[100],
+    BookingStatus.completed => context.ext.colors.white[300],
   };
 
   @override

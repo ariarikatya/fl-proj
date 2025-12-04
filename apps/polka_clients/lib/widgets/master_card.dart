@@ -50,7 +50,7 @@ class MasterCard extends StatelessWidget {
               Flexible(
                 child: AppText(
                   master.profession,
-                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                  style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700]),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -67,7 +67,7 @@ class MasterCard extends StatelessWidget {
                 Flexible(
                   child: AppText(
                     master.address,
-                    style: AppTextStyles.bodyMedium.copyWith(color: context.ext.theme.textSecondary),
+                    style: AppTextStyles.bodyMedium.copyWith(color: context.ext.colors.black[700]),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
@@ -95,14 +95,13 @@ class MasterCard extends StatelessWidget {
               right: 8,
               top: 8,
               child: BlocBuilder<FavoritesCubit, FavoritesState>(
-                bloc: blocs.get<FavoritesCubit>(context),
                 builder: (context, state) {
                   final favoriteStatus = state.statusOf(master.id);
                   return GestureDetector(
                     onTap: () => switch (favoriteStatus) {
-                      FavoriteStatus.liked => blocs.get<FavoritesCubit>(context).unlike(master.id),
+                      FavoriteStatus.liked => context.read<FavoritesCubit>().unlike(master.id),
                       FavoriteStatus.loading => null,
-                      FavoriteStatus.notLiked => blocs.get<FavoritesCubit>(context).like(master.id),
+                      FavoriteStatus.notLiked => context.read<FavoritesCubit>().like(master.id),
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(4),
@@ -110,9 +109,9 @@ class MasterCard extends StatelessWidget {
                         Icons.favorite,
                         size: 24,
                         color: switch (favoriteStatus) {
-                          FavoriteStatus.liked => context.ext.theme.accent,
-                          FavoriteStatus.loading => context.ext.theme.accentLight,
-                          FavoriteStatus.notLiked => context.ext.theme.backgroundDefault,
+                          FavoriteStatus.liked => context.ext.colors.pink[500],
+                          FavoriteStatus.loading => context.ext.colors.pink[100],
+                          FavoriteStatus.notLiked => context.ext.colors.white[100],
                         },
                       ),
                     ),

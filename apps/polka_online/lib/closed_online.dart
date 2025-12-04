@@ -91,7 +91,7 @@ class _ClosedPageState extends State<ClosedPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppColors.backgroundDefault,
+        backgroundColor: polkaThemeExtension.white[100],
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -169,7 +169,7 @@ class _ClosedPageState extends State<ClosedPage> {
           const SizedBox(height: 16),
           Text(
             'Вас нет в клиентской базе мастера, поэтому запись недоступна. Если это не так, то, пожалуйста, попросите мастера добавить вас в клиентскую базу в приложении POLKA',
-            style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
+            style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -211,7 +211,7 @@ class _ClosedPageState extends State<ClosedPage> {
         const SizedBox(height: 16),
         Text(
           'Вас нет в клиентской базе мастера, поэтому запись недоступна. Если это не так, то, пожалуйста, попросите мастера добавить вас в клиентскую базу в приложении POLKA',
-          style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
+          style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
         ),
         const SizedBox(height: 32),
         MobileMasterCard(
@@ -238,7 +238,7 @@ class _ClosedPageState extends State<ClosedPage> {
 
   Widget _buildErrorState() {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDefault,
+      backgroundColor: polkaThemeExtension.white[100],
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),

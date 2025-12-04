@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_clients/features/booking/widgets/booking_page.dart';
 import 'package:polka_clients/features/booking/booking_utils.dart';
-import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
+import 'package:polka_clients/features/booking/controller/old_bookings_cubit.dart';
 import 'package:shared/shared.dart';
 
 class BookingCard extends StatelessWidget {
@@ -11,7 +12,7 @@ class BookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isNew = blocs.get<BookingsCubit>(context).newBookingId == booking.id;
+    final isNew = context.read<OldBookingsCubit>().newBookingId == booking.id;
 
     final timeLabel =
         '${booking.date.formatShort()} • ${booking.startTime.toTimeString()}-${booking.endTime.toTimeString()}';
@@ -52,7 +53,7 @@ class BookingCard extends StatelessWidget {
                 Row(
                   spacing: 4,
                   children: [
-                    AppIcons.clock.icon(context, size: 16),
+                    FIcons.clock.icon(context, size: 16),
                     Flexible(child: AppText(timeLabel.capitalized, style: AppTextStyles.bodyMedium)),
                   ],
                 ),
@@ -75,10 +76,10 @@ class BookingCard extends StatelessWidget {
         tween: Tween(begin: .4, end: .0),
         duration: const Duration(milliseconds: 2000),
         child: child,
-        onEnd: () => blocs.get<BookingsCubit>(context).markAsRead(),
+        onEnd: () => context.read<OldBookingsCubit>().markAsRead(),
         builder: (context, value, child) {
           return ColoredBox(
-            color: context.ext.theme.accent.withValues(alpha: value),
+            color: context.ext.colors.pink[500].withValues(alpha: value),
             child: child,
           );
         },
@@ -148,7 +149,7 @@ class _AddToCalendarBtn extends StatelessWidget {
       offset: const Offset(0, 24),
       menuPadding: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: context.ext.theme.backgroundDefault,
+      color: context.ext.colors.white[100],
       onSelected: (value) {
         if (value == 'calendar') addCalendarEvent(booking);
       },
@@ -158,13 +159,13 @@ class _AddToCalendarBtn extends StatelessWidget {
           child: Row(
             spacing: 8,
             children: [
-              AppIcons.calendar.icon(context, size: 24, color: context.ext.theme.accent),
+              FIcons.calendar.icon(context, size: 24, color: context.ext.colors.pink[500]),
               const AppText('Добавить в календарь', style: AppTextStyles.bodyMedium),
             ],
           ),
         ),
       ],
-      child: Padding(padding: const EdgeInsets.all(4), child: AppIcons.dotsVertical.icon(context, size: 24)),
+      child: Padding(padding: const EdgeInsets.all(4), child: FIcons.more_vertical.icon(context, size: 24)),
     );
   }
 }

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/contacts/controller/contact_search_cubit.dart';
+import 'package:polka_masters/features/contacts/data/contact_reminder.dart';
 import 'package:polka_masters/features/contacts/data/utils.dart';
 import 'package:polka_masters/features/contacts/widgets/contact_screen.dart';
 import 'package:polka_masters/features/contacts/widgets/contact_tile.dart';
 import 'package:shared/shared.dart';
 
 class ContactGroupSearchScreen extends StatefulWidget {
-  const ContactGroupSearchScreen({super.key, required this.group, this.remindButton = false});
+  const ContactGroupSearchScreen({super.key, required this.group, this.reminder});
 
   final ContactGroup group;
-  final bool remindButton;
+  final ContactReminder? reminder;
 
   @override
   State<ContactGroupSearchScreen> createState() => _ContactGroupSearchScreenState();
@@ -73,7 +74,7 @@ class _ContactGroupSearchScreenState extends State<ContactGroupSearchScreen> {
                 AppText(heading.title, style: AppTextStyles.headingLarge),
                 AppText(
                   heading.description,
-                  style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.iconsDefault),
+                  style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700]),
                 ),
               ],
             ),
@@ -82,7 +83,7 @@ class _ContactGroupSearchScreenState extends State<ContactGroupSearchScreen> {
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
             child: AppTextFormField(
               hintText: 'Имя или номер телефона',
-              prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
+              prefixIcon: FIcons.search.icon(context, color: context.ext.colors.black[500]),
               controller: _controller,
             ),
           ),
@@ -94,8 +95,11 @@ class _ContactGroupSearchScreenState extends State<ContactGroupSearchScreen> {
                 onTap: () => context.ext.push(ContactScreen(contactId: item.id)).then((_) {
                   _search.search();
                 }),
-                button: widget.remindButton
-                    ? AppTextButton.small(text: 'Напомнить', onTap: () => remindContact(context, item))
+                button: widget.reminder != null
+                    ? AppTextButton.small(
+                        text: 'Напомнить',
+                        onTap: () => remindContact(context, item, widget.reminder!),
+                      )
                     : null,
               ),
               emptyBuilder: (_) => const Center(

@@ -12,7 +12,7 @@ class ContactCard extends StatelessWidget {
     return Container(
       height: 64,
       padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(color: context.ext.colors.white[300], borderRadius: BorderRadius.circular(14)),
       child: Row(
         spacing: 8,
         children: [

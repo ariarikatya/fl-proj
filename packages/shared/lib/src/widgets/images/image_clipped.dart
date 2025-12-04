@@ -13,8 +13,9 @@ class ImageClipped extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultColor = context.ext.theme.backgroundHover;
+    final defaultColor = context.ext.colors.white[300];
     final cacheHeight = height == null ? null : (height! * MediaQuery.of(context).devicePixelRatio).toInt();
+    // final cacheHeight = height == null ? null : height!.toInt();
 
     return SizedBox(
       width: width ?? double.infinity,

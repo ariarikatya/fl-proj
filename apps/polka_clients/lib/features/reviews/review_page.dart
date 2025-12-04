@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:polka_clients/dependencies.dart';
-import 'package:polka_clients/features/booking/controller/bookings_cubit.dart';
+import 'package:polka_clients/features/booking/controller/completed_bookings_cubit.dart';
 import 'package:shared/shared.dart';
 
 class ReviewPage extends StatefulWidget {
@@ -45,7 +46,7 @@ class _ReviewPageState extends State<ReviewPage> {
     result.maybeWhen(
       ok: (data) {
         context.ext.pop(true);
-        blocs.get<BookingsCubit>(context).markAsReviewed(widget.booking.id);
+        context.read<CompletedBookingsCubit>().markAsReviewed(widget.booking.id);
       },
       err: (e, st) => handleError,
     );
@@ -65,11 +66,11 @@ class _ReviewPageState extends State<ReviewPage> {
               child: _BookingInfoCard(booking: widget.booking),
             ),
             _Stars(stars: _stars),
-            Divider(color: context.ext.theme.backgroundHover, height: 1),
+            Divider(color: context.ext.colors.white[300], height: 1),
 
             _subtitle('Что особенно понравилось?'),
             _Tags(tags: _tags),
-            Divider(color: context.ext.theme.backgroundHover, height: 1),
+            Divider(color: context.ext.colors.white[300], height: 1),
 
             _subtitle('Напиши комментарий'),
             Padding(
@@ -82,7 +83,7 @@ class _ReviewPageState extends State<ReviewPage> {
                 maxLength: 1000,
               ),
             ),
-            Divider(color: context.ext.theme.backgroundHover, height: 1),
+            Divider(color: context.ext.colors.white[300], height: 1),
 
             _subtitle('Добавь фото'),
             MultiImagePickerWidget(count: 5, onImagesChanged: (images) => _images.value = images),
@@ -124,17 +125,17 @@ class _Disclaimer extends StatelessWidget {
             TextSpan(
               text: 'Нажимая кнопку, вы принимаете ',
               style: AppTextStyles.bodySmall.copyWith(
-                color: context.ext.theme.textSecondary,
+                color: context.ext.colors.black[700],
                 fontWeight: FontWeight.w500,
               ),
             ),
             WidgetSpan(
               child: GestureDetector(
-                onTap: () => launchUrl(Uri.parse(AppDocLinks.reviewPublicationConditions)),
+                // onTap: () => launchUrl(Uri.parse(AppDocLinks.reviewPublicationConditions)),
                 child: AppText(
                   'условия публикации',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: context.ext.theme.textPrimary,
+                    color: context.ext.colors.black[900],
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -143,7 +144,7 @@ class _Disclaimer extends StatelessWidget {
             TextSpan(
               text: ' отзыва - он появится в карточке мастера',
               style: AppTextStyles.bodySmall.copyWith(
-                color: context.ext.theme.textSecondary,
+                color: context.ext.colors.black[700],
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -206,10 +207,10 @@ class _Stars extends StatelessWidget {
                 for (var i = 1; i <= 5; i++)
                   GestureDetector(
                     onTap: () => _stars.value = i,
-                    child: AppIcons.star.icon(
+                    child: FIcons.star.icon(
                       context,
                       size: 44,
-                      color: value >= i ? Colors.amberAccent : context.ext.theme.backgroundDisabled,
+                      color: value >= i ? Colors.amberAccent : context.ext.colors.white[200],
                     ),
                   ),
               ],

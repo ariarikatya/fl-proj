@@ -77,12 +77,12 @@ class _PickContactScreenState extends State<PickContactScreen> {
                 const SizedBox(height: 8),
                 AppText.secondary(
                   'Начни вводить имя клиента и выбери из списка, если клиент из POLKA или уже был добавлен',
-                  style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.textSecondary),
+                  style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700]),
                 ),
                 const SizedBox(height: 24),
                 AppTextFormField(
                   hintText: 'Выбери клиента',
-                  prefixIcon: AppIcons.search.icon(context, color: context.ext.theme.textPlaceholder),
+                  prefixIcon: FIcons.search.icon(context, color: context.ext.colors.black[500]),
                   controller: _controller,
                   focusNode: _focusNode,
                 ),
@@ -91,7 +91,7 @@ class _PickContactScreenState extends State<PickContactScreen> {
             ),
           ),
 
-          Divider(color: context.ext.theme.backgroundHover, height: 1),
+          Divider(color: context.ext.colors.white[300], height: 1),
 
           Expanded(
             child: SingleChildScrollView(
@@ -147,7 +147,10 @@ class _PickContactScreenState extends State<PickContactScreen> {
                         onTap: () => _pickContact(_selectedContact!),
                         button: GestureDetector(
                           onTap: () => setState(() => _selectedContact = null),
-                          child: Padding(padding: const EdgeInsets.fromLTRB(8, 8, 0, 8), child: AppIcons.close.icon(context)),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 8, 0, 8),
+                            child: AppIcons.close.icon(context),
+                          ),
                         ),
                       ),
                     ] else ...[
@@ -221,7 +224,7 @@ class __CreateContactViewState extends State<_CreateContactView> {
         const SizedBox(height: 8),
         AppText.secondary(
           'Заполни данные и добавь клиента в свою записную книгу',
-          style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.textSecondary),
+          style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700]),
         ),
         const SizedBox(height: 24),
         AppTextFormField(hintText: 'Имя клиента', controller: _nameController),

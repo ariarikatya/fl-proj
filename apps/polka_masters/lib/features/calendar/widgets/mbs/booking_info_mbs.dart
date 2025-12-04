@@ -6,13 +6,13 @@ import 'package:polka_masters/features/contacts/widgets/contact_card.dart';
 import 'package:shared/shared.dart';
 
 Future<Booking?> showBookingInfoMbs({required BuildContext context, required Booking booking}) {
-  if (booking.isTimeBlock) return Future.value(null);
+  // if (booking.isTimeBlock) return Future.value(null);
   return showModalBottomSheet<Booking?>(
     context: context,
-    backgroundColor: context.ext.theme.backgroundDefault,
+    backgroundColor: context.ext.colors.white[100],
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-    builder: (_) => _View(booking: booking),
+    builder: (_) => booking.isTimeBlock ? _TimeBlockInfoMbs(timeblock: booking) : _View(booking: booking),
   );
 }
 
@@ -25,7 +25,6 @@ class _View extends StatelessWidget {
   Widget build(BuildContext context) {
     return LoadDataMbs(
       future: () => Dependencies().bookingsRepository.getBookingInfo(booking.id),
-      // future: () => Future.delayed(Duration(seconds: 1), () => Result.ok(_mockInfo(booking))),
       builder: (data) => _BookingInfoMbs(info: data),
     );
   }
@@ -52,8 +51,14 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
     }
   }
 
-  void _setStartTime(Duration duration) => setState(() => _startTime = duration);
+  void _setStartTime(Duration duration) => setState(() {
+    _startTime = duration;
+    _endTime = _startTime + (_service.duration);
+  });
+
   void _setEndTime(Duration duration) => setState(() => _endTime = duration);
+
+  bool get canEdit => [BookingStatus.pending, BookingStatus.confirmed].contains(widget.info.booking.status);
 
   bool get hasChanges =>
       _service != widget.info.service ||
@@ -64,15 +69,13 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
     if (!hasChanges) return;
 
     final newServiceId = _service != widget.info.service ? _service.id : null;
-    final newStartTime = _startTime != widget.info.booking.startTime ? _startTime : null;
-    final newEndTime = _endTime != widget.info.booking.endTime ? _endTime : null;
 
-    await Dependencies().bookingsRepository.updateBooking(
+    (await Dependencies().bookingsRepository.updateBooking(
       bookingId: widget.info.booking.id,
       serviceId: newServiceId,
-      startTime: newStartTime,
-      endTime: newEndTime,
-    ); // Events update via socket messages
+      startTime: _startTime,
+      endTime: _endTime,
+    )).unpack(); // Events update via socket messages
     if (mounted) context.ext.pop();
   }
 
@@ -90,10 +93,10 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
   }
 
   Future<void> _deleteBooking() async {
-    await switch (widget.info.booking.status) {
+    (await switch (widget.info.booking.status) {
       BookingStatus.pending => Dependencies().bookingsRepository.rejectBooking(widget.info.booking.id),
       _ => Dependencies().bookingsRepository.cancelBooking(widget.info.booking.id),
-    }; // Events update via socket messages
+    }).unpack(); // Events update via socket messages
     if (mounted) context.ext.pop();
   }
 
@@ -128,7 +131,7 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
                       widget.info.client?.id ?? widget.info.contact.id,
                       widget.info.client?.fullName ?? widget.info.contact.name,
                       widget.info.client?.avatarUrl ?? widget.info.contact.avatarUrl,
-                      withClient: false,
+                      withClient: true,
                     ),
                   ),
                 ),
@@ -152,34 +155,114 @@ class _BookingInfoMbsState extends State<_BookingInfoMbs> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const AppText('Какая услуга?', style: AppTextStyles.headingSmall),
-            AppLinkButton(text: 'Изменить', onTap: _changeService),
+            if (canEdit) AppLinkButton(text: 'Изменить', onTap: _changeService),
           ],
         ),
         const SizedBox(height: 16),
         ServiceCard(_service),
         const SizedBox(height: 16),
         const AppText('Когда?', style: AppTextStyles.headingSmall),
-        const SizedBox(height: 8),
-        AppText(
-          'Ты можешь изменить время услуги, а мы сообщим клиенту в приложении',
-          style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.theme.textSecondary),
-        ),
+        if (canEdit) ...[
+          const SizedBox(height: 8),
+          AppText(
+            'Ты можешь изменить время услуги, а мы сообщим клиенту в приложении',
+            style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700]),
+          ),
+        ],
         const SizedBox(height: 16),
-        FromToDurationPicker(
-          startTime: _startTime,
-          endTime: _endTime,
-          onStartTimeChanged: _setStartTime,
-          onEndTimeChanged: _setEndTime,
-        ),
-        const SizedBox(height: 24),
-        AppTextButton.large(text: 'Сохранить изменения', onTap: _saveChanges, enabled: hasChanges),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Center(
-            child: AppLinkButton(text: 'Отменить запись', onTap: _maybeDeleteBooking),
+        IgnorePointer(
+          ignoring: !canEdit,
+          child: FromToDurationPicker(
+            startTime: _startTime,
+            endTime: _endTime,
+            onStartTimeChanged: _setStartTime,
+            onEndTimeChanged: _setEndTime,
           ),
         ),
+        const SizedBox(height: 24),
+        if (canEdit) ...[
+          AppTextButton.large(text: 'Сохранить изменения', onTap: _saveChanges, enabled: hasChanges),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Center(
+              child: AppLinkButton(text: 'Отменить запись', onTap: _maybeDeleteBooking),
+            ),
+          ),
+        ],
       ],
+    );
+  }
+}
+
+class _TimeBlockInfoMbs extends StatefulWidget {
+  const _TimeBlockInfoMbs({required this.timeblock});
+
+  final Booking timeblock;
+
+  @override
+  State<_TimeBlockInfoMbs> createState() => _TimeBlockInfoMbsState();
+}
+
+class _TimeBlockInfoMbsState extends State<_TimeBlockInfoMbs> {
+  Future<void> _maybeDeleteTimeBlock() async {
+    final delete = await showConfirmBottomSheet(
+      context: context,
+      title: 'Ты уверена, что хочешь отменить перерыв?',
+      acceptText: 'Да, отменить перерыв',
+      declineText: 'Нет, оставить',
+    );
+    if (delete == true) {
+      await _deleteTimeBlock();
+    }
+  }
+
+  Future<void> _deleteTimeBlock() async {
+    (await Dependencies().schedulesRepo.unblockTime(
+      date: widget.timeblock.date,
+      startTime: widget.timeblock.startTime,
+      endTime: widget.timeblock.endTime,
+    )).unpack(); // Events update via socket messages
+    if (mounted) context.ext.pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final styles = context.ext.textTheme;
+    final colors = context.ext.colors;
+
+    return MbsBase(
+      expandContent: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppText(
+            'Перерыв, ${widget.timeblock.date.format('d MMMM, E')}',
+            textAlign: TextAlign.start,
+            style: styles.headlineMedium,
+          ),
+          const SizedBox(height: 40),
+          AppText('Время перерыва', style: styles.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          AppText(
+            'Мы не будем показывать занятое время твоим клиентам',
+            style: styles.bodyMedium?.copyWith(color: colors.black[700]),
+          ),
+          const SizedBox(height: 20),
+          IgnorePointer(
+            ignoring: true,
+            child: FromToDurationPicker(
+              startTime: widget.timeblock.startTime,
+              endTime: widget.timeblock.endTime,
+              onStartTimeChanged: (_) {},
+              onEndTimeChanged: (_) {},
+            ),
+          ),
+          const SizedBox(height: 24),
+          AppTextButtonSecondary.large(text: 'Отменить перерыв', onTap: _maybeDeleteTimeBlock),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

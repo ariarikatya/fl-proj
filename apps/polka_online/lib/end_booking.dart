@@ -6,7 +6,6 @@ import 'final.dart';
 import 'widgets/widgets.dart';
 import 'widgets/page_layout_helpers.dart';
 import 'widgets/app_utils.dart';
-import 'dependencies.dart';
 
 class EndBookingPage extends StatefulWidget {
   final MasterInfo masterInfo;
@@ -29,7 +28,6 @@ class EndBookingPage extends StatefulWidget {
 class _EndBookingPageState extends State<EndBookingPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
-  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -53,82 +51,34 @@ class _EndBookingPageState extends State<EndBookingPage> {
     Navigator.pop(context);
   }
 
-  Future<void> _submitBooking() async {
+  void _submitBooking() {
     final name = _nameController.text.trim();
     final comment = _commentController.text.trim();
+    final selectedTime = DateFormat('HH:mm').format(widget.selectedSlot.datetime);
 
-    if (name.isEmpty) {
-      logger.warning('Booking submission failed - name is empty');
-      ScaffoldMessenger.of(
+    logger.debug('Submit booking attempt - name: $name, comment length: ${comment.length}, time: $selectedTime');
+
+    if (name.isNotEmpty) {
+      logger.info(
+        'Booking submitted successfully - name: $name, service: ${widget.service.title}, date: ${widget.selectedSlot.datetime.dateOnly}',
+      );
+      Navigator.push(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Введите имя')));
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    final masterId = widget.masterInfo.master.id;
-    final serviceId = widget.service.id;
-    final slotId = widget.selectedSlot.id;
-
-    logger.info(
-      '[EndBookingPage] Submitting booking - name: $name, masterId: $masterId, serviceId: $serviceId, slotId: $slotId, serviceName: ${widget.service.title}, datetime: ${widget.selectedSlot.datetime}, comment: ${comment.isNotEmpty ? comment : "empty"}',
-    );
-
-    try {
-      final bookingsRepo = Dependencies.instance.bookingsRepository;
-      final result = await bookingsRepo.makeAppointment(
-        masterId: masterId,
-        serviceId: serviceId,
-        slotId: slotId,
-        clientName: name,
-        clientNotes: comment.isNotEmpty ? comment : null,
+        MaterialPageRoute(
+          builder: (context) => FinalPage(
+            masterId: widget.masterInfo.master.id.toString(),
+            service: widget.service,
+            selectedDate: widget.selectedSlot.datetime.dateOnly,
+            selectedTime: selectedTime,
+            name: name,
+            comment: comment,
+            phoneNumber: widget.phoneNumber ?? '',
+          ),
+        ),
       );
-
-      if (!mounted) return;
-
-      result.when(
-        ok: (appointmentId) {
-          logger.info(
-            '[EndBookingPage] Booking submitted successfully - appointmentId: $appointmentId',
-          );
-
-          final selectedTime = DateFormat(
-            'HH:mm',
-          ).format(widget.selectedSlot.datetime);
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FinalPage(
-                masterId: masterId.toString(),
-                service: widget.service,
-                selectedDate: widget.selectedSlot.datetime.dateOnly,
-                selectedTime: selectedTime,
-                name: name,
-                comment: comment,
-                phoneNumber: widget.phoneNumber ?? '',
-              ),
-            ),
-          );
-        },
-        err: (error, stackTrace) {
-          logger.error('[EndBookingPage] Booking submission error: $error');
-          setState(() => _isSubmitting = false);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Ошибка: ${parseError(error, stackTrace)}')),
-          );
-        },
-      );
-    } catch (e) {
-      logger.error('[EndBookingPage] Unexpected booking error: $e');
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Произошла ошибка при записи')),
-        );
-      }
+    } else {
+      logger.warning('Booking submission failed - name is empty');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Введите имя')));
     }
   }
 
@@ -138,13 +88,10 @@ class _EndBookingPageState extends State<EndBookingPage> {
     final height = MediaQuery.of(context).size.height;
     final isDesktop = LayoutHelper.isDesktopLayout(width);
     final showImage = LayoutHelper.shouldShowImage(width, isDesktop);
-    final imageWidth = LayoutHelper.calculateImageWidth(
-      screenWidth: width,
-      showImage: showImage,
-    );
+    final imageWidth = LayoutHelper.calculateImageWidth(screenWidth: width, showImage: showImage);
 
     logger.debug(
-      'Building EndBookingPage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth, nameLength: ${_nameController.text.length}, commentLength: ${_commentController.text.length}, isSubmitting: $_isSubmitting',
+      'Building EndBookingPage - width: $width, height: $height, isDesktop: $isDesktop, showImage: $showImage, imageWidth: $imageWidth, nameLength: ${_nameController.text.length}, commentLength: ${_commentController.text.length}',
     );
 
     return PageScaffold(
@@ -152,10 +99,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
       showImage: showImage,
       onMenuTap: () {
         logger.debug('Opening menu page from EndBookingPage');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MenuPage()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPage()));
       },
       onDownloadTap: () {
         logger.debug('Opening store from EndBookingPage header');
@@ -164,8 +108,8 @@ class _EndBookingPageState extends State<EndBookingPage> {
       breadcrumbStep: 3,
       onBackTap: _goBack,
       mobileBottomButton: AppTextButton.large(
-        text: _isSubmitting ? 'Отправка...' : 'Записаться к мастеру',
-        enabled: _nameController.text.trim().isNotEmpty && !_isSubmitting,
+        text: 'Записаться к мастеру',
+        enabled: _nameController.text.trim().isNotEmpty,
         onTap: () {
           logger.debug('Booking button tapped in mobile EndBookingPage');
           _submitBooking();
@@ -175,12 +119,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
         child: SafeArea(
           top: false,
           child: isDesktop
-              ? _buildDesktopContent(
-                  width: width,
-                  height: height,
-                  showImage: showImage,
-                  imageWidth: imageWidth,
-                )
+              ? _buildDesktopContent(width: width, height: height, showImage: showImage, imageWidth: imageWidth)
               : _buildMobileContent(),
         ),
       ),
@@ -200,9 +139,7 @@ class _EndBookingPageState extends State<EndBookingPage> {
     );
 
     if (master.avatarUrl.isEmpty) {
-      logger.warning(
-        'Master avatar URL is empty for master: ${master.fullName}',
-      );
+      logger.warning('Master avatar URL is empty for master: ${master.fullName}');
     }
 
     return DesktopPageLayout(
@@ -222,15 +159,10 @@ class _EndBookingPageState extends State<EndBookingPage> {
           const SizedBox(height: 16),
           Text(
             'Оставьте Ваше имя и комментарий, чтобы мы могли добавить Вас в расписание к мастеру',
-            style: AppTextStyles.bodyMedium500.copyWith(
-              color: AppColors.iconsDefault,
-            ),
+            style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
           ),
           const SizedBox(height: 24),
-          AppTextFormField(
-            controller: _nameController,
-            labelText: 'Ваше имя и фамилия',
-          ),
+          AppTextFormField(controller: _nameController, labelText: 'Ваше имя и фамилия'),
           const SizedBox(height: 16),
           AppTextFormField(
             controller: _commentController,
@@ -238,17 +170,14 @@ class _EndBookingPageState extends State<EndBookingPage> {
             maxLines: 4,
           ),
           const SizedBox(height: 32),
-          if (_isSubmitting)
-            const Center(child: CircularProgressIndicator())
-          else
-            AppTextButton.large(
-              text: 'Записаться к мастеру',
-              enabled: _nameController.text.trim().isNotEmpty,
-              onTap: () {
-                logger.debug('Booking button tapped in desktop EndBookingPage');
-                _submitBooking();
-              },
-            ),
+          AppTextButton.large(
+            text: 'Записаться к мастеру',
+            enabled: _nameController.text.trim().isNotEmpty,
+            onTap: () {
+              logger.debug('Booking button tapped in desktop EndBookingPage');
+              _submitBooking();
+            },
+          ),
         ],
       ),
       rightCard: DesktopMasterCard(
@@ -272,25 +201,16 @@ class _EndBookingPageState extends State<EndBookingPage> {
         const SizedBox(height: 16),
         Text(
           'Оставьте Ваше имя и комментарий, чтобы мы могли добавить Вас в расписание к мастеру',
-          style: AppTextStyles.bodyMedium500.copyWith(
-            color: AppColors.iconsDefault,
-          ),
+          style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
         ),
         const SizedBox(height: 24),
-        AppTextFormField(
-          controller: _nameController,
-          labelText: 'Ваше имя и фамилия',
-        ),
+        AppTextFormField(controller: _nameController, labelText: 'Ваше имя и фамилия'),
         const SizedBox(height: 16),
         AppTextFormField(
           controller: _commentController,
           labelText: 'Комментарий, например, аллергия на коллаген',
           maxLines: 4,
         ),
-        if (_isSubmitting) ...[
-          const SizedBox(height: 24),
-          const Center(child: CircularProgressIndicator()),
-        ],
       ],
     );
   }

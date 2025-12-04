@@ -1,5 +1,6 @@
 import 'dart:math' show Random;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/map_search/controller/map_markers_paginator.dart';
 import 'package:polka_clients/features/map_search/controller/map_search_cubit.dart';
@@ -16,7 +17,7 @@ class MockMapView extends StatefulWidget {
 }
 
 class _MockMapViewState extends State<MockMapView> {
-  late final _markersPaginator = blocs.get<MapMarkersPaginator>(context);
+  late final _markersPaginator = context.read<MapMarkersPaginator>();
   final List<MasterMarker> _markers = [];
   final TransformationController _controller = TransformationController();
   static const double _minScale = 0.5;
@@ -57,14 +58,14 @@ class _MockMapViewState extends State<MockMapView> {
       width: 42,
       height: 42,
       decoration: BoxDecoration(
-        color: context.ext.theme.backgroundDefault,
+        color: context.ext.colors.white[100],
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: context.ext.theme.textPrimary, width: 2),
+        border: Border.all(color: context.ext.colors.black[900], width: 2),
       ),
       child: Center(
         child: AppText(
           '⭐${marker.rating.toStringAsFixed(1)}',
-          style: AppTextStyles.bodySmall.copyWith(color: context.ext.theme.textPrimary),
+          style: AppTextStyles.bodySmall.copyWith(color: context.ext.colors.black[900]),
         ),
       ),
     ),
@@ -115,7 +116,7 @@ class _MockMapViewState extends State<MockMapView> {
   void _showCustomModal(BuildContext context, int masterId) async {
     final result = await Dependencies().mapRepo.getMasterMapInfo(
       masterId,
-      location: blocs.get<MapFeedCubit>(context).location,
+      location: context.read<MapFeedCubit>().location,
     );
     result.when(
       ok: (data) {

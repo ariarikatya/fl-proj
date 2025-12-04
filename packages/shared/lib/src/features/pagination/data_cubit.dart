@@ -10,9 +10,16 @@ abstract class DataCubit<T> extends Cubit<DataState<T>> {
 
   Future<Result<T>> loadData();
 
-  Future<void> load() async {
-    if (state is DataLoading) return;
-    emit(DataState.loading());
+  /// In cases where you just need to watch for data and do not need to react to states
+  T? get data {
+    if (state case DataLoaded<T>(:final data)) return data;
+    return null;
+  }
+
+  /// Loads data using the implementation of [loadData]
+  /// `silent` parameter disables loading animation (ignores emitting LoadingState)
+  Future<void> load({bool silent = false}) async {
+    if (!silent) emit(DataState.loading());
 
     final result = await loadData();
     safeEmit(result.when(ok: (data) => DataState.loaded(data), err: (err, st) => DataState.error(parseError(err, st))));

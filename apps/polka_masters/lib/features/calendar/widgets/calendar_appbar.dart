@@ -14,7 +14,7 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
     final scope = context.watch<CalendarScope>();
     final date = scope.date;
     return Material(
-      color: context.ext.theme.backgroundSubtle,
+      color: context.ext.colors.white[100],
       child: SafeArea(
         child: SizedBox(
           height: 48,
@@ -30,7 +30,7 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
                       onTap: () => Scaffold.of(context).openDrawer(),
                       child: Material(
                         color: Colors.transparent,
-                        child: Padding(padding: const EdgeInsets.all(8.0), child: AppIcons.drawer.icon(context)),
+                        child: Padding(padding: const EdgeInsets.all(8.0), child: FIcons.menu.icon(context)),
                       ),
                     ),
                     GestureDetector(
@@ -47,7 +47,7 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
                           spacing: 4,
                           children: [
                             AppText(date.format('MMMM').capitalized, style: AppTextStyles.headingLarge),
-                            AppIcons.arrowDown.icon(context),
+                            FIcons.chevron_down.icon(context),
                           ],
                         ),
                       ),
@@ -60,7 +60,7 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
                         height: 32,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: context.ext.theme.borderSubtle,
+                          color: context.ext.colors.white[200],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: AppText(DateTime.now().format('d')),
@@ -69,18 +69,6 @@ class CalendarAppbar extends StatelessWidget implements PreferredSizeWidget {
                   ],
                 ),
               ),
-              if (false)
-                Positioned(
-                  top: switch (scope.viewMode) {
-                    // Different views have different heights
-                    CalendarViewMode.day => 96,
-                    CalendarViewMode.week => 99,
-                    CalendarViewMode.month => 93,
-                  },
-                  left: 0,
-                  right: 0,
-                  child: const CalendarBanner$ScheduleRequired(),
-                ),
             ],
           ),
         ),
@@ -104,7 +92,7 @@ class CalendarBanner$ScheduleRequired extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-      color: context.ext.theme.accentLight,
+      color: context.ext.colors.pink[100],
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

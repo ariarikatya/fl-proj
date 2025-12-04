@@ -1,6 +1,5 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 enum CalendarViewMode {
@@ -14,9 +13,9 @@ enum CalendarViewMode {
 }
 
 class CalendarScope extends ChangeNotifier {
-  CalendarScope();
+  CalendarScope({required this.eventController});
 
-  final _controller = EventController<Booking>();
+  final EventController<Booking> eventController;
   final monthViewKey = GlobalKey<MonthViewState>();
   final weekViewKey = GlobalKey<WeekViewState>();
   final dayViewKey = GlobalKey<DayViewState>();
@@ -35,25 +34,13 @@ class CalendarScope extends ChangeNotifier {
   }
 
   void setViewMode(CalendarViewMode $mode) {
+    // If view is current month, set current date to now when changing view to day/week
+    final now = DateTime.now();
+    if (_viewMode == CalendarViewMode.month && _date.month == now.month && _date.year == now.year) {
+      _date = now;
+    }
+
     _viewMode = $mode;
-    // _date = DateTime.now();
     notifyListeners();
-  }
-}
-
-class CalendarScopeWidget extends StatelessWidget {
-  const CalendarScopeWidget({required this.child, super.key});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => CalendarScope(),
-      builder: (ctx, _) {
-        final controller = ctx.read<CalendarScope>()._controller;
-        return CalendarControllerProvider(controller: controller, child: child);
-      },
-    );
   }
 }

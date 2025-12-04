@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_clients/dependencies.dart';
 import 'package:polka_clients/features/map_search/controller/map_markers_paginator.dart';
 import 'package:polka_clients/features/map_search/controller/map_search_cubit.dart';
@@ -20,7 +21,7 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   maps.MapWindow? _mapWindow;
   late maps.MapObjectCollection _markers;
-  late final _markersPaginator = blocs.get<MapMarkersPaginator>(context);
+  late final _markersPaginator = context.read<MapMarkersPaginator>();
 
   @override
   void initState() {
@@ -45,7 +46,7 @@ class _MapViewState extends State<MapView> {
   }
 
   void _updateLocation(double latitude, double longitude) {
-    blocs.get<MapFeedCubit>(context).setLocation((latitude, longitude));
+    context.read<MapFeedCubit>().setLocation((latitude, longitude));
     _markersPaginator.setLocation((latitude, longitude));
     _moveCamera(latitude, longitude);
   }
@@ -78,20 +79,20 @@ class _MapViewState extends State<MapView> {
 
   void _addMarkers(List<MasterMarker> markers) {
     // MapView has its own widget tree so we read them theme value and do not subscribe to its changes
-    final theme = context.ext.theme;
+    final theme = context.ext.colors;
     Widget mark(MasterMarker marker) => Container(
       width: 42,
       height: 42,
       decoration: BoxDecoration(
-        color: theme.backgroundDefault,
+        color: theme.white[100],
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: theme.textPrimary, width: 2),
+        border: Border.all(color: theme.black[900], width: 2),
       ),
       child: Center(
         child: AppText(
           '⭐${marker.rating.toStringAsFixed(1)}',
           // Passing color explicitly is imporant because map's context is different and does not have [AppThemeWidget] above
-          style: AppTextStyles.bodySmall.copyWith(color: theme.textPrimary),
+          style: AppTextStyles.bodySmall.copyWith(color: theme.black[900]),
         ),
       ),
     );
@@ -131,7 +132,7 @@ class MasterMarkerTapListener implements maps.MapObjectTapListener {
 void _showCustomModal(BuildContext context, int masterId) async {
   final result = await Dependencies().mapRepo.getMasterMapInfo(
     masterId,
-    location: blocs.get<MapFeedCubit>(context).location,
+    location: context.read<MapFeedCubit>().location,
   );
   result.when(
     ok: (data) {

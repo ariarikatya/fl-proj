@@ -24,9 +24,10 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    $initializeMapKit();
-    // By calling this cubit we create and initialize it
-    blocs.get<ChatsCubit>(context);
+    if (!Dependencies().mapkitInit.isCompleted) $initializeMapKit();
+
+    // Ask notification permissions
+    Dependencies().requestNotificationPermissions();
   }
 
   @override

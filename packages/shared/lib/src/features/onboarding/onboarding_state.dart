@@ -51,9 +51,13 @@ abstract class OnboardingPageState<S extends StatefulWidget, C extends $Onboardi
     return Center(
       child: GestureDetector(
         onTap: () => _continueCallback(skip: true),
-        child: AppText(
-          'Заполнить позже',
-          style: AppTextStyles.bodyLarge.copyWith(decoration: TextDecoration.underline, fontWeight: FontWeight.bold),
+        child: AppLinkButton(
+          text: 'Заполнить позже',
+          padding: EdgeInsets.zero,
+          onTap: () => _continueCallback(skip: true),
+          underlineOffset: 1.5,
+          underlineThickness: 3.0,
+          style: context.ext.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -106,25 +110,39 @@ abstract class OnboardingPageState<S extends StatefulWidget, C extends $Onboardi
     return AppPage(
       child: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.all(12),
-            child: ValueListenableBuilder(
-              valueListenable: _stepNotfier,
-              builder: (context, value, child) => Stack(
-                children: [
-                  Center(child: AppText('Шаг $value', style: AppTextStyles.bodyLarge)),
-                  if (value > 1)
-                    GestureDetector(
-                      onTap: $OnboardingController.of<C>(context).back,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: AppIcons.arrowBack.icon(context),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.all(12),
+          //   child: ValueListenableBuilder(
+          //     valueListenable: _stepNotfier,
+          //     builder: (context, value, child) => SizedBox(
+          //       height: 24,
+          //       child: Stack(
+          //         children: [
+          //           Align(
+          //             child: Padding(
+          //               padding: EdgeInsets.fromLTRB(60, 0, 60, 0),
+          //               child: LinearProgressIndicator(
+          //                 value: value / $OnboardingController.of<C>(context).stepsCount,
+          //                 backgroundColor: context.ext.colors.white[200],
+          //                 color: context.ext.colors.pink[300],
+          //                 borderRadius: BorderRadius.all(Radius.circular(100)),
+          //                 minHeight: 8,
+          //               ),
+          //             ),
+          //           ),
+          //           if (value > 1)
+          //             GestureDetector(
+          //               onTap: $OnboardingController.of<C>(context).back,
+          //               child: Padding(
+          //                 padding: EdgeInsets.symmetric(horizontal: 12),
+          //                 child: FIcons.arrow_left.icon(context),
+          //               ),
+          //             ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
           Expanded(
             child: centerContent
                 ? Padding(

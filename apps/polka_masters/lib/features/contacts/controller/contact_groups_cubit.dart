@@ -2,9 +2,12 @@ import 'package:polka_masters/features/contacts/data/contacts_repo.dart';
 import 'package:shared/shared.dart';
 
 class ContactGroupsCubit extends DataCubit<Map<ContactGroup, int>> with SocketListenerMixin {
-  ContactGroupsCubit(this.repo);
+  ContactGroupsCubit(this.repo, this.websockets) {
+    listenSockets(websockets);
+  }
 
   final ContactsRepository repo;
+  final WebSocketService websockets;
 
   @override
   Future<Result<Map<ContactGroup, int>>> loadData() => repo.getCategoriesInfo();

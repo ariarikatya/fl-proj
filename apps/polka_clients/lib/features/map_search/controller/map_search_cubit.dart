@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:polka_clients/client_scope.dart';
 import 'package:polka_clients/features/map_search/data/map_repo.dart';
 import 'package:polka_clients/features/search/filters/search_filter.dart';
+import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class MapFeedCubit extends PaginationCubit<MasterMapInfo> {
@@ -26,7 +27,7 @@ class MapFeedCubit extends PaginationCubit<MasterMapInfo> {
 
   @override
   Future<Result<List<MasterMapInfo>>> loadItems(int page, int limit) {
-    final city = ClientScope.of(context, listen: false).client.city;
+    final city = context.read<ClientViewModel>().client.city;
     return repo.searchMastersMapFeed(query, filter.value, city, location: location, page: page, limit: limit);
   }
 }

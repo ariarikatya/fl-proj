@@ -31,7 +31,7 @@ class _MastersBottomSheetState extends State<MastersBottomSheet> {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: context.ext.theme.backgroundDefault,
+            color: context.ext.colors.white[100],
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: Column(
@@ -52,7 +52,6 @@ class _MastersBottomSheetState extends State<MastersBottomSheet> {
               ),
               Expanded(
                 child: PaginationBuilder<MapFeedCubit, MasterMapInfo>(
-                  cubit: blocs.get<MapFeedCubit>(context),
                   scrollController: scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   itemBuilder: (context, index, item) => MasterMapCard(info: item),

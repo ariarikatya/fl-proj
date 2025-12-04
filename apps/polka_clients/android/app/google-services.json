@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "777892176560",
+    "project_id": "polka-clients",
+    "storage_bucket": "polka-clients.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:777892176560:android:15c57c8608631365295175",
+        "android_client_info": {
+          "package_name": "com.mads.polkabeautymarketplace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeFJRtVEoomIsuRK6PkMPxlD72HDyN3pM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

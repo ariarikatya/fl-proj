@@ -13,9 +13,9 @@ class ServiceCard extends StatelessWidget {
       height: 64,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: enabled ? context.ext.theme.accentLight : context.ext.theme.backgroundHover,
+        color: enabled ? context.ext.colors.pink[100] : context.ext.colors.white[300],
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: enabled ? context.ext.theme.accent : Colors.transparent),
+        border: Border.all(color: enabled ? context.ext.colors.pink[500] : Colors.transparent),
       ),
       child: Row(
         spacing: 16,
@@ -29,7 +29,7 @@ class ServiceCard extends StatelessWidget {
                 Row(
                   spacing: 4,
                   children: [
-                    AppIcons.clock.icon(context, size: 16, color: context.ext.theme.textSecondary),
+                    FIcons.clock.icon(context, size: 16, color: context.ext.colors.black[700]),
                     AppText.secondary(service.duration.toDurationStringShort(), style: AppTextStyles.bodyMedium500),
                   ],
                 ),

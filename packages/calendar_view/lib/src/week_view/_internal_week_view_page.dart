@@ -107,6 +107,9 @@ class InternalWeekViewPage<T extends Object?> extends StatefulWidget {
   /// Called when user long press on calendar.
   final DatePressCallback? onDateLongPress;
 
+  /// Paints the background of the week view according to working hours for the `dates` period
+  final DatesPeriodBuilder workingHoursPainter;
+
   /// Called when user taps on day view page.
   ///
   /// This callback will have a date parameter which
@@ -166,6 +169,9 @@ class InternalWeekViewPage<T extends Object?> extends StatefulWidget {
   /// This method will be called when user taps on timestamp in timeline.
   final TimestampCallback? onTimestampTap;
 
+  /// Builder for notifications on top of day view
+  final Widget Function(BuildContext context)? notificationBuilder;
+
   /// A single page for week view.
   const InternalWeekViewPage({
     super.key,
@@ -214,6 +220,8 @@ class InternalWeekViewPage<T extends Object?> extends StatefulWidget {
     required this.scrollPhysics,
     required this.scrollListener,
     required this.weekViewScrollController,
+    required this.workingHoursPainter,
+    required this.notificationBuilder,
     this.lastScrollOffset = 0.0,
     this.keepScrollOffset = false,
   });
@@ -254,27 +262,27 @@ class _InternalWeekViewPageState<T extends Object?> extends State<InternalWeekVi
         verticalDirection: widget.showWeekDayAtBottom ? VerticalDirection.up : VerticalDirection.down,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          SizedBox(
-            width: widget.width,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: widget.weekTitleHeight,
-                  width: widget.timeLineWidth + widget.hourIndicatorSettings.offset,
-                  child: widget.weekNumberBuilder.call(filteredDates[0]),
-                ),
-                ...List.generate(
-                  filteredDates.length,
-                  (index) => SizedBox(
-                    height: widget.weekTitleHeight,
-                    width: widget.weekTitleWidth,
-                    child: widget.weekDayBuilder(filteredDates[index]),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // SizedBox(
+          //   width: widget.width,
+          //   child: Row(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       SizedBox(
+          //         height: widget.weekTitleHeight,
+          //         width: widget.timeLineWidth + widget.hourIndicatorSettings.offset,
+          //         child: widget.weekNumberBuilder.call(filteredDates[0]),
+          //       ),
+          //       ...List.generate(
+          //         filteredDates.length,
+          //         (index) => SizedBox(
+          //           height: widget.weekTitleHeight,
+          //           width: widget.weekTitleWidth,
+          //           child: widget.weekDayBuilder(filteredDates[index]),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           SizedBox(
             width: widget.width,
             child: Container(
@@ -323,6 +331,7 @@ class _InternalWeekViewPageState<T extends Object?> extends State<InternalWeekVi
                     CustomPaint(
                       size: Size(widget.width, widget.height),
                       painter: widget.hourLinePainter(
+                        context,
                         widget.hourIndicatorSettings.color,
                         widget.hourIndicatorSettings.height,
                         widget.timeLineWidth + widget.hourIndicatorSettings.offset,
@@ -335,6 +344,7 @@ class _InternalWeekViewPageState<T extends Object?> extends State<InternalWeekVi
                         widget.emulateVerticalOffsetBy,
                         widget.startHour,
                         widget.endHour,
+                        widget.dates,
                       ),
                     ),
                     if (widget.showHalfHours)

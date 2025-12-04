@@ -59,51 +59,81 @@ class _SlotsViewState extends State<SlotsView> {
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
           child: Text('Выбери дату и время', style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600)),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 8),
 
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: groupedSlots.entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        entry.key.formatDateOnly(),
-                        style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+          child: ListView.builder(
+            itemCount: groupedSlots.length,
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            itemBuilder: (context, index) {
+              final slots = groupedSlots.entries.elementAt(index);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      slots.key.formatDateOnly(),
+                      style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: slots.value.map((slot) {
+                          return GestureDetector(
+                            onTap: () => setState(() => selectedSlot = slot),
+                            child: _SlotButton(time: slot.datetime.formatTimeOnly(), isSelected: selectedSlot == slot),
+                          );
+                        }).toList(),
                       ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
-                          children: entry.value.map((slot) {
-                            return GestureDetector(
-                              onTap: () => setState(() => selectedSlot = slot),
-                              child: _SlotButton(
-                                time: slot.datetime.formatTimeOnly(),
-                                isSelected: selectedSlot == slot,
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
 
+        //       children: groupedSlots.entries.map((entry) {
+        //         return Padding(
+        //           padding: const EdgeInsets.only(bottom: 16),
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [
+        //               Text(
+        //                 entry.key.formatDateOnly(),
+        //                 style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+        //               ),
+        //               const SizedBox(height: 8),
+        //               Align(
+        //                 alignment: Alignment.centerLeft,
+        //                 child: Wrap(
+        //                   spacing: 4,
+        //                   runSpacing: 4,
+        //                   children: entry.value.map((slot) {
+        //                     return GestureDetector(
+        //                       onTap: () => setState(() => selectedSlot = slot),
+        //                       child: _SlotButton(
+        //                         time: slot.datetime.formatTimeOnly(),
+        //                         isSelected: selectedSlot == slot,
+        //                       ),
+        //                     );
+        //                   }).toList(),
+        //                 ),
+        //               ),
+        //             ],
+        //           ),
+        //         );
+        //       }).toList(),
+        //     ),
+        //   ),
+        // ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
           child: AppTextButton.large(

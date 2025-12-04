@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"polka-clients","appId":"1:777892176560:android:15c57c8608631365295175","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"polka-clients","configurations":{"android":"1:777892176560:android:15c57c8608631365295175","ios":"1:777892176560:ios:54b6acca5267ae71295175"}}}}}}

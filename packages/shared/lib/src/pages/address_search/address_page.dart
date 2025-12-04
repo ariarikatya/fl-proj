@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
+import 'package:shared/src/app_dependencies.dart';
 
 class AddressPage extends StatefulWidget {
   const AddressPage({super.key, this.initialAddress});
@@ -17,10 +18,9 @@ class AddressPage extends StatefulWidget {
 class _AddressPageState extends State<AddressPage> {
   late final _focusNode = FocusNode();
   late final _controller = TextEditingController(text: widget.initialAddress?.searchQuery)..addListener(listener);
+  late final _cubit = AddressSearchCubit(dependencies.dio);
 
-  void _search() {
-    blocs.get<AddressSearchCubit>(context).search(_controller.text.trim());
-  }
+  void _search() => _cubit.search(_controller.text.trim());
 
   void listener() {
     if (_controller.text.trim().isNotEmpty) {
@@ -41,7 +41,7 @@ class _AddressPageState extends State<AddressPage> {
   void dispose() {
     _focusNode.dispose();
     _controller.dispose();
-    blocs.destroy<AddressSearchCubit>();
+    _cubit.close();
     super.dispose();
   }
 
@@ -57,7 +57,7 @@ class _AddressPageState extends State<AddressPage> {
           ),
           Expanded(
             child: BlocBuilder<AddressSearchCubit, AddressSearchState>(
-              bloc: blocs.get<AddressSearchCubit>(context),
+              bloc: _cubit,
               builder: (context, state) => switch (state) {
                 AddressSearchLoaded(:final data) => SingleChildScrollView(
                   child: SizedBox(
@@ -75,7 +75,7 @@ class _AddressPageState extends State<AddressPage> {
                               margin: EdgeInsets.symmetric(horizontal: 24),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
+                                border: Border(bottom: BorderSide(color: context.ext.colors.white[300])),
                               ),
                               child: AppText(address.cityAndAddress, style: AppTextStyles.bodyLarge),
                             ),

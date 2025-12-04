@@ -1,4 +1,4 @@
-part of 'bookings_cubit.dart';
+part of 'old_bookings_cubit.dart';
 
 final class BookingsState extends Equatable {
   const BookingsState({this.pending, this.upcoming, this.completed});

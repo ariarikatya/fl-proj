@@ -10,7 +10,7 @@ class CalendarDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.8,
-      color: context.ext.theme.backgroundSubtle,
+      color: context.ext.colors.white[200],
       child: SafeArea(
         child: Column(
           children: [
@@ -23,7 +23,7 @@ class CalendarDrawer extends StatelessWidget {
                   AppText('Выбери пероид', style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600)),
                   AppText(
                     'Мы покажем твое расписание на эти даты',
-                    style: AppTextStyles.bodyLarge500.copyWith(color: context.ext.theme.textSecondary),
+                    style: AppTextStyles.bodyLarge500.copyWith(color: context.ext.colors.black[700]),
                   ),
                 ],
               ),
@@ -47,7 +47,7 @@ class _ViewModeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final calendar = context.watch<CalendarScope>();
-    final decoration = BoxDecoration(color: context.ext.theme.accentLight, borderRadius: BorderRadius.circular(16));
+    final decoration = BoxDecoration(color: context.ext.colors.pink[100], borderRadius: BorderRadius.circular(16));
 
     return GestureDetector(
       onTap: () {

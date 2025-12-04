@@ -19,7 +19,7 @@ class _OnboardingPage$CompletedState extends OnboardingPageState<OnboardingPage$
     const SizedBox(height: 8),
     AppText(
       'Здесь ты найдешь своего мастера за пять минут',
-      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+      style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
     ),
   ];
 

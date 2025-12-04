@@ -14,7 +14,7 @@ Future<bool?> showInfoBottomSheet({
 }) {
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: context.ext.theme.backgroundDefault,
+    backgroundColor: context.ext.colors.white[100],
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (_) => _InfoBottomSheet(
       title: title,
@@ -58,7 +58,7 @@ class _InfoBottomSheet extends StatelessWidget {
             child: AppText(
               description,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textSecondary),
+              style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[700]),
             ),
           ),
           const SizedBox(height: 24),

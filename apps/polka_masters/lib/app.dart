@@ -3,8 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/home_page.dart';
 import 'package:polka_masters/scopes/authentication_scope.dart';
-import 'package:polka_masters/scopes/calendar_scope.dart';
-import 'package:polka_masters/theme.dart';
+import 'package:polka_masters/theme_data.dart';
 import 'package:shared/shared.dart';
 
 class App extends StatefulWidget {
@@ -16,14 +15,7 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> {
   Widget $injectScopes(Widget child) {
-    return AppThemeScope(
-      initialTheme: mastersTheme,
-      themes: themes,
-      child: AuthenticationScopeWidget(
-        controller: Dependencies().authController,
-        child: CalendarScopeWidget(child: child),
-      ),
-    );
+    return AuthenticationScopeWidget(controller: Dependencies().authController, child: child);
   }
 
   @override
@@ -31,6 +23,7 @@ class AppState extends State<App> {
     return MaterialApp(
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [Locale('ru', 'RU')],
+      theme: mastersTheme,
       home: const HomePage(),
       navigatorKey: navigatorKey,
       navigatorObservers: [talkerRouteObserver()],

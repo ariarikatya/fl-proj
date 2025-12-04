@@ -9,7 +9,7 @@ class SmallChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: context.ext.theme.backgroundHover, borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(color: context.ext.colors.white[300], borderRadius: BorderRadius.circular(8)),
       padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
       child: AppText.secondary(text, style: AppTextStyles.bodySmall500),
     );

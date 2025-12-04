@@ -1,54 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:polka_masters/dependencies.dart';
+import 'package:polka_masters/features/profile/controller/services_cubit.dart';
 import 'package:polka_masters/features/profile/widgets/edit_service_screen.dart';
-import 'package:polka_masters/scopes/master_scope.dart';
 import 'package:shared/shared.dart';
 
-const _title = 'Услуги';
-
-class ServicesEditScreen extends StatelessWidget {
+class ServicesEditScreen extends StatefulWidget {
   const ServicesEditScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return LoadDataPage(
-      title: _title,
-      future: () => Dependencies().masterRepository.getMasterInfo(context.read<MasterScope>().master.id),
-      builder: (data) => _View(data.services),
-    );
-  }
+  State<ServicesEditScreen> createState() => _ServicesEditScreenState();
 }
 
-class _View extends StatefulWidget {
-  const _View(this.services);
-
-  final List<Service> services;
-
-  @override
-  State<_View> createState() => _ViewState();
-}
-
-class _ViewState extends State<_View> {
-  late final _services = List<Service>.from(widget.services);
+class _ServicesEditScreenState extends State<ServicesEditScreen> {
+  void _changeVisibility(int serviceId, bool visible) =>
+      context.read<ServicesCubit>().toggleServiceVisibility(serviceId, visible);
 
   void _changeService(Service service) async {
-    final index = _services.indexOf(service);
-    if (index == -1) return;
-
     final $service = await context.ext.push<Service>(EditServiceScreen(service: service));
-    if ($service != null) {
-      setState(() {
-        _services[index] = $service;
-      });
-    }
+    if ($service != null && mounted) context.read<ServicesCubit>().updateService($service);
+  }
+
+  void _createService() async {
+    final $service = await context.ext.push<Service>(const EditServiceScreen(service: null));
+    if ($service != null && mounted) context.read<ServicesCubit>().createService($service);
   }
 
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      appBar: const CustomAppBar(title: _title),
-      child: SingleChildScrollView(
+      appBar: const CustomAppBar(title: 'Услуги'),
+      child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,13 +44,27 @@ class _ViewState extends State<_View> {
               ),
             ),
             const SizedBox(height: 16),
-            for (var service in widget.services)
-              _ServiceCard(
-                service: service,
-                enabled: true,
-                onChange: () => _changeService(service),
-                onToggle: (value) {},
+            Expanded(
+              child: DataBuilder<ServicesCubit, Map<Service, bool>>(
+                dataBuilder: (context, data) => SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      for (final MapEntry(:key, :value) in data.entries)
+                        _ServiceCard(
+                          service: key,
+                          enabled: value,
+                          onChange: () => _changeService(key),
+                          onToggle: (visible) => _changeVisibility(key.id, visible),
+                        ),
+                    ],
+                  ),
+                ),
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+              child: AppTextButton.large(text: 'Создать новую услугу', onTap: _createService),
+            ),
           ],
         ),
       ),
@@ -90,7 +85,7 @@ class _ServiceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: context.ext.theme.backgroundHover)),
+        border: Border(bottom: BorderSide(color: context.ext.colors.white[300])),
       ),
       child: Row(
         spacing: 16,
@@ -112,16 +107,10 @@ class _ServiceCard extends StatelessWidget {
                     children: [
                       AppText(service.title, overflow: TextOverflow.ellipsis, style: AppTextStyles.bodyLarge700),
                       AppText.rich([
-                        WidgetSpan(
-                          child: AppIcons.clock.icon(context, size: 16),
-                          alignment: PlaceholderAlignment.middle,
-                        ),
+                        WidgetSpan(child: FIcons.clock.icon(context, size: 16), alignment: PlaceholderAlignment.middle),
                         TextSpan(
                           text: ' ${service.duration.toDurationStringShort()}  |  ₽ ${service.price}',
-                          style: AppTextStyles.bodyMedium500.copyWith(
-                            color: context.ext.theme.textSecondary,
-                            height: 1,
-                          ),
+                          style: AppTextStyles.bodyMedium500.copyWith(color: context.ext.colors.black[700], height: 1),
                         ),
                       ]),
                       AppLinkButton(text: 'Изменить', padding: EdgeInsets.zero, onTap: onChange),
@@ -129,7 +118,7 @@ class _ServiceCard extends StatelessWidget {
                   ),
                 ),
 
-                AppSwitch(value: true, onChanged: onToggle),
+                AppSwitch(value: enabled, onChanged: onToggle),
               ],
             ),
           ),

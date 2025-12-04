@@ -11,11 +11,11 @@ SnackBar contactAddedSnackbar(BuildContext context, Contact contact) => infoSnac
         child: AppText.rich([
           TextSpan(
             text: '${contact.name} ',
-            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPlaceholder),
+            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[500]),
           ),
           TextSpan(
             text: 'успешно добавлена в твои контакты',
-            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.theme.textPrimary),
+            style: AppTextStyles.bodyLarge.copyWith(color: context.ext.colors.black[900]),
           ),
         ], maxLines: 3),
       ),

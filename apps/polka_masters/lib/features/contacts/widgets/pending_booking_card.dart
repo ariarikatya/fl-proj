@@ -23,7 +23,7 @@ class PendingBookingCard extends StatelessWidget {
     return Column(
       children: [
         ContactTile(contact: info.contact),
-        Divider(color: context.ext.theme.backgroundHover, height: 1),
+        Divider(color: context.ext.colors.white[300], height: 1),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
           child: Column(
@@ -47,13 +47,13 @@ class PendingBookingCard extends StatelessWidget {
                         ),
                         AppText.rich([
                           WidgetSpan(
-                            child: AppIcons.clock.icon(context, size: 16),
+                            child: FIcons.clock.icon(context, size: 16),
                             alignment: PlaceholderAlignment.middle,
                           ),
                           TextSpan(
                             text: ' ${info.booking.duration.toDurationStringShort()}  |  ₽ ${info.booking.price}',
                             style: AppTextStyles.bodyMedium500.copyWith(
-                              color: context.ext.theme.textSecondary,
+                              color: context.ext.colors.black[700],
                               height: 1,
                             ),
                           ),
@@ -73,7 +73,7 @@ class PendingBookingCard extends StatelessWidget {
                       info.booking.datetime.formatFull(),
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: context.ext.theme.textPrimary,
+                        color: context.ext.colors.black[900],
                       ),
                     ),
                   ),

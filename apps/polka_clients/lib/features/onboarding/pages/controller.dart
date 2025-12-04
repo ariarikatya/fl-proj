@@ -11,7 +11,13 @@ class UserSetupData {
 }
 
 class OnboardingController extends $OnboardingController {
-  OnboardingController(super.pageController, {super.key, required super.child, required this.phoneNumber});
+  OnboardingController(
+    super.pageController, {
+    super.key,
+    required super.child,
+    required this.phoneNumber,
+    super.stepsCount = 3,
+  });
 
   final profileRepo = Dependencies().profileRepository;
   final setupData = UserSetupData();
@@ -33,6 +39,12 @@ class OnboardingController extends $OnboardingController {
     );
 
     final result = await profileRepo.createClientProfile(phoneNumber, clientData);
-    result.when(ok: (client) => Dependencies().authController.completeOnboarding(client), err: (err, st) => throw err);
+    result.when(
+      ok: (client) async {
+        await Dependencies().authController.completeOnboarding();
+        Dependencies().analytics.reportEvent('onboarding_completed', params: client.toJson());
+      },
+      err: (err, st) => throw err,
+    );
   }
 }

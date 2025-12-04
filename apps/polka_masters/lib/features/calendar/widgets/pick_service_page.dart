@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/calendar/widgets/service_card.dart';
-import 'package:polka_masters/scopes/master_scope.dart';
-import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
 class PickServicePage extends StatelessWidget {
@@ -12,8 +10,8 @@ class PickServicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return LoadDataPage(
       title: 'Твои услуги',
-      future: () => Dependencies().masterRepository.getMasterInfo(context.read<MasterScope>().master.id),
-      builder: (info) => _View(info.services),
+      future: () => Dependencies().masterRepository.getServices(),
+      builder: (data) => _View(Map.fromEntries(data.entries.where((entry) => entry.value)).keys.toList()),
     );
   }
 }
@@ -44,8 +42,9 @@ class _ViewState extends State<_View> {
             const AppText.secondary('Здесь показываются все созданные тобой услуги', style: AppTextStyles.bodyMedium),
             const SizedBox(height: 30),
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
                 itemCount: widget.services.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final $service = widget.services[index];
                   return GestureDetector(

@@ -91,7 +91,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppColors.backgroundDefault,
+        backgroundColor: polkaThemeExtension.white[100],
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -169,7 +169,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
           const SizedBox(height: 16),
           Text(
             'Однако вы можете найти других мастеров в нашем приложении',
-            style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
+            style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -213,7 +213,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
         const SizedBox(height: 16),
         Text(
           'Однако вы можете найти других мастеров в нашем приложении',
-          style: AppTextStyles.bodyMedium500.copyWith(color: AppColors.iconsDefault),
+          style: AppTextStyles.bodyMedium500.copyWith(color: polkaThemeExtension.black[700]),
         ),
         const SizedBox(height: 32),
         MobileMasterCard(
@@ -240,7 +240,7 @@ class _TurnedOffPageState extends State<TurnedOffPage> {
 
   Widget _buildErrorState() {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDefault,
+      backgroundColor: polkaThemeExtension.white[100],
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),

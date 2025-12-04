@@ -11,8 +11,8 @@ class RefreshWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: refresh,
-      color: context.ext.theme.accent,
-      backgroundColor: context.ext.theme.accentLight,
+      color: context.ext.colors.pink[500],
+      backgroundColor: context.ext.colors.pink[100],
       child: child,
     );
   }

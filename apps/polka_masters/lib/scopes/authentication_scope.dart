@@ -1,7 +1,18 @@
+import 'package:calendar_view/calendar_view.dart' hide WeekDays;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/auth/pages/welcome_page.dart';
+import 'package:polka_masters/features/calendar/controllers/events_cubit.dart';
+import 'package:polka_masters/features/contacts/controller/contact_groups_cubit.dart';
+import 'package:polka_masters/features/contacts/controller/contact_search_cubit.dart';
+import 'package:polka_masters/features/contacts/controller/pending_bookings_cubit.dart';
 import 'package:polka_masters/features/onboarding/pages/onboarding_flow.dart';
-import 'package:polka_masters/scopes/master_scope.dart';
+import 'package:polka_masters/features/profile/controller/services_cubit.dart';
+import 'package:polka_masters/features/online_booking/controller/online_booking_cubit.dart';
+import 'package:polka_masters/features/schedules/controller/schedules_cubit.dart';
+import 'package:polka_masters/scopes/calendar_scope.dart';
+import 'package:polka_masters/scopes/master_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared/shared.dart';
 
@@ -17,25 +28,56 @@ class AuthenticationScopeWidget extends StatelessWidget {
       valueListenable: controller,
       child: child,
       builder: (context, value, child) {
+        final dependencies = Dependencies();
+        final eventController = EventController<Booking>();
+
         final navigator = switch (value) {
-          AuthStateUnauthenticated() => AppNavigator(
-            initialPages: [
-              MaterialPage(
-                child: const WelcomePage(),
-                onPopInvoked: (didPop, result) => logger.warning('$didPop, $result'),
-              ),
-            ],
+          AuthStateUnauthenticated() => const AppNavigator(
+            key: ValueKey('auth'),
+            initialPages: [MaterialPage(child: WelcomePage())],
           ),
           AuthStateOnboarding state => AppNavigator(
+            key: const ValueKey('onboarding'),
             initialPages: [MaterialPage(child: OnboardingFlow(phoneNumber: state.authResult.phoneNumber))],
           ),
-          AuthStateAuthenticated<Master> state => ChangeNotifierProvider<MasterScope>(
-            create: (context) => MasterScope(
-              master: state.user.value,
-              phoneNumber: state.authResult.phoneNumber,
-              schedule: _mockSchedule(), // TODO: How can we load it...
+          AuthStateAuthenticated<Master> state => MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (context) => CalendarScope(eventController: eventController)),
+              ChangeNotifierProvider<MasterModel>(
+                create: (_) => MasterModel(master: state.user.value, phoneNumber: state.authResult.phoneNumber),
+              ),
+            ],
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => ContactSearchCubit(dependencies.contactsRepo)),
+                BlocProvider(
+                  create: (_) => ChatsCubit(
+                    websockets: dependencies.webSocketService,
+                    chatsRepo: dependencies.chatsRepo,
+                    profileRepository: dependencies.profileRepository,
+                    userId: state.user.value.id,
+                  ),
+                ),
+                BlocProvider(
+                  create: (ctx) => EventsCubit(
+                    context: ctx,
+                    repo: dependencies.bookingsRepository,
+                    websockets: dependencies.webSocketService,
+                    controller: eventController,
+                  ),
+                ),
+                BlocProvider(create: (_) => SchedulesCubit(Dependencies().schedulesRepo)),
+                BlocProvider(create: (_) => OnlineBookingCubit(Dependencies().onlineBookingRepo)),
+                BlocProvider(
+                  create: (_) => ContactGroupsCubit(dependencies.contactsRepo, dependencies.webSocketService),
+                ),
+                BlocProvider(
+                  create: (_) => PendingBookingsCubit(dependencies.bookingsRepository, dependencies.webSocketService),
+                ),
+                BlocProvider(create: (_) => ServicesCubit(repo: dependencies.masterRepository)),
+              ],
+              child: CalendarControllerProvider(controller: eventController, child: child!),
             ),
-            child: child!,
           ),
         };
 
@@ -44,24 +86,3 @@ class AuthenticationScopeWidget extends StatelessWidget {
     );
   }
 }
-
-Schedule _mockSchedule() => Schedule(
-  periodStart: DateTime.now(),
-  periodEnd: DateTime.now().add(const Duration(days: 30)),
-  days: {
-    WeekDays.monday: const ScheduleDay(start: Duration(hours: 9), end: Duration(hours: 17), active: true),
-    WeekDays.tuesday: const ScheduleDay(start: Duration(hours: 10), end: Duration(hours: 18), active: true),
-    WeekDays.wednesday: const ScheduleDay(
-      start: Duration(hours: 11),
-      end: Duration(hours: 19, minutes: 30),
-      active: true,
-    ),
-    WeekDays.thursday: const ScheduleDay(start: Duration(hours: 10), end: Duration(hours: 18), active: true),
-    WeekDays.friday: const ScheduleDay(start: Duration(hours: 12), end: Duration(hours: 20, minutes: 30), active: true),
-    WeekDays.saturday: const ScheduleDay(
-      start: Duration(hours: 12),
-      end: Duration(hours: 15, minutes: 30),
-      active: true,
-    ),
-  },
-);

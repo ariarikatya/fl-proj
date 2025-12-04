@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:polka_masters/dependencies.dart';
 import 'package:polka_masters/features/contacts/controller/contact_groups_cubit.dart';
 import 'package:polka_masters/features/contacts/controller/contact_search_cubit.dart';
@@ -26,8 +27,8 @@ class AddContactButton extends StatelessWidget {
     if (newContact != null && context.mounted) {
       final createdContact = await _createContact(context, newContact);
       if (createdContact != null && context.mounted) {
-        blocs.get<ContactSearchCubit>(context).search();
-        blocs.get<ContactGroupsCubit>(context).load();
+        context.read<ContactSearchCubit>().search();
+        context.read<ContactGroupsCubit>().load();
         onContactCreated?.call(newContact);
       }
     }
